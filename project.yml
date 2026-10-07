@@ -1,4 +1,4 @@
-name: VaultyShot
+name: ShotKeep
 options:
   bundleIdPrefix: com.nelahian
   deploymentTarget:
@@ -14,25 +14,25 @@ settings:
     ENABLE_HARDENED_RUNTIME: YES
 
 targets:
-  VaultyShot:
+  ShotKeep:
     type: application
     platform: macOS
     sources:
-      - VaultyShot
+      - ShotKeep
     info:
-      path: VaultyShot/Info.plist
+      path: ShotKeep/Info.plist
       properties:
         LSUIElement: true
     entitlements:
-      path: VaultyShot/VaultyShot.entitlements
+      path: ShotKeep/ShotKeep.entitlements
       properties:
         com.apple.security.app-sandbox: false
     settings:
       base:
         CODE_SIGN_IDENTITY: "-"
         CODE_SIGN_STYLE: Manual
-        PRODUCT_BUNDLE_IDENTIFIER: com.nelahian.vaultyshot
-        INFOPLIST_FILE: VaultyShot/Info.plist
+        PRODUCT_BUNDLE_IDENTIFIER: com.nelahian.shotkeep
+        INFOPLIST_FILE: ShotKeep/Info.plist
         GENERATE_INFOPLIST_FILE: false
         LD_RUNPATH_SEARCH_PATHS: "@executable_path/../Frameworks"
     frameworks:

@@ -5,7 +5,7 @@ final class ScreenshotStorage {
 
     init() {
         vaultURL = FileManager.default.homeDirectoryForCurrentUser
-            .appendingPathComponent("VaultyShot")
+            .appendingPathComponent("ShotKeep")
     }
 
     func ensureVaultExists() {

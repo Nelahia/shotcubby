@@ -13,7 +13,7 @@ jobs:
     runs-on: macos-15
 
     env:
-      APP_NAME: VaultyShot
+      APP_NAME: ShotKeep
 
     steps:
       - uses: actions/checkout@v4
@@ -32,8 +32,8 @@ jobs:
 
       - name: Set release version in Info.plist
         run: |
-          plutil -replace CFBundleShortVersionString -string "${{ steps.version.outputs.version }}" VaultyShot/Info.plist
-          plutil -replace CFBundleVersion -string "${{ github.run_number }}" VaultyShot/Info.plist
+          plutil -replace CFBundleShortVersionString -string "${{ steps.version.outputs.version }}" ShotKeep/Info.plist
+          plutil -replace CFBundleVersion -string "${{ github.run_number }}" ShotKeep/Info.plist
 
       - name: Import Developer ID signing certificate
         env:
@@ -69,8 +69,8 @@ jobs:
         env:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
-          xcodebuild -project VaultyShot.xcodeproj \
-            -scheme VaultyShot \
+          xcodebuild -project ShotKeep.xcodeproj \
+            -scheme ShotKeep \
             -configuration Release \
             -archivePath build/${{ env.APP_NAME }}.xcarchive \
             -destination "generic/platform=macOS" \
@@ -174,7 +174,7 @@ jobs:
         with:
           files: ${{ env.APP_NAME }}.dmg
           body: |
-            ## VaultyShot ${{ github.ref_name }}
+            ## ShotKeep ${{ github.ref_name }}
 
             Menu bar app that automatically captures and organizes all your macOS screenshots.
 
@@ -183,11 +183,11 @@ jobs:
             ### Install via Homebrew
             ```bash
             brew tap nelahia/tap
-            brew install --cask vaultyshot
+            brew install --cask shotkeep
             ```
 
             ### Manual install
-            Download `VaultyShot.dmg`, open it, drag `VaultyShot.app` to Applications.
+            Download `ShotKeep.dmg`, open it, drag `ShotKeep.app` to Applications.
 
             ### Requirements
             - macOS 14.0 (Sonoma) or later
