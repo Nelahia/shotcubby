@@ -66,10 +66,11 @@ brew install --cask vaultyshot
 
 ### Manual download
 
-1. Download `VaultyShot.zip` from the [latest release](https://github.com/Nelahia/vaulty-shot/releases/latest)
-2. Extract the archive
-3. Drag `VaultyShot.app` to `/Applications`
-4. Launch VaultyShot from Applications
+1. Download `VaultyShot.dmg` from the [latest release](https://github.com/Nelahia/vaulty-shot/releases/latest)
+2. Open the disk image and drag `VaultyShot.app` to `/Applications`
+3. Launch VaultyShot from Applications
+
+Releases are **signed with a Developer ID Application certificate and notarized by Apple**, so the app opens with no Gatekeeper warning.
 
 ### Build from source
 
@@ -120,6 +121,23 @@ VaultyShot/
 - **NSPasteboard** polling for clipboard capture
 - **QuickLookThumbnailing** for async thumbnail generation
 - **No external dependencies**
+
+## Release process
+
+Pushing a `v*` tag triggers `.github/workflows/release.yml`, which builds, signs with a
+Developer ID Application certificate, notarizes, and packages the app as a `.dmg`. It
+requires these GitHub repo secrets to be set (no values here, just names):
+
+| Secret | Purpose |
+|---|---|
+| `APPLE_CERTIFICATE_P12_BASE64` | Base64 of the exported Developer ID Application `.p12` |
+| `APPLE_CERTIFICATE_PASSWORD` | Password protecting that `.p12` |
+| `APPLE_TEAM_ID` | Apple Developer Team ID |
+| `APPLE_ID` | Apple ID email used for notarization |
+| `APPLE_APP_SPECIFIC_PASSWORD` | App-specific password from [appleid.apple.com](https://appleid.apple.com) |
+
+After a release, bump `url`/`version`/`sha256` in the `vaultyshot` cask over in
+`nelahia/homebrew-tap`.
 
 ## License
 
