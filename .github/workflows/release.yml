@@ -124,6 +124,11 @@ jobs:
 
           test -f "${{ env.APP_NAME }}.dmg"
 
+      - name: Sign DMG
+        run: |
+          codesign --sign "Developer ID Application" --timestamp "${{ env.APP_NAME }}.dmg"
+          codesign --verify --verbose=2 "${{ env.APP_NAME }}.dmg"
+
       - name: Notarize DMG
         env:
           APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
