@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct VaultyShotApp: App {
+struct ShotKeepApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
     var body: some Scene {
@@ -26,7 +26,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func setupMenuBar() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         guard let button = statusItem?.button else { return }
-        button.image = NSImage(systemSymbolName: "folder.fill", accessibilityDescription: "VaultyShot")
+        button.image = NSImage(systemSymbolName: "folder.fill", accessibilityDescription: "ShotKeep")
         button.image?.isTemplate = true
         button.action = #selector(togglePopover)
         button.target = self
