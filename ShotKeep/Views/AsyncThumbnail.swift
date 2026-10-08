@@ -3,6 +3,7 @@ import QuickLookThumbnailing
 
 struct AsyncThumbnail: View {
     let url: URL
+    var targetSize: CGSize = CGSize(width: 88, height: 88)
     @State private var thumbnail: NSImage?
 
     var body: some View {
@@ -31,7 +32,7 @@ struct AsyncThumbnail: View {
     private func loadThumbnail() async {
         let request = QLThumbnailGenerator.Request(
             fileAt: url,
-            size: CGSize(width: 88, height: 88),
+            size: targetSize,
             scale: 2.0,
             representationTypes: .thumbnail
         )

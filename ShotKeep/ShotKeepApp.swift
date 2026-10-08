@@ -26,15 +26,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func setupMenuBar() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         guard let button = statusItem?.button else { return }
-        button.image = NSImage(systemSymbolName: "folder.fill", accessibilityDescription: "ShotKeep")
+        button.image = NSImage(named: "MenuBarGlyph")
         button.image?.isTemplate = true
+        button.image?.accessibilityDescription = "ShotKeep"
         button.action = #selector(handleStatusItemClick)
         button.target = self
         button.sendAction(on: [.leftMouseUp, .rightMouseUp])
     }
 
     private func setupPopover() {
-        popover.contentSize = NSSize(width: 320, height: 480)
+        popover.contentSize = NSSize(width: 360, height: 480)
         popover.behavior = .transient
         popover.animates = true
         popover.contentViewController = NSHostingController(

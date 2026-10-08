@@ -2,97 +2,80 @@ import SwiftUI
 
 struct PopoverView: View {
     @ObservedObject var appState: AppState
+    @State private var selectedFilter: ScreenshotFilter = .all
+
+    private var filteredScreenshots: [ScreenshotItem] {
+        appState.screenshots.filter(selectedFilter.matches)
+    }
+
+    private var sections: [ScreenshotGrouping.Section] {
+        ScreenshotGrouping.grouped(filteredScreenshots)
+    }
 
     var body: some View {
         VStack(spacing: 0) {
             headerView
             Divider()
+            FilterBarView(screenshots: appState.screenshots, selection: $selectedFilter)
+                .padding(.vertical, 10)
+            Divider()
             contentView
             Divider()
             footerView
         }
-        .frame(width: 320, height: 480)
+        .frame(width: 360, height: 480)
+        .background(Color("PopoverBackground"))
         .onAppear { appState.retryScreenshotAccess() }
     }
 
     private var headerView: some View {
         HStack {
-            Image(systemName: "folder.fill")
-                .foregroundStyle(.blue)
-                .font(.title3)
+            Image("MenuBarGlyph")
+                .renderingMode(.template)
+                .foregroundStyle(Color.accentColor)
             Text("ShotKeep")
-                .font(.headline)
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundStyle(Color("TextPrimary"))
             Spacer()
             Text("\(appState.screenshots.count)")
-                .font(.caption)
-                .foregroundStyle(.secondary)
+                .font(.system(size: 11, design: .monospaced))
+                .foregroundStyle(Color("TextSecondary"))
                 .padding(.horizontal, 8)
                 .padding(.vertical, 2)
-                .background(.quaternary, in: Capsule())
+                .background(Color("PanelBackground"), in: Capsule())
         }
-        .padding(.horizontal, 16)
+        .padding(.horizontal, 14)
         .padding(.vertical, 12)
     }
 
     private var contentView: some View {
-        Group {
-            if appState.permissionDenied {
-                permissionBanner
-            }
-            if appState.screenshots.isEmpty {
-                EmptyStateView()
-            } else {
-                screenshotList
-            }
-        }
-    }
-
-    private var permissionBanner: some View {
-        VStack(spacing: 8) {
-            Image(systemName: "exclamationmark.triangle.fill")
-                .font(.title2)
-                .foregroundStyle(.orange)
-            Text("ShotKeep needs access to your screenshot folder")
-                .font(.system(size: 12, weight: .medium))
-                .multilineTextAlignment(.center)
-            Text(appState.screenshotDirectory)
-                .font(.system(size: 10, design: .monospaced))
-                .foregroundStyle(.secondary)
-            HStack(spacing: 8) {
-                Button("Open Privacy Settings") {
-                    appState.openPrivacySettings()
-                }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.small)
-
-                Button("Try Again") {
-                    appState.retryScreenshotAccess()
-                }
-                .buttonStyle(.bordered)
-                .controlSize(.small)
-            }
-        }
-        .padding(12)
-        .frame(maxWidth: .infinity)
-        .background(.orange.opacity(0.1), in: RoundedRectangle(cornerRadius: 8))
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
-    }
-
-    private var screenshotList: some View {
         ScrollView {
-            LazyVStack(spacing: 1) {
-                ForEach(appState.screenshots) { item in
-                    ScreenshotRow(
-                        item: item,
-                        onOpen: { appState.openScreenshot(item) },
-                        onCopy: { appState.copyToClipboard(item) },
-                        onReveal: { appState.revealInFinder(item) },
-                        onDelete: { appState.deleteScreenshot(item) }
+            VStack(alignment: .leading, spacing: 16) {
+                if appState.permissionDenied {
+                    PermissionCardView(
+                        screenshotDirectory: appState.screenshotDirectory,
+                        onOpenSettings: appState.openPrivacySettings,
+                        onChooseFolder: appState.chooseCustomFolder
                     )
+                    .padding(.horizontal, 14)
+                }
+
+                if filteredScreenshots.isEmpty {
+                    EmptyStateView()
+                } else {
+                    ForEach(sections) { section in
+                        ScreenshotGridSection(
+                            section: section,
+                            onOpen: { appState.openScreenshot($0) },
+                            onCopy: { appState.copyToClipboard($0) },
+                            onReveal: { appState.revealInFinder($0) },
+                            onDelete: { appState.deleteScreenshot($0) }
+                        )
+                        .padding(.horizontal, 14)
+                    }
                 }
             }
-            .padding(.vertical, 4)
+            .padding(.vertical, 12)
         }
     }
 
@@ -103,7 +86,8 @@ struct PopoverView: View {
                     .font(.caption)
             }
             .buttonStyle(.plain)
-            .foregroundStyle(.secondary)
+            .foregroundStyle(Color("TextSecondary"))
+            .keyboardShortcut("o", modifiers: .command)
 
             Spacer()
 
@@ -112,9 +96,11 @@ struct PopoverView: View {
                     .font(.caption)
             }
             .buttonStyle(.plain)
-            .foregroundStyle(.secondary)
+            .foregroundStyle(Color("TextSecondary"))
+            .keyboardShortcut("q", modifiers: .command)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
+        .background(Color("PanelBackground"))
     }
 }

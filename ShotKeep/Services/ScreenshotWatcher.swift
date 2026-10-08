@@ -6,7 +6,7 @@ final class ScreenshotWatcher {
 
     private var source: DispatchSourceFileSystemObject?
     private var knownFiles = Set<String>()
-    let screenshotDir: URL
+    private(set) var screenshotDir: URL
 
     init() {
         screenshotDir = ScreenshotWatcher.resolveScreenshotDirectory()
@@ -19,6 +19,14 @@ final class ScreenshotWatcher {
         }
         snapshotCurrentFiles()
         watchDirectory()
+    }
+
+    /// Re-resolves the screenshot directory (picks up a newly chosen custom
+    /// folder) and restarts watching from scratch.
+    func restart() {
+        stopWatching()
+        screenshotDir = ScreenshotWatcher.resolveScreenshotDirectory()
+        startWatching()
     }
 
     private func verifyAccess() -> Bool {
@@ -91,6 +99,9 @@ final class ScreenshotWatcher {
     }
 
     private static func resolveScreenshotDirectory() -> URL {
+        if let customDirectory = FolderPreferences.customDirectory {
+            return customDirectory
+        }
         if let customPath = UserDefaults(suiteName: "com.apple.screencapture")?
             .string(forKey: "location") {
             return URL(fileURLWithPath: (customPath as NSString).expandingTildeInPath)

@@ -32,6 +32,21 @@ final class AppState: ObservableObject {
         watcher.startWatching()
     }
 
+    func chooseCustomFolder() {
+        NSApp.activate(ignoringOtherApps: true)
+
+        let panel = NSOpenPanel()
+        panel.canChooseDirectories = true
+        panel.canChooseFiles = false
+        panel.allowsMultipleSelection = false
+        panel.prompt = "Use This Folder"
+
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        FolderPreferences.setCustomDirectory(url)
+        permissionDenied = false
+        watcher.restart()
+    }
+
     func deleteScreenshot(_ item: ScreenshotItem) {
         storage.delete(item.url)
         screenshots.removeAll { $0.id == item.id }
