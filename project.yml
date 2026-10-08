@@ -43,4 +43,4 @@ targets:
         LD_RUNPATH_SEARCH_PATHS: "@executable_path/../Frameworks"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
     frameworks:
-      - sdk: QuickLookThumbnailing.framework
+      - sdk: ImageIO.framework
