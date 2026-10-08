@@ -6,7 +6,7 @@ struct ShotKeepApp: App {
 
     var body: some Scene {
         Settings {
-            EmptyView()
+            SettingsView()
         }
     }
 }
@@ -15,11 +15,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: NSStatusItem?
     private var popover = NSPopover()
     private let appState = AppState()
+    private var spotlight: SpotlightController?
+    private var hotKey: GlobalHotKey?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
         setupMenuBar()
         setupPopover()
+        setupSpotlight()
         appState.start()
     }
 
@@ -43,6 +46,30 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         )
     }
 
+    private func setupSpotlight() {
+        spotlight = SpotlightController(
+            shots: { [weak self] in self?.appState.screenshots.map(ShotBridge.toShot) ?? [] },
+            actions: ShotBridge.actions(for: appState)
+        )
+        registerHotKey()
+        NotificationCenter.default.addObserver(
+            forName: HotKeyPreferences.didChangeNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.registerHotKey()
+        }
+    }
+
+    private func registerHotKey() {
+        hotKey = GlobalHotKey(
+            keyCode: HotKeyPreferences.keyCode,
+            modifiers: HotKeyPreferences.modifiers
+        ) { [weak self] in
+            self?.spotlight?.toggle()
+        }
+    }
+
     @objc private func handleStatusItemClick() {
         guard let button = statusItem?.button, let event = NSApp.currentEvent else { return }
         if event.type == .rightMouseUp {
@@ -64,6 +91,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func showContextMenu(relativeTo button: NSStatusBarButton) {
         let menu = NSMenu()
 
+        let searchItem = NSMenuItem(
+            title: "Search\u{2026}",
+            action: #selector(toggleSpotlight),
+            keyEquivalent: ""
+        )
+        searchItem.target = self
+        menu.addItem(searchItem)
+
         let openFolderItem = NSMenuItem(
             title: "Open Folder",
             action: #selector(openFolderFromMenu),
@@ -83,6 +118,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         menu.addItem(quitItem)
 
         menu.popUp(positioning: nil, at: NSPoint(x: 0, y: button.bounds.height + 4), in: button)
+    }
+
+    @objc private func toggleSpotlight() {
+        spotlight?.toggle()
     }
 
     @objc private func openFolderFromMenu() {

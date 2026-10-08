@@ -44,3 +44,4 @@ targets:
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
     frameworks:
       - sdk: ImageIO.framework
+      - sdk: Carbon.framework
