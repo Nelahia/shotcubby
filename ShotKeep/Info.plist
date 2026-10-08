@@ -20,5 +20,11 @@
 	<string>1</string>
 	<key>LSUIElement</key>
 	<true/>
+	<key>NSDesktopFolderUsageDescription</key>
+	<string>ShotKeep moves new screenshots out of this folder into ~/ShotKeep.</string>
+	<key>NSDocumentsFolderUsageDescription</key>
+	<string>Needed only if you pick a custom screenshot folder inside Documents.</string>
+	<key>NSDownloadsFolderUsageDescription</key>
+	<string>Needed only if you pick a custom screenshot folder inside Downloads.</string>
 </dict>
 </plist>

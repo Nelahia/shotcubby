@@ -52,6 +52,20 @@ final class AppState: ObservableObject {
         screenshots.removeAll { $0.id == item.id }
     }
 
+    func renameScreenshot(_ item: ScreenshotItem, to newName: String) {
+        // The clipboard/file distinction is read back from the filename
+        // (see ScreenshotItem.source), so a clipboard capture keeps its tag
+        // through a rename even though the user never sees it.
+        var sanitized = newName.trimmingCharacters(in: .whitespacesAndNewlines)
+        if item.source == .clipboard, !sanitized.hasSuffix("(clipboard)") {
+            sanitized += " (clipboard)"
+        }
+
+        guard let newURL = storage.rename(item.url, to: sanitized) else { return }
+        guard let index = screenshots.firstIndex(where: { $0.id == item.id }) else { return }
+        screenshots[index] = ScreenshotItem(url: newURL)
+    }
+
     func revealInFinder(_ item: ScreenshotItem) {
         NSWorkspace.shared.activateFileViewerSelecting([item.url])
     }

@@ -6,6 +6,7 @@ struct ScreenshotGridSection: View {
     let onCopy: (ScreenshotItem) -> Void
     let onReveal: (ScreenshotItem) -> Void
     let onDelete: (ScreenshotItem) -> Void
+    let onRename: (ScreenshotItem, String) -> Void
 
     private let columns = [
         GridItem(.flexible(), spacing: 8),
@@ -26,7 +27,8 @@ struct ScreenshotGridSection: View {
                         onOpen: { onOpen(item) },
                         onCopy: { onCopy(item) },
                         onReveal: { onReveal(item) },
-                        onDelete: { onDelete(item) }
+                        onDelete: { onDelete(item) },
+                        onRename: { onRename(item, $0) }
                     )
                 }
             }

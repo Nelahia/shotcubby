@@ -11,7 +11,13 @@ settings:
     MACOSX_DEPLOYMENT_TARGET: "14.0"
     MARKETING_VERSION: "1.0"
     CURRENT_PROJECT_VERSION: "1"
-    ENABLE_HARDENED_RUNTIME: YES
+    # Hardened Runtime is intentionally NOT enabled here. It requires a real
+    # Developer ID signature to be honored correctly — paired with the
+    # ad-hoc signing used for local builds (CODE_SIGN_IDENTITY: "-" below),
+    # it can make macOS silently refuse TCC/Full Disk Access grants to
+    # protected folders (~/Desktop) even when the toggle looks enabled in
+    # System Settings. The CI release build enables it explicitly, alongside
+    # the real Developer ID signature (it's required for notarization).
 
 targets:
   ShotKeep:

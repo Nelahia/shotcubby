@@ -6,8 +6,11 @@ struct ScreenshotGridCell: View {
     let onCopy: () -> Void
     let onReveal: () -> Void
     let onDelete: () -> Void
+    let onRename: (String) -> Void
 
     @State private var isHovered = false
+    @State private var isRenaming = false
+    @State private var newName = ""
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -17,6 +20,11 @@ struct ScreenshotGridCell: View {
         .contentShape(Rectangle())
         .onTapGesture(perform: onOpen)
         .onHover { isHovered = $0 }
+        .alert("Rename Screenshot", isPresented: $isRenaming) {
+            TextField("Name", text: $newName)
+            Button("Cancel", role: .cancel) {}
+            Button("Rename") { onRename(newName) }
+        }
     }
 
     private var thumbnail: some View {
@@ -37,13 +45,19 @@ struct ScreenshotGridCell: View {
     private var hoverVeil: some View {
         ZStack {
             Color.black.opacity(0.55)
-            HStack(spacing: 8) {
+            HStack(spacing: 5) {
                 RoundIconButton(symbol: "doc.on.doc", action: onCopy)
+                RoundIconButton(symbol: "pencil", action: beginRenaming)
                 RoundIconButton(symbol: "folder", action: onReveal)
                 RoundIconButton(symbol: "trash", action: onDelete)
             }
         }
         .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
+    private func beginRenaming() {
+        newName = item.name
+        isRenaming = true
     }
 
     private var caption: some View {
@@ -67,9 +81,9 @@ private struct RoundIconButton: View {
     var body: some View {
         Button(action: action) {
             Image(systemName: symbol)
-                .font(.system(size: 11, weight: .medium))
+                .font(.system(size: 10, weight: .medium))
                 .foregroundStyle(.white)
-                .frame(width: 28, height: 28)
+                .frame(width: 22, height: 22)
                 .background(
                     isHovered ? Color.accentColor : Color.black.opacity(0.55),
                     in: Circle()

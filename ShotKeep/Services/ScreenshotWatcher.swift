@@ -1,6 +1,9 @@
 import Foundation
+import os
 
 final class ScreenshotWatcher {
+    private let logger = Logger(subsystem: "com.nelahian.shotkeep", category: "ScreenshotWatcher")
+
     var onNewScreenshot: ((URL) -> Void)?
     var onPermissionDenied: (() -> Void)?
 
@@ -35,8 +38,15 @@ final class ScreenshotWatcher {
                 at: screenshotDir,
                 includingPropertiesForKeys: nil
             )
+            logger.notice("Access OK for \(self.screenshotDir.path, privacy: .public)")
             return true
         } catch {
+            let nsError = error as NSError
+            logger.error("""
+            Access denied for \(self.screenshotDir.path, privacy: .public): \
+            \(nsError.domain, privacy: .public) code \(nsError.code) — \
+            \(nsError.localizedDescription, privacy: .public)
+            """)
             return false
         }
     }

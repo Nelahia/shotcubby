@@ -69,7 +69,8 @@ struct PopoverView: View {
                             onOpen: { appState.openScreenshot($0) },
                             onCopy: { appState.copyToClipboard($0) },
                             onReveal: { appState.revealInFinder($0) },
-                            onDelete: { appState.deleteScreenshot($0) }
+                            onDelete: { appState.deleteScreenshot($0) },
+                            onRename: { appState.renameScreenshot($0, to: $1) }
                         )
                         .padding(.horizontal, 14)
                     }
