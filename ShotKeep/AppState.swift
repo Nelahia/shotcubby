@@ -26,6 +26,12 @@ final class AppState: ObservableObject {
         )
     }
 
+    func retryScreenshotAccess() {
+        guard permissionDenied else { return }
+        permissionDenied = false
+        watcher.startWatching()
+    }
+
     func deleteScreenshot(_ item: ScreenshotItem) {
         storage.delete(item.url)
         screenshots.removeAll { $0.id == item.id }

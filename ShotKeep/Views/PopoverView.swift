@@ -12,6 +12,7 @@ struct PopoverView: View {
             footerView
         }
         .frame(width: 320, height: 480)
+        .onAppear { appState.retryScreenshotAccess() }
     }
 
     private var headerView: some View {
@@ -57,11 +58,19 @@ struct PopoverView: View {
             Text(appState.screenshotDirectory)
                 .font(.system(size: 10, design: .monospaced))
                 .foregroundStyle(.secondary)
-            Button("Open Privacy Settings") {
-                appState.openPrivacySettings()
+            HStack(spacing: 8) {
+                Button("Open Privacy Settings") {
+                    appState.openPrivacySettings()
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.small)
+
+                Button("Try Again") {
+                    appState.retryScreenshotAccess()
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
             }
-            .buttonStyle(.borderedProminent)
-            .controlSize(.small)
         }
         .padding(12)
         .frame(maxWidth: .infinity)
