@@ -1,4 +1,4 @@
-import Foundation
+import AppKit
 import Carbon.HIToolbox
 
 /// Persists the user's chosen global shortcut for opening Spotlight search.
@@ -57,10 +57,37 @@ enum HotKeyPreferences {
             UInt32(kVK_UpArrow): "↑", UInt32(kVK_DownArrow): "↓"
         ]
         if let name = named[keyCode] { return name }
+        guard let char = translatedChar(for: keyCode) else { return "Key \(keyCode)" }
+        return char.uppercased()
+    }
 
+    /// NSMenuItem-compatible key equivalent for a Carbon keycode + modifier
+    /// mask, so a status-bar/context menu item can display the real
+    /// configured shortcut next to its title. Display only — the global
+    /// hotkey itself is still handled by Carbon's RegisterEventHotKey.
+    static func menuKeyEquivalent(keyCode: UInt32, modifiers: UInt32) -> (key: String, mask: NSEvent.ModifierFlags) {
+        var mask: NSEvent.ModifierFlags = []
+        if modifiers & UInt32(controlKey) != 0 { mask.insert(.control) }
+        if modifiers & UInt32(optionKey) != 0 { mask.insert(.option) }
+        if modifiers & UInt32(shiftKey) != 0 { mask.insert(.shift) }
+        if modifiers & UInt32(cmdKey) != 0 { mask.insert(.command) }
+
+        let named: [UInt32: String] = [
+            UInt32(kVK_Space): " ", UInt32(kVK_Return): "\r", UInt32(kVK_Tab): "\t",
+            UInt32(kVK_Delete): "\u{8}", UInt32(kVK_Escape): "\u{1b}",
+            UInt32(kVK_LeftArrow): "\u{F702}", UInt32(kVK_RightArrow): "\u{F703}",
+            UInt32(kVK_UpArrow): "\u{F700}", UInt32(kVK_DownArrow): "\u{F701}"
+        ]
+        let key = named[keyCode] ?? translatedChar(for: keyCode)?.lowercased() ?? ""
+        return (key, mask)
+    }
+
+    /// Resolves a Carbon keycode to the character printed on that physical
+    /// key under the CURRENT keyboard layout.
+    private static func translatedChar(for keyCode: UInt32) -> String? {
         guard let source = TISCopyCurrentKeyboardLayoutInputSource()?.takeRetainedValue(),
               let layoutDataPtr = TISGetInputSourceProperty(source, kTISPropertyUnicodeKeyLayoutData)
-        else { return "Key \(keyCode)" }
+        else { return nil }
 
         let layoutData = Unmanaged<CFData>.fromOpaque(layoutDataPtr).takeUnretainedValue() as Data
         var deadKeyState: UInt32 = 0
@@ -75,7 +102,7 @@ enum HotKeyPreferences {
                 &deadKeyState, 4, &length, &chars
             )
         }
-        guard status == noErr, length > 0 else { return "Key \(keyCode)" }
-        return String(utf16CodeUnits: chars, count: length).uppercased()
+        guard status == noErr, length > 0 else { return nil }
+        return String(utf16CodeUnits: chars, count: length)
     }
 }

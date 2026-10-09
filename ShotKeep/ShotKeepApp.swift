@@ -110,11 +110,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func showContextMenu(relativeTo button: NSStatusBarButton) {
         let menu = NSMenu()
 
+        let shortcut = HotKeyPreferences.menuKeyEquivalent(keyCode: HotKeyPreferences.keyCode, modifiers: HotKeyPreferences.modifiers)
         let searchItem = NSMenuItem(
             title: "Search\u{2026}",
             action: #selector(toggleSpotlight),
-            keyEquivalent: ""
+            keyEquivalent: shortcut.key
         )
+        searchItem.keyEquivalentModifierMask = shortcut.mask
         searchItem.target = self
         menu.addItem(searchItem)
 
