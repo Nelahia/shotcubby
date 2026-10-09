@@ -114,6 +114,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func registerHotKey() {
+        // Release (and unregister) the old one before creating the new one,
+        // rather than letting the assignment below do it implicitly: Swift
+        // evaluates the right-hand side first, which would otherwise keep
+        // the old GlobalHotKey alive — and its Carbon handler installed —
+        // for the whole time the new one is being registered.
+        hotKey = nil
         hotKey = GlobalHotKey(
             keyCode: HotKeyPreferences.keyCode,
             modifiers: HotKeyPreferences.modifiers

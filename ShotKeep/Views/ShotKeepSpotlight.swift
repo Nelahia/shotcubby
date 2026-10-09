@@ -27,10 +27,20 @@ import SwiftUI
 import AppKit
 import ImageIO
 import Carbon.HIToolbox
+import os
 
 // MARK: - Global hot key
 
+/// Carbon hotkey IDs only need to be unique among *simultaneously*
+/// registered hotkeys, but every GlobalHotKey instance reused this same
+/// literal — harmless on its own, except registerHotKey() (AppDelegate)
+/// used to build the replacement before releasing the old one, so for one
+/// call the same ID was briefly registered twice. Incrementing per
+/// instance removes any doubt about that id colliding with itself.
+private var nextHotKeyID: UInt32 = 1
+
 final class GlobalHotKey {
+    private let logger = Logger(subsystem: "com.nelahian.shotkeep", category: "GlobalHotKey")
     private var hotKeyRef: EventHotKeyRef?
     private var handlerRef: EventHandlerRef?
     private let action: () -> Void
@@ -43,15 +53,25 @@ final class GlobalHotKey {
 
         var spec = EventTypeSpec(eventClass: OSType(kEventClassKeyboard),
                                  eventKind: UInt32(kEventHotKeyPressed))
-        InstallEventHandler(GetApplicationEventTarget(), { _, _, userData -> OSStatus in
+        let installStatus = InstallEventHandler(GetApplicationEventTarget(), { _, _, userData -> OSStatus in
             guard let userData else { return noErr }
             let me = Unmanaged<GlobalHotKey>.fromOpaque(userData).takeUnretainedValue()
             DispatchQueue.main.async { me.action() }
             return noErr
         }, 1, &spec, Unmanaged.passUnretained(self).toOpaque(), &handlerRef)
 
-        let id = EventHotKeyID(signature: OSType(0x53484B50), id: 1) // 'SHKP'
-        RegisterEventHotKey(keyCode, modifiers, id, GetApplicationEventTarget(), 0, &hotKeyRef)
+        let id = EventHotKeyID(signature: OSType(0x53484B50), id: nextHotKeyID)
+        nextHotKeyID += 1
+        let registerStatus = RegisterEventHotKey(keyCode, modifiers, id, GetApplicationEventTarget(), 0, &hotKeyRef)
+
+        if installStatus != noErr || registerStatus != noErr {
+            logger.error("""
+            Hotkey setup failed for keyCode \(keyCode) modifiers \(modifiers): \
+            InstallEventHandler=\(installStatus) RegisterEventHotKey=\(registerStatus)
+            """)
+        } else {
+            logger.notice("Hotkey registered: keyCode \(keyCode) modifiers \(modifiers)")
+        }
     }
 
     deinit {
