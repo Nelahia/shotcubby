@@ -13,7 +13,7 @@ jobs:
     runs-on: macos-15
 
     env:
-      APP_NAME: ShotKeep
+      APP_NAME: ShotNest
 
     steps:
       - uses: actions/checkout@v4
@@ -32,8 +32,8 @@ jobs:
 
       - name: Set release version in Info.plist
         run: |
-          plutil -replace CFBundleShortVersionString -string "${{ steps.version.outputs.version }}" ShotKeep/Info.plist
-          plutil -replace CFBundleVersion -string "${{ github.run_number }}" ShotKeep/Info.plist
+          plutil -replace CFBundleShortVersionString -string "${{ steps.version.outputs.version }}" ShotNest/Info.plist
+          plutil -replace CFBundleVersion -string "${{ github.run_number }}" ShotNest/Info.plist
 
       - name: Import Developer ID signing certificate
         env:
@@ -69,8 +69,8 @@ jobs:
         env:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
-          xcodebuild -project ShotKeep.xcodeproj \
-            -scheme ShotKeep \
+          xcodebuild -project ShotNest.xcodeproj \
+            -scheme ShotNest \
             -configuration Release \
             -archivePath build/${{ env.APP_NAME }}.xcarchive \
             -destination "generic/platform=macOS" \
@@ -180,7 +180,7 @@ jobs:
         with:
           files: ${{ env.APP_NAME }}.dmg
           body: |
-            ## ShotKeep ${{ github.ref_name }}
+            ## ShotNest ${{ github.ref_name }}
 
             Menu bar app that automatically captures and organizes all your macOS screenshots.
 
@@ -189,11 +189,11 @@ jobs:
             ### Install via Homebrew
             ```bash
             brew tap nelahia/tap
-            brew install --cask shotkeep
+            brew install --cask shotnest
             ```
 
             ### Manual install
-            Download `ShotKeep.dmg`, open it, drag `ShotKeep.app` to Applications.
+            Download `ShotNest.dmg`, open it, drag `ShotNest.app` to Applications.
 
             ### Requirements
             - macOS 14.0 (Sonoma) or later

@@ -1,10 +1,10 @@
 //
-//  ShotKeepSpotlight.swift
-//  ShotKeep
+//  ShotNestSpotlight.swift
+//  ShotNest
 //
 //  A Spotlight-style floating panel, opened by a global shortcut, to search
 //  and act on captures from the keyboard.
-//  Needs Shot, ShotActions, Theme and ShotKeepGlyph from ShotKeepPopover.swift.
+//  Needs Shot, ShotActions, Theme and ShotNestGlyph from ShotNestPopover.swift.
 //  Target: macOS 14+. The global shortcut uses Carbon hot keys, which need
 //  no Accessibility or Input Monitoring permission.
 //
@@ -40,7 +40,7 @@ import os
 private var nextHotKeyID: UInt32 = 1
 
 final class GlobalHotKey {
-    private let logger = Logger(subsystem: "com.nelahian.shotkeep", category: "GlobalHotKey")
+    private let logger = Logger(subsystem: "com.nelahian.shotnest", category: "GlobalHotKey")
     private var hotKeyRef: EventHotKeyRef?
     private var handlerRef: EventHandlerRef?
     private let action: () -> Void
@@ -333,7 +333,7 @@ struct SpotlightView: View {
 
     private func searchRow(count: Int) -> some View {
         HStack(spacing: 12) {
-            ShotKeepGlyph().frame(width: 24, height: 24).foregroundStyle(t.ink)
+            ShotNestGlyph().frame(width: 24, height: 24).foregroundStyle(t.ink)
             TextField("Search screenshots", text: $model.query)
                 .textFieldStyle(.plain)
                 .font(.system(size: 22, weight: .regular))

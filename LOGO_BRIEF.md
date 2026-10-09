@@ -1,17 +1,17 @@
-# Brief logo — ShotKeep
+# Brief logo — ShotNest
 
 > À donner tel quel à une conversation Claude dédiée à la création du logo.
 > Contient tout le contexte nécessaire sur l'app, sans avoir à lire le repo.
 
 ## L'application
 
-**ShotKeep** est une app macOS légère qui vit dans la barre de menu (menu bar), écrite en
+**ShotNest** est une app macOS légère qui vit dans la barre de menu (menu bar), écrite en
 Swift/SwiftUI/AppKit. Elle n'a pas d'icône dans le Dock (`NSApp.setActivationPolicy(.accessory)`)
 — son seul point de présence visible en permanence à l'écran est l'icône dans la barre de menu,
 tout en haut à droite de l'écran, à côté de l'horloge, du Wi-Fi, etc.
 
 **Ce qu'elle fait** : elle capture automatiquement tous les screenshots pris via les raccourcis
-macOS standards et les range dans un dossier unique (`~/ShotKeep`) au lieu de les laisser
+macOS standards et les range dans un dossier unique (`~/ShotNest`) au lieu de les laisser
 s'accumuler en vrac sur le Bureau.
 
 - `⌘⇧3` / `⌘⇧4` (capture écran entier / sélection) → le fichier est détecté puis déplacé
@@ -21,13 +21,13 @@ Cliquer sur l'icône de la barre de menu ouvre un popover avec :
 - une grille de miniatures des derniers screenshots
 - au survol : copier / révéler dans le Finder / supprimer
 - un compteur de screenshots dans l'en-tête
-- un bouton "Open Folder" pour sauter direct dans `~/ShotKeep`
+- un bouton "Open Folder" pour sauter direct dans `~/ShotNest`
 
 ## Distribution & personnalité
 
 - Open source, licence MIT, zéro dépendance externe, zéro télémétrie
 - Build signé (Developer ID) + notarisé par Apple, installable via Homebrew
-  (`brew install --cask shotkeep`) ou en `.dmg` direct
+  (`brew install --cask shotnest`) ou en `.dmg` direct
 - Public : utilisateurs mac un peu power-user, qui vivent dans leur barre de menu et
   veulent un outil qui s'efface — pas une app "fun" ou grand public, plutôt un outil
   de précision, discret, rapide
@@ -53,7 +53,7 @@ Une landing page a déjà été dessinée pour le site d'installation, avec cett
 
 L'icône de barre de menu utilisée aujourd'hui est un simple SF Symbol générique :
 `folder.fill` (un dossier plein, monochrome). C'est un placeholder — il n'a aucune
-identité propre à ShotKeep et doit être remplacé par un vrai logo.
+identité propre à ShotNest et doit être remplacé par un vrai logo.
 
 ## Ce qu'il faut produire
 
