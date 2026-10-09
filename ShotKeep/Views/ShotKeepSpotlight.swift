@@ -18,7 +18,7 @@
 //
 //  Keys inside the panel:
 //      ↑ ↓      move selection          ↩       copy image and close
-//      ⌘↩       preview in default app  ⌘R      open folder (Finder), panel stays open
+//      ⌘↩       preview in default app  ⌘R      open folder (Finder) and close
 //      ⌘E       rename                  esc     cancel rename, else clear search, else close
 //      ⌘⌫       move to Trash
 //
@@ -121,10 +121,6 @@ final class SpotlightController {
     private let actions: ShotActions
     private let panel: SpotlightPanel
     private var keyMonitor: Any?
-    /// Set right before an action (e.g. Reveal in Finder) brings another
-    /// app's window forward, which would otherwise resign the panel's key
-    /// status and auto-hide it via `onResignKey`.
-    private var skipNextResignHide = false
 
     private static let size = NSSize(width: 720, height: 460)
 
@@ -153,14 +149,7 @@ final class SpotlightController {
             onClose: { [weak self] in self?.closeOrClearSearch() }
         )
         panel.contentView = NSHostingView(rootView: root)
-        panel.onResignKey = { [weak self] in
-            guard let self else { return }
-            if self.skipNextResignHide {
-                self.skipNextResignHide = false
-            } else {
-                self.hide()
-            }
-        }
+        panel.onResignKey = { [weak self] in self?.hide() }
     }
 
     var isVisible: Bool { panel.isVisible }
@@ -210,8 +199,8 @@ final class SpotlightController {
 
     private func revealSelected() {
         guard let shot = model.selected else { return }
-        skipNextResignHide = true
         actions.reveal(shot)
+        hide()
     }
 
     private func deleteSelected() {

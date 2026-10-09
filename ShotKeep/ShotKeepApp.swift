@@ -37,6 +37,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         NSApp.activate(ignoringOtherApps: true)
     }
 
+    /// Called when the user tries to open ShotKeep again while it's already
+    /// running — double-clicking it in Finder/Applications, or launching it
+    /// via Spotlight search — and it has no visible windows to bring
+    /// forward. An .accessory app has none by design, so without this the
+    /// click would silently do nothing. The Spotlight search panel is the
+    /// closest thing ShotKeep has to a main window, so that's what opens.
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        spotlight?.show()
+        return true
+    }
+
     private func setupMenuBar() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         guard let button = statusItem?.button else { return }
