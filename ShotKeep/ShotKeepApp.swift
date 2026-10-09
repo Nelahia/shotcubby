@@ -26,6 +26,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         setupPopover()
         setupSpotlight()
         appState.start()
+
+        // Without this, the only thing that ever activates the app is the
+        // user clicking the status item — and the global Spotlight hotkey
+        // genuinely does not fire until that first activation happens, so
+        // on a crowded menu bar (icon pushed off / hidden) the shortcut was
+        // dead on arrival with no way to discover why. .accessory apps can
+        // still activate; this only keeps them out of the Dock and ⌘-Tab,
+        // it does not require any visible window.
+        NSApp.activate(ignoringOtherApps: true)
     }
 
     private func setupMenuBar() {
