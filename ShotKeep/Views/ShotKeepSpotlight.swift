@@ -402,14 +402,14 @@ struct SpotlightView: View {
 
     private var hints: some View {
         HStack(spacing: 16) {
-            HintButton(key: "↩", label: "Copy", action: onCopy)
-            HintButton(key: "⌘↩", label: "Preview", action: onPreview)
-            HintButton(key: "⌘R", label: "Open Folder", action: onReveal)
-            HintButton(key: "⌘E", label: "Rename", action: model.beginRename)
-            HintButton(key: "⌘⌫", label: "Trash", action: onDelete)
+            HintButton("↩", label: "Copy", action: onCopy)
+            HintButton("⌘", "↩", label: "Preview", action: onPreview)
+            HintButton("⌘", "R", label: "Open Folder", action: onReveal)
+            HintButton("⌘", "E", label: "Rename", action: model.beginRename)
+            HintButton("⌘", "⌫", label: "Trash", action: onDelete)
             Spacer()
-            HintButton(key: "⌘,", label: "Settings", action: onSettings)
-            HintButton(key: "esc", label: "Close", action: onClose)
+            HintButton("⌘", ",", label: "Settings", action: onSettings)
+            HintButton("esc", label: "Close", action: onClose)
         }
         .padding(.horizontal, 16)
         .frame(height: 36)
@@ -419,20 +419,30 @@ struct SpotlightView: View {
 /// Each hint in the footer doubles as a button — clicking "Rename" does the
 /// same thing pressing ⌘E would.
 private struct HintButton: View {
-    let key: String
+    let keys: [String]
     let label: String
     let action: () -> Void
     @State private var hovering = false
     @Environment(\.colorScheme) private var scheme
 
+    init(_ keys: String..., label: String, action: @escaping () -> Void) {
+        self.keys = keys
+        self.label = label
+        self.action = action
+    }
+
     var body: some View {
         let t = Theme.resolve(scheme)
         Button(action: action) {
             HStack(spacing: 6) {
-                Text(key)
-                    .font(spotMono(11))
-                    .padding(.horizontal, 5).padding(.vertical, 1)
-                    .overlay(RoundedRectangle(cornerRadius: 4, style: .continuous).strokeBorder(t.line))
+                HStack(spacing: 3) {
+                    ForEach(keys, id: \.self) { key in
+                        Text(key)
+                            .font(spotMono(11))
+                            .padding(.horizontal, 5).padding(.vertical, 1)
+                            .overlay(RoundedRectangle(cornerRadius: 4, style: .continuous).strokeBorder(t.line))
+                    }
+                }
                 Text(label).font(.system(size: 12))
             }
             .foregroundStyle(hovering ? t.ink : t.muted)

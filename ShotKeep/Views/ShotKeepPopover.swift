@@ -333,13 +333,13 @@ struct PopoverView: View {
             FooterButton(action: actions.openSpotlight) {
                 Image(systemName: "magnifyingglass")
                 Text("Open Spotlight")
-                KeyHint("⌘O")
+                KeyHint("⌘", "O")
             }
             .keyboardShortcut("o", modifiers: .command)
             Spacer()
             FooterButton(action: actions.quit) {
                 Text("Quit").foregroundStyle(t.muted)
-                KeyHint("⌘Q")
+                KeyHint("⌘", "Q")
             }
             .keyboardShortcut("q", modifiers: .command)
         }
@@ -688,17 +688,21 @@ private struct FooterButton<Label: View>: View {
 }
 
 private struct KeyHint: View {
-    let text: String
+    let keys: [String]
     @Environment(\.colorScheme) private var scheme
-    init(_ text: String) { self.text = text }
+    init(_ keys: String...) { self.keys = keys }
 
     var body: some View {
         let t = Theme.resolve(scheme)
-        Text(text)
-            .font(mono(11))
-            .foregroundStyle(t.muted)
-            .padding(.horizontal, 5).padding(.vertical, 1)
-            .overlay(RoundedRectangle(cornerRadius: 4, style: .continuous).strokeBorder(t.line))
+        HStack(spacing: 3) {
+            ForEach(keys, id: \.self) { key in
+                Text(key)
+                    .font(mono(11))
+                    .foregroundStyle(t.muted)
+                    .padding(.horizontal, 5).padding(.vertical, 1)
+                    .overlay(RoundedRectangle(cornerRadius: 4, style: .continuous).strokeBorder(t.line))
+            }
+        }
     }
 }
 
