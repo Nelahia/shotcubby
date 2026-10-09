@@ -18,8 +18,9 @@
 //
 //  Keys inside the panel:
 //      ↑ ↓      move selection          ↩       copy image and close
-//      ⌘↩       open in default app     ⌘R      reveal in Finder
-//      ⌘⌫       move to Trash           esc     clear search, then close
+//      ⌘↩       preview in default app  ⌘R      open folder (Finder), panel stays open
+//      ⌘E       rename                  esc     cancel rename, else clear search, else close
+//      ⌘⌫       move to Trash
 //
 
 import SwiftUI
@@ -67,6 +68,8 @@ final class SpotlightModel: ObservableObject {
     @Published var query = "" { didSet { selection = results.first?.id } }
     @Published var selection: URL?
     @Published var showCount = 0
+    @Published var renaming: URL?
+    @Published var renameDraft = ""
 
     var results: [Shot] {
         let q = query.trimmingCharacters(in: .whitespaces)
@@ -91,6 +94,12 @@ final class SpotlightModel: ObservableObject {
         let remaining = results
         selection = remaining.isEmpty ? nil : remaining[min(index, remaining.count - 1)].id
     }
+
+    func beginRename() {
+        guard let shot = selected else { return }
+        renameDraft = shot.name
+        renaming = shot.id
+    }
 }
 
 // MARK: - Panel + controller
@@ -112,6 +121,10 @@ final class SpotlightController {
     private let actions: ShotActions
     private let panel: SpotlightPanel
     private var keyMonitor: Any?
+    /// Set right before an action (e.g. Reveal in Finder) brings another
+    /// app's window forward, which would otherwise resign the panel's key
+    /// status and auto-hide it via `onResignKey`.
+    private var skipNextResignHide = false
 
     private static let size = NSSize(width: 720, height: 460)
 
@@ -134,7 +147,14 @@ final class SpotlightController {
         let root = SpotlightView(model: model,
                                  onCopy: { [weak self] in self?.copySelected() })
         panel.contentView = NSHostingView(rootView: root)
-        panel.onResignKey = { [weak self] in self?.hide() }
+        panel.onResignKey = { [weak self] in
+            guard let self else { return }
+            if self.skipNextResignHide {
+                self.skipNextResignHide = false
+            } else {
+                self.hide()
+            }
+        }
     }
 
     var isVisible: Bool { panel.isVisible }
@@ -176,9 +196,32 @@ final class SpotlightController {
         hide()
     }
 
+    private func commitRename() {
+        guard let shot = model.selected else { model.renaming = nil; return }
+        let newName = model.renameDraft
+        model.renaming = nil
+        actions.rename(shot, newName)
+        model.shots = provider()
+        if !model.results.contains(where: { $0.id == model.selection }) {
+            model.selection = model.results.first?.id
+        }
+    }
+
     /// Returns true when the event was consumed.
     private func handle(_ event: NSEvent) -> Bool {
         let command = event.modifierFlags.contains(.command)
+
+        if model.renaming != nil {
+            switch Int(event.keyCode) {
+            case kVK_Return, kVK_ANSI_KeypadEnter:
+                commitRename(); return true
+            case kVK_Escape:
+                model.renaming = nil; return true
+            default:
+                return false
+            }
+        }
+
         switch Int(event.keyCode) {
         case kVK_DownArrow:
             model.move(1); return true
@@ -192,8 +235,13 @@ final class SpotlightController {
             if model.query.isEmpty { hide() } else { model.query = "" }
             return true
         case kVK_ANSI_R where command:
-            if let shot = model.selected { actions.reveal(shot); hide() }
+            if let shot = model.selected {
+                skipNextResignHide = true
+                actions.reveal(shot)
+            }
             return true
+        case kVK_ANSI_E where command:
+            model.beginRename(); return true
         case kVK_Delete where command:
             if let shot = model.selected { actions.delete(shot); model.remove(shot) }
             return true
@@ -266,10 +314,11 @@ struct SpotlightView: View {
             ScrollView {
                 LazyVStack(spacing: 2) {
                     ForEach(results) { shot in
-                        SpotlightRow(shot: shot, selected: shot.id == model.selection)
+                        SpotlightRow(shot: shot, selected: shot.id == model.selection,
+                                     renaming: $model.renaming, draft: $model.renameDraft)
                             .id(shot.id)
-                            .onTapGesture(count: 2) { model.selection = shot.id; onCopy() }
-                            .onTapGesture { model.selection = shot.id }
+                            .onTapGesture(count: 2) { model.renaming = nil; model.selection = shot.id; onCopy() }
+                            .onTapGesture { model.renaming = nil; model.selection = shot.id }
                     }
                 }
                 .padding(8)
@@ -314,8 +363,9 @@ struct SpotlightView: View {
     private var hints: some View {
         HStack(spacing: 16) {
             hint("↩", "Copy")
-            hint("⌘↩", "Open")
-            hint("⌘R", "Reveal")
+            hint("⌘↩", "Preview")
+            hint("⌘R", "Open Folder")
+            hint("⌘E", "Rename")
             hint("⌘⌫", "Trash")
             Spacer()
             hint("esc", "Close")
@@ -339,7 +389,12 @@ struct SpotlightView: View {
 private struct SpotlightRow: View {
     let shot: Shot
     let selected: Bool
+    @Binding var renaming: URL?
+    @Binding var draft: String
+    @FocusState private var fieldFocused: Bool
     @Environment(\.colorScheme) private var scheme
+
+    private var isRenaming: Bool { renaming == shot.id }
 
     var body: some View {
         let t = Theme.resolve(scheme)
@@ -349,9 +404,16 @@ private struct SpotlightRow: View {
                 .clipShape(RoundedRectangle(cornerRadius: 5, style: .continuous))
                 .overlay(RoundedRectangle(cornerRadius: 5, style: .continuous).strokeBorder(t.line))
             VStack(alignment: .leading, spacing: 2) {
-                Text(shot.name)
-                    .font(.system(size: 13, weight: .medium))
-                    .lineLimit(1).truncationMode(.middle)
+                if isRenaming {
+                    TextField("Name", text: $draft)
+                        .textFieldStyle(.plain)
+                        .font(.system(size: 13, weight: .medium))
+                        .focused($fieldFocused)
+                } else {
+                    Text(shot.name)
+                        .font(.system(size: 13, weight: .medium))
+                        .lineLimit(1).truncationMode(.middle)
+                }
                 Text(shot.date.formatted(.relative(presentation: .named)))
                     .font(spotMono(11))
                     .foregroundStyle(t.muted)
@@ -363,6 +425,9 @@ private struct SpotlightRow: View {
                     in: RoundedRectangle(cornerRadius: 8, style: .continuous))
         .contentShape(Rectangle())
         .accessibilityAddTraits(selected ? .isSelected : [])
+        .onChange(of: renaming) { _, newValue in
+            if newValue == shot.id { fieldFocused = true }
+        }
     }
 }
 
