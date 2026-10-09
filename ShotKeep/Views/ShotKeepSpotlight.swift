@@ -245,7 +245,7 @@ struct SpotlightView: View {
 
     private func searchRow(count: Int) -> some View {
         HStack(spacing: 12) {
-            ShotKeepGlyph().frame(width: 24, height: 24).foregroundStyle(t.accent)
+            ShotKeepGlyph().frame(width: 24, height: 24).foregroundStyle(t.ink)
             TextField("Search screenshots", text: $model.query)
                 .textFieldStyle(.plain)
                 .font(.system(size: 22, weight: .regular))
