@@ -108,7 +108,9 @@ struct Theme {
     let tile: Color
     let warn: Color
 
-    static let accentInk = Color(hex: 0x06262B)
+    /// Fixed dark navy from the app icon — used on the always-dark thumbnail
+    /// scrim, where it shouldn't flip with light/dark mode like `ink` does.
+    static let logoPrimary = Color(hex: 0x14191D)
 
     static func resolve(_ scheme: ColorScheme) -> Theme {
         scheme == .dark
@@ -231,7 +233,7 @@ struct PopoverView: View {
         HStack(spacing: 8) {
             ShotKeepGlyph()
                 .frame(width: 18, height: 18)
-                .foregroundStyle(t.accent)
+                .foregroundStyle(t.ink)
             Text("ShotKeep").font(.system(size: 14, weight: .semibold))
             Text("\(visible.count)")
                 .font(mono(11))
@@ -522,9 +524,9 @@ private struct AccessCard: View {
                 Button(action: actions.openPrivacySettings) {
                     Text("Open Privacy Settings")
                         .font(.system(size: 13, weight: .semibold))
-                        .foregroundStyle(Theme.accentInk)
+                        .foregroundStyle(t.bg)
                         .frame(maxWidth: .infinity).frame(height: 34)
-                        .background(t.accent, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+                        .background(t.ink, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
@@ -580,16 +582,14 @@ private struct OverlayButton: View {
     let label: String
     let action: () -> Void
     @State private var hovering = false
-    @Environment(\.colorScheme) private var scheme
 
     var body: some View {
-        let t = Theme.resolve(scheme)
         Button(action: action) {
             Image(systemName: symbol)
                 .font(.system(size: 12, weight: .medium))
-                .foregroundStyle(hovering ? Theme.accentInk : Color.white)
+                .foregroundStyle(.white)
                 .frame(width: 28, height: 28)
-                .background(hovering ? t.accent : Color.white.opacity(0.14),
+                .background(hovering ? Theme.logoPrimary : Color.white.opacity(0.14),
                             in: RoundedRectangle(cornerRadius: 7, style: .continuous))
                 .contentShape(Rectangle())
         }
