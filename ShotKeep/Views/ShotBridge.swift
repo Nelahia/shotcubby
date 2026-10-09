@@ -12,7 +12,7 @@ enum ShotBridge {
         Shot(url: item.url, date: item.createdAt, source: item.source == .clipboard ? .clipboard : .file)
     }
 
-    static func actions(for appState: AppState) -> ShotActions {
+    static func actions(for appState: AppState, openSettings: @escaping () -> Void) -> ShotActions {
         ShotActions(
             open: { find($0, in: appState).map(appState.openScreenshot) },
             copy: { find($0, in: appState).map(appState.copyToClipboard) },
@@ -24,7 +24,7 @@ enum ShotBridge {
             openFolder: appState.openVaultFolder,
             openPrivacySettings: appState.openPrivacySettings,
             chooseFolder: appState.chooseCustomFolder,
-            openSettings: { NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil) },
+            openSettings: openSettings,
             quit: { NSApp.terminate(nil) }
         )
     }

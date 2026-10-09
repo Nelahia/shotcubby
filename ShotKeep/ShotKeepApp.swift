@@ -18,6 +18,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let appState = AppState()
     private var spotlight: SpotlightController?
     private var hotKey: GlobalHotKey?
+    private var settingsWindow: NSWindow?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
@@ -43,14 +44,31 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         popover.behavior = .transient
         popover.animates = true
         popover.contentViewController = NSHostingController(
-            rootView: PopoverHost(appState: appState)
+            rootView: PopoverHost(appState: appState, openSettings: { [weak self] in self?.showSettingsWindow() })
         )
+    }
+
+    /// Owned directly rather than via `NSApp.sendAction(Selector(("showSettingsWindow:")))`:
+    /// that responder-chain action targets SwiftUI's auto-generated Settings command, which
+    /// is wired through the app's main menu — an `.accessory` app (no Dock icon, no menu bar)
+    /// never gets one, so the action silently finds no responder and does nothing.
+    private func showSettingsWindow() {
+        if settingsWindow == nil {
+            let window = NSWindow(contentViewController: NSHostingController(rootView: SettingsView()))
+            window.title = "ShotKeep Settings"
+            window.styleMask = [.titled, .closable]
+            window.isReleasedWhenClosed = false
+            settingsWindow = window
+        }
+        NSApp.activate(ignoringOtherApps: true)
+        settingsWindow?.center()
+        settingsWindow?.makeKeyAndOrderFront(nil)
     }
 
     private func setupSpotlight() {
         spotlight = SpotlightController(
             shots: { [weak self] in self?.appState.screenshots.map(ShotBridge.toShot) ?? [] },
-            actions: ShotBridge.actions(for: appState)
+            actions: ShotBridge.actions(for: appState, openSettings: { [weak self] in self?.showSettingsWindow() })
         )
         registerHotKey()
         NotificationCenter.default.addObserver(
@@ -108,6 +126,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         openFolderItem.target = self
         menu.addItem(openFolderItem)
 
+        let settingsItem = NSMenuItem(
+            title: "Settings\u{2026}",
+            action: #selector(openSettingsFromMenu),
+            keyEquivalent: ","
+        )
+        settingsItem.target = self
+        menu.addItem(settingsItem)
+
         menu.addItem(.separator())
 
         let quitItem = NSMenuItem(
@@ -127,6 +153,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc private func openFolderFromMenu() {
         appState.openVaultFolder()
+    }
+
+    @objc private func openSettingsFromMenu() {
+        showSettingsWindow()
     }
 
     @objc private func quitApp() {
