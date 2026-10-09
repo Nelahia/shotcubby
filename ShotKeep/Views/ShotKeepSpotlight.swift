@@ -144,8 +144,14 @@ final class SpotlightController {
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .transient]
         panel.animationBehavior = .utilityWindow
 
-        let root = SpotlightView(model: model,
-                                 onCopy: { [weak self] in self?.copySelected() })
+        let root = SpotlightView(
+            model: model,
+            onCopy: { [weak self] in self?.copySelected() },
+            onPreview: { [weak self] in self?.previewSelected() },
+            onReveal: { [weak self] in self?.revealSelected() },
+            onDelete: { [weak self] in self?.deleteSelected() },
+            onClose: { [weak self] in self?.closeOrClearSearch() }
+        )
         panel.contentView = NSHostingView(rootView: root)
         panel.onResignKey = { [weak self] in
             guard let self else { return }
@@ -196,6 +202,28 @@ final class SpotlightController {
         hide()
     }
 
+    private func previewSelected() {
+        guard let shot = model.selected else { return }
+        actions.open(shot)
+        hide()
+    }
+
+    private func revealSelected() {
+        guard let shot = model.selected else { return }
+        skipNextResignHide = true
+        actions.reveal(shot)
+    }
+
+    private func deleteSelected() {
+        guard let shot = model.selected else { return }
+        actions.delete(shot)
+        model.remove(shot)
+    }
+
+    private func closeOrClearSearch() {
+        if model.query.isEmpty { hide() } else { model.query = "" }
+    }
+
     private func commitRename() {
         guard let shot = model.selected else { model.renaming = nil; return }
         let newName = model.renameDraft
@@ -228,25 +256,18 @@ final class SpotlightController {
         case kVK_UpArrow:
             model.move(-1); return true
         case kVK_Return, kVK_ANSI_KeypadEnter:
-            guard let shot = model.selected else { return true }
-            if command { actions.open(shot); hide() } else { copySelected() }
+            if command { previewSelected() } else { copySelected() }
             return true
         case kVK_Escape:
-            if model.query.isEmpty { hide() } else { model.query = "" }
-            return true
+            closeOrClearSearch(); return true
         case kVK_ANSI_R where command:
-            if let shot = model.selected {
-                skipNextResignHide = true
-                actions.reveal(shot)
-            }
-            return true
+            revealSelected(); return true
         case kVK_ANSI_C where command:
             copySelected(); return true
         case kVK_ANSI_E where command:
             model.beginRename(); return true
         case kVK_Delete where command:
-            if let shot = model.selected { actions.delete(shot); model.remove(shot) }
-            return true
+            deleteSelected(); return true
         default:
             return false
         }
@@ -262,6 +283,10 @@ private func spotMono(_ size: CGFloat) -> Font {
 struct SpotlightView: View {
     @ObservedObject var model: SpotlightModel
     let onCopy: () -> Void
+    let onPreview: () -> Void
+    let onReveal: () -> Void
+    let onDelete: () -> Void
+    let onClose: () -> Void
 
     @FocusState private var searchFocused: Bool
     @Environment(\.colorScheme) private var scheme
@@ -364,27 +389,43 @@ struct SpotlightView: View {
 
     private var hints: some View {
         HStack(spacing: 16) {
-            hint("↩", "Copy")
-            hint("⌘↩", "Preview")
-            hint("⌘R", "Open Folder")
-            hint("⌘E", "Rename")
-            hint("⌘⌫", "Trash")
+            HintButton(key: "↩", label: "Copy", action: onCopy)
+            HintButton(key: "⌘↩", label: "Preview", action: onPreview)
+            HintButton(key: "⌘R", label: "Open Folder", action: onReveal)
+            HintButton(key: "⌘E", label: "Rename", action: model.beginRename)
+            HintButton(key: "⌘⌫", label: "Trash", action: onDelete)
             Spacer()
-            hint("esc", "Close")
+            HintButton(key: "esc", label: "Close", action: onClose)
         }
         .padding(.horizontal, 16)
         .frame(height: 36)
     }
+}
 
-    private func hint(_ key: String, _ label: String) -> some View {
-        HStack(spacing: 6) {
-            Text(key)
-                .font(spotMono(11))
-                .padding(.horizontal, 5).padding(.vertical, 1)
-                .overlay(RoundedRectangle(cornerRadius: 4, style: .continuous).strokeBorder(t.line))
-            Text(label).font(.system(size: 12))
+/// Each hint in the footer doubles as a button — clicking "Rename" does the
+/// same thing pressing ⌘E would.
+private struct HintButton: View {
+    let key: String
+    let label: String
+    let action: () -> Void
+    @State private var hovering = false
+    @Environment(\.colorScheme) private var scheme
+
+    var body: some View {
+        let t = Theme.resolve(scheme)
+        Button(action: action) {
+            HStack(spacing: 6) {
+                Text(key)
+                    .font(spotMono(11))
+                    .padding(.horizontal, 5).padding(.vertical, 1)
+                    .overlay(RoundedRectangle(cornerRadius: 4, style: .continuous).strokeBorder(t.line))
+                Text(label).font(.system(size: 12))
+            }
+            .foregroundStyle(hovering ? t.ink : t.muted)
+            .contentShape(Rectangle())
         }
-        .foregroundStyle(t.muted)
+        .buttonStyle(.plain)
+        .onHover { hovering = $0 }
     }
 }
 
