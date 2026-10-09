@@ -4,6 +4,7 @@ import SwiftUI
 struct PopoverHost: View {
     @ObservedObject var appState: AppState
     let openSettings: () -> Void
+    let openSpotlight: () -> Void
 
     var body: some View {
         PopoverView(
@@ -11,7 +12,7 @@ struct PopoverHost: View {
             accessFailure: appState.accessFailure,
             watchedFolder: URL(fileURLWithPath: appState.screenshotDirectory),
             keepFolder: appState.vaultURL,
-            actions: ShotBridge.actions(for: appState, openSettings: openSettings)
+            actions: ShotBridge.actions(for: appState, openSettings: openSettings, openSpotlight: openSpotlight)
         )
     }
 }

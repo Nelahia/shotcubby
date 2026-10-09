@@ -12,7 +12,9 @@ enum ShotBridge {
         Shot(url: item.url, date: item.createdAt, source: item.source == .clipboard ? .clipboard : .file)
     }
 
-    static func actions(for appState: AppState, openSettings: @escaping () -> Void) -> ShotActions {
+    static func actions(for appState: AppState,
+                        openSettings: @escaping () -> Void,
+                        openSpotlight: @escaping () -> Void) -> ShotActions {
         ShotActions(
             open: { find($0, in: appState).map(appState.openScreenshot) },
             copy: { find($0, in: appState).map(appState.copyToClipboard) },
@@ -21,7 +23,7 @@ enum ShotBridge {
             rename: { shot, newName in
                 find(shot, in: appState).map { appState.renameScreenshot($0, to: newName) }
             },
-            openFolder: appState.openVaultFolder,
+            openSpotlight: openSpotlight,
             openPrivacySettings: appState.openPrivacySettings,
             relaunch: appState.relaunch,
             chooseFolder: appState.chooseCustomFolder,

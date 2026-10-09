@@ -44,8 +44,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         popover.behavior = .transient
         popover.animates = true
         popover.contentViewController = NSHostingController(
-            rootView: PopoverHost(appState: appState, openSettings: { [weak self] in self?.showSettingsWindow() })
+            rootView: PopoverHost(
+                appState: appState,
+                openSettings: { [weak self] in self?.showSettingsWindow() },
+                openSpotlight: { [weak self] in self?.openSpotlightFromPopover() }
+            )
         )
+    }
+
+    private func openSpotlightFromPopover() {
+        popover.performClose(nil)
+        spotlight?.show()
     }
 
     /// Owned directly rather than via `NSApp.sendAction(Selector(("showSettingsWindow:")))`:
@@ -68,7 +77,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func setupSpotlight() {
         spotlight = SpotlightController(
             shots: { [weak self] in self?.appState.screenshots.map(ShotBridge.toShot) ?? [] },
-            actions: ShotBridge.actions(for: appState, openSettings: { [weak self] in self?.showSettingsWindow() })
+            actions: ShotBridge.actions(
+                for: appState,
+                openSettings: { [weak self] in self?.showSettingsWindow() },
+                openSpotlight: { [weak self] in self?.spotlight?.toggle() }
+            )
         )
         registerHotKey()
         NotificationCenter.default.addObserver(

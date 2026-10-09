@@ -240,6 +240,8 @@ final class SpotlightController {
                 actions.reveal(shot)
             }
             return true
+        case kVK_ANSI_C where command:
+            copySelected(); return true
         case kVK_ANSI_E where command:
             model.beginRename(); return true
         case kVK_Delete where command:

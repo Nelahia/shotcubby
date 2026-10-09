@@ -13,8 +13,7 @@
 //          accessFailure: store.accessFailure,         // nil once readable
 //          watchedFolder: store.screenshotFolder,    // e.g. ~/Desktop
 //          keepFolder: store.keepFolder,             // ~/ShotKeep
-//          actions: .live(keepFolder: store.keepFolder,
-//                         chooseFolder: { store.pickFolder() },
+//          actions: .live(chooseFolder: { store.pickFolder() },
 //                         openSettings: { /* show your settings window */ })
 //      )
 //      popover.contentViewController = NSHostingController(rootView: view)
@@ -46,7 +45,7 @@ struct ShotActions {
     var delete: (Shot) -> Void
     /// Second argument is the new base name, without extension.
     var rename: (Shot, String) -> Void
-    var openFolder: () -> Void
+    var openSpotlight: () -> Void
     var openPrivacySettings: () -> Void
     var relaunch: () -> Void
     var chooseFolder: () -> Void
@@ -55,8 +54,7 @@ struct ShotActions {
 
     /// Default implementations. Your folder watcher should pick up the
     /// rename / delete and refresh `shots` on its own.
-    static func live(keepFolder: URL,
-                     chooseFolder: @escaping () -> Void,
+    static func live(chooseFolder: @escaping () -> Void,
                      openSettings: @escaping () -> Void) -> ShotActions {
         ShotActions(
             open: { NSWorkspace.shared.open($0.url) },
@@ -84,7 +82,7 @@ struct ShotActions {
                 do { try FileManager.default.moveItem(at: shot.url, to: dest) }
                 catch { NSSound.beep() }
             },
-            openFolder: { NSWorkspace.shared.open(keepFolder) },
+            openSpotlight: {},
             openPrivacySettings: {
                 if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_FilesAndFolders") {
                     NSWorkspace.shared.open(url)
@@ -244,7 +242,7 @@ struct PopoverView: View {
                 .background(t.line, in: Capsule())
                 .accessibilityLabel("\(visible.count) screenshots")
             Spacer()
-            IconButton(symbol: "slider.horizontal.3", label: "Settings", action: actions.openSettings)
+            IconButton(symbol: "gearshape", label: "Settings", action: actions.openSettings)
         }
         .padding(.leading, 14).padding(.trailing, 10).padding(.vertical, 10)
     }
@@ -282,33 +280,43 @@ struct PopoverView: View {
 
     // MARK: Grid
 
+    // A fixed height here (not just a cap on the populated branch) matters:
+    // NSHostingController auto-sizes the popover to its SwiftUI content's
+    // fitting size. Letting the empty state size to its natural (much
+    // shorter) height made the popover shrink when a filter had zero
+    // results — and switching back to a populated filter never grew it
+    // back, since a ScrollView's fitting height depends on the size last
+    // proposed to it rather than requesting its own. Both branches now
+    // always occupy the same height, so the popover never resizes at all.
     @ViewBuilder private var content: some View {
-        if visible.isEmpty {
-            VStack(spacing: 6) {
-                ShotKeepGlyph().frame(width: 28, height: 28).foregroundStyle(t.muted)
-                Text("No screenshots yet").font(.system(size: 13, weight: .medium))
-                Text("Press ⌘⇧4 and it lands here.").font(.system(size: 12)).foregroundStyle(t.muted)
-            }
-            .frame(maxWidth: .infinity).padding(.vertical, 36)
-        } else {
-            ScrollView {
-                LazyVStack(alignment: .leading, spacing: 0) {
-                    ForEach(groups, id: \.day) { group in
-                        Text(dayLabel(group.day).uppercased())
-                            .font(mono(11)).tracking(0.7)
-                            .foregroundStyle(t.muted)
-                            .padding(.top, 12).padding(.bottom, 8)
-                        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 3), spacing: 10) {
-                            ForEach(group.shots) { shot in
-                                ShotTile(shot: shot, renaming: $renaming, actions: actions)
+        Group {
+            if visible.isEmpty {
+                VStack(spacing: 6) {
+                    ShotKeepGlyph().frame(width: 28, height: 28).foregroundStyle(t.muted)
+                    Text("No screenshots yet").font(.system(size: 13, weight: .medium))
+                    Text("Press ⌘⇧4 and it lands here.").font(.system(size: 12)).foregroundStyle(t.muted)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                ScrollView {
+                    LazyVStack(alignment: .leading, spacing: 0) {
+                        ForEach(groups, id: \.day) { group in
+                            Text(dayLabel(group.day).uppercased())
+                                .font(mono(11)).tracking(0.7)
+                                .foregroundStyle(t.muted)
+                                .padding(.top, 12).padding(.bottom, 8)
+                            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 3), spacing: 10) {
+                                ForEach(group.shots) { shot in
+                                    ShotTile(shot: shot, renaming: $renaming, actions: actions)
+                                }
                             }
                         }
                     }
+                    .padding(.horizontal, 14).padding(.top, 4).padding(.bottom, 14)
                 }
-                .padding(.horizontal, 14).padding(.top, 4).padding(.bottom, 14)
             }
-            .frame(maxHeight: 400)
         }
+        .frame(height: 400)
     }
 
     private func dayLabel(_ day: Date) -> String {
@@ -322,11 +330,9 @@ struct PopoverView: View {
 
     private var footer: some View {
         HStack {
-            FooterButton(action: actions.openFolder) {
-                Image(systemName: "folder")
-                Text("Open Folder")
-                Text((keepFolder.path as NSString).abbreviatingWithTildeInPath)
-                    .font(mono(11)).foregroundStyle(t.muted)
+            FooterButton(action: actions.openSpotlight) {
+                Image(systemName: "magnifyingglass")
+                Text("Open Spotlight")
                 KeyHint("⌘O")
             }
             .keyboardShortcut("o", modifiers: .command)
@@ -709,7 +715,7 @@ private struct KeyHint: View {
     return PopoverView(shots: sample, accessFailure: nil,
                        watchedFolder: URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("Desktop"),
                        keepFolder: folder,
-                       actions: .live(keepFolder: folder, chooseFolder: {}, openSettings: {}))
+                       actions: .live(chooseFolder: {}, openSettings: {}))
 }
 
 #Preview("Needs access") {
@@ -717,7 +723,7 @@ private struct KeyHint: View {
     return PopoverView(shots: [], accessFailure: .protectedFolder,
                        watchedFolder: URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("Desktop"),
                        keepFolder: folder,
-                       actions: .live(keepFolder: folder, chooseFolder: {}, openSettings: {}))
+                       actions: .live(chooseFolder: {}, openSettings: {}))
 }
 
 #Preview("Needs cloud access") {
@@ -726,5 +732,5 @@ private struct KeyHint: View {
                        watchedFolder: URL(fileURLWithPath: NSHomeDirectory())
                            .appendingPathComponent("Library/CloudStorage/OneDrive-Example/Desktop"),
                        keepFolder: folder,
-                       actions: .live(keepFolder: folder, chooseFolder: {}, openSettings: {}))
+                       actions: .live(chooseFolder: {}, openSettings: {}))
 }
