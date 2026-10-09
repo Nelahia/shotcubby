@@ -21,6 +21,7 @@
 //      ⌘↩       preview in default app  ⌘R      open folder (Finder) and close
 //      ⌘E       rename                  esc     cancel rename, else clear search, else close
 //      ⌘⌫       move to Trash           ⌘,      open Settings
+//      ⌘K       open the Actions menu (↑↓ to move, ↩ to run, esc to close the menu only)
 //
 
 import SwiftUI
@@ -90,6 +91,8 @@ final class SpotlightModel: ObservableObject {
     @Published var showCount = 0
     @Published var renaming: URL?
     @Published var renameDraft = ""
+    @Published var showActions = false
+    @Published var actionIndex = 0
 
     var results: [Shot] {
         let q = query.trimmingCharacters(in: .whitespaces)
@@ -141,6 +144,12 @@ final class SpotlightController {
     private let actions: ShotActions
     private let panel: SpotlightPanel
     private var keyMonitor: Any?
+    /// Built once in init, since every entry's `run` closure already
+    /// resolves against the selection at the time it's invoked — no need
+    /// to recompute the list itself on every access. Read by handle(_:) to
+    /// run the highlighted entry, and by the view to render the footer and
+    /// the dropdown menu.
+    private let menuActions: [SpotlightAction]
 
     private static let size = NSSize(width: 720, height: 460)
 
@@ -160,14 +169,19 @@ final class SpotlightController {
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .transient]
         panel.animationBehavior = .utilityWindow
 
+        menuActions = [
+            SpotlightAction(title: "Copy", keys: "↩", run: { [weak self] in self?.copySelected() }),
+            SpotlightAction(title: "Preview", keys: "⌘↩", run: { [weak self] in self?.previewSelected() }),
+            SpotlightAction(title: "Rename", keys: "⌘E", run: { [weak self] in self?.model.beginRename() }),
+            SpotlightAction(title: "Open Folder", keys: "⌘R", run: { [weak self] in self?.revealSelected() }),
+            SpotlightAction(title: "Move to Trash", keys: "⌘⌫", destructive: true, run: { [weak self] in self?.deleteSelected() }),
+            SpotlightAction(title: "Settings", keys: "⌘,", separatorBefore: true, run: { [weak self] in self?.actions.openSettings() })
+        ]
+
         let root = SpotlightView(
             model: model,
             onCopy: { [weak self] in self?.copySelected() },
-            onPreview: { [weak self] in self?.previewSelected() },
-            onReveal: { [weak self] in self?.revealSelected() },
-            onDelete: { [weak self] in self?.deleteSelected() },
-            onSettings: actions.openSettings,
-            onClose: { [weak self] in self?.closeOrClearSearch() }
+            menuActions: menuActions
         )
         panel.contentView = NSHostingView(rootView: root)
         panel.onResignKey = { [weak self] in self?.hide() }
@@ -260,6 +274,23 @@ final class SpotlightController {
             }
         }
 
+        if model.showActions {
+            switch Int(event.keyCode) {
+            case kVK_DownArrow:
+                model.actionIndex = min(model.actionIndex + 1, menuActions.count - 1); return true
+            case kVK_UpArrow:
+                model.actionIndex = max(model.actionIndex - 1, 0); return true
+            case kVK_Return, kVK_ANSI_KeypadEnter:
+                model.showActions = false
+                menuActions[model.actionIndex].run()
+                return true
+            case kVK_Escape:
+                model.showActions = false; return true
+            default:
+                return false
+            }
+        }
+
         switch Int(event.keyCode) {
         case kVK_DownArrow:
             model.move(1); return true
@@ -278,6 +309,10 @@ final class SpotlightController {
             model.beginRename(); return true
         case kVK_ANSI_Comma where command:
             actions.openSettings(); return true
+        case kVK_ANSI_K where command:
+            model.actionIndex = 0
+            model.showActions = true
+            return true
         case kVK_Delete where command:
             deleteSelected(); return true
         default:
@@ -295,11 +330,7 @@ private func spotMono(_ size: CGFloat) -> Font {
 struct SpotlightView: View {
     @ObservedObject var model: SpotlightModel
     let onCopy: () -> Void
-    let onPreview: () -> Void
-    let onReveal: () -> Void
-    let onDelete: () -> Void
-    let onSettings: () -> Void
-    let onClose: () -> Void
+    let menuActions: [SpotlightAction]
 
     @FocusState private var searchFocused: Bool
     @Environment(\.colorScheme) private var scheme
@@ -319,14 +350,21 @@ struct SpotlightView: View {
                     preview
                 }
             }
-            Rectangle().fill(t.line).frame(height: 1)
-            hints
+            SpotlightFooter(primary: Array(menuActions.prefix(2)), showActions: $model.showActions)
         }
         .frame(width: 720, height: 460)
         .background(t.bg)
         .foregroundStyle(t.ink)
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).strokeBorder(t.line))
+        .overlay(alignment: .bottomTrailing) {
+            if model.showActions {
+                SpotlightActionsMenu(actions: menuActions, highlighted: $model.actionIndex) {
+                    model.showActions = false
+                }
+                .padding(.trailing, 8).padding(.bottom, 46)
+            }
+        }
         .onAppear { searchFocused = true }
         .onChange(of: model.showCount) { _, _ in searchFocused = true }
     }
@@ -400,56 +438,125 @@ struct SpotlightView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
-    private var hints: some View {
-        HStack(spacing: 16) {
-            HintButton("↩", label: "Copy", action: onCopy)
-            HintButton("⌘", "↩", label: "Preview", action: onPreview)
-            HintButton("⌘", "R", label: "Open Folder", action: onReveal)
-            HintButton("⌘", "E", label: "Rename", action: model.beginRename)
-            HintButton("⌘", "⌫", label: "Trash", action: onDelete)
-            Spacer()
-            HintButton("⌘", ",", label: "Settings", action: onSettings)
-            HintButton("esc", label: "Close", action: onClose)
-        }
-        .padding(.horizontal, 16)
-        .frame(height: 36)
-    }
 }
 
-/// Each hint in the footer doubles as a button — clicking "Rename" does the
-/// same thing pressing ⌘E would.
-private struct HintButton: View {
-    let keys: [String]
-    let label: String
-    let action: () -> Void
+// MARK: - Footer: two primary hints + an "Actions" menu for the rest
+//
+// The menu is drawn inside the panel on purpose: a real NSMenu or .popover
+// is a separate window, so the panel would lose key status and close
+// itself. Every shortcut keeps working directly (see handle(_:) above);
+// the menu is just where people who don't know them yet can discover them.
+
+struct SpotlightAction: Identifiable {
+    let id = UUID()
+    let title: String
+    /// Display string for the shortcut, e.g. "⌘↩".
+    let keys: String
+    var destructive = false
+    /// Draw a separator line above this row in the menu.
+    var separatorBefore = false
+    let run: () -> Void
+}
+
+private struct SpotlightFooter: View {
+    /// The first two actions, shown inline. Keep menuActions ordered with
+    /// the most frequent ones first.
+    let primary: [SpotlightAction]
+    @Binding var showActions: Bool
+
     @State private var hovering = false
     @Environment(\.colorScheme) private var scheme
 
-    init(_ keys: String..., label: String, action: @escaping () -> Void) {
-        self.keys = keys
-        self.label = label
-        self.action = action
+    var body: some View {
+        let t = Theme.resolve(scheme)
+        HStack(spacing: 18) {
+            ForEach(primary) { action in
+                HStack(spacing: 6) {
+                    KeyCap(action.keys)
+                    Text(action.title)
+                }
+                .foregroundStyle(t.muted)
+            }
+            Spacer()
+            Button { showActions.toggle() } label: {
+                HStack(spacing: 8) {
+                    Text("Actions").fontWeight(.medium).foregroundStyle(t.ink)
+                    KeyCap("⌘K")
+                }
+                .padding(.leading, 10).padding(.trailing, 6)
+                .frame(height: 28)
+                .background(hovering || showActions ? t.line : .clear,
+                            in: RoundedRectangle(cornerRadius: 7, style: .continuous))
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .onHover { hovering = $0 }
+            .accessibilityLabel("More actions, Command K")
+        }
+        .font(.system(size: 12))
+        .padding(.leading, 16).padding(.trailing, 8)
+        .frame(height: 40)
+        .overlay(alignment: .top) { Rectangle().fill(t.line).frame(height: 1) }
     }
+}
+
+private struct SpotlightActionsMenu: View {
+    let actions: [SpotlightAction]
+    @Binding var highlighted: Int
+    let dismiss: () -> Void
+
+    @Environment(\.colorScheme) private var scheme
 
     var body: some View {
         let t = Theme.resolve(scheme)
-        Button(action: action) {
-            HStack(spacing: 6) {
-                HStack(spacing: 3) {
-                    ForEach(keys, id: \.self) { key in
-                        Text(key)
-                            .font(spotMono(11))
-                            .padding(.horizontal, 5).padding(.vertical, 1)
-                            .overlay(RoundedRectangle(cornerRadius: 4, style: .continuous).strokeBorder(t.line))
-                    }
+        VStack(spacing: 0) {
+            ForEach(Array(actions.enumerated()), id: \.element.id) { index, action in
+                if action.separatorBefore {
+                    Rectangle().fill(t.line).frame(height: 1)
+                        .padding(.horizontal, 8).padding(.vertical, 5)
                 }
-                Text(label).font(.system(size: 12))
+                Button {
+                    dismiss()
+                    action.run()
+                } label: {
+                    HStack {
+                        Text(action.title)
+                            .foregroundStyle(action.destructive ? Color.red : t.ink)
+                        Spacer()
+                        KeyCap(action.keys)
+                    }
+                    .font(.system(size: 13))
+                    .padding(.leading, 10).padding(.trailing, 8)
+                    .frame(height: 30)
+                    .background(index == highlighted ? t.accent.opacity(0.2) : .clear,
+                                in: RoundedRectangle(cornerRadius: 6, style: .continuous))
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .onHover { if $0 { highlighted = index } }
             }
-            .foregroundStyle(hovering ? t.ink : t.muted)
-            .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
-        .onHover { hovering = $0 }
+        .padding(5)
+        .frame(width: 248)
+        .background(t.panel, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous).strokeBorder(t.line))
+        .shadow(color: .black.opacity(0.3), radius: 18, y: 8)
+    }
+}
+
+/// One cap per shortcut ("⌘↩" in a single box) instead of one box per key.
+private struct KeyCap: View {
+    let text: String
+    @Environment(\.colorScheme) private var scheme
+    init(_ text: String) { self.text = text }
+
+    var body: some View {
+        let t = Theme.resolve(scheme)
+        Text(text)
+            .font(spotMono(11))
+            .foregroundStyle(t.muted)
+            .padding(.horizontal, 5).padding(.vertical, 1)
+            .overlay(RoundedRectangle(cornerRadius: 4, style: .continuous).strokeBorder(t.line))
     }
 }
 
