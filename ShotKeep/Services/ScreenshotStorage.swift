@@ -1,6 +1,9 @@
 import Foundation
+import os
 
 final class ScreenshotStorage {
+    private let logger = Logger(subsystem: "com.nelahian.shotkeep", category: "ScreenshotStorage")
+
     let vaultURL: URL
 
     init() {
@@ -15,12 +18,39 @@ final class ScreenshotStorage {
         )
     }
 
+    /// Moves a capture into the vault. A plain rename is enough on a local
+    /// folder, but a capture that lands inside a File Provider domain can
+    /// still be owned by the provider's extension — the rename then fails,
+    /// and silently dropping the capture would make file ingestion look
+    /// like it "only works sometimes". Copying and trashing the original
+    /// gets the file into the vault and lets the provider settle its own
+    /// side.
     func moveToVault(_ sourceURL: URL) -> URL? {
         let destination = uniqueDestination(for: sourceURL)
+
         do {
             try FileManager.default.moveItem(at: sourceURL, to: destination)
             return destination
         } catch {
+            let nsError = error as NSError
+            logger.notice("""
+            Move failed for \(sourceURL.lastPathComponent, privacy: .public) \
+            (\(nsError.domain, privacy: .public) code \(nsError.code)); \
+            falling back to copy
+            """)
+        }
+
+        do {
+            try FileManager.default.copyItem(at: sourceURL, to: destination)
+            try? FileManager.default.trashItem(at: sourceURL, resultingItemURL: nil)
+            return destination
+        } catch {
+            let nsError = error as NSError
+            logger.error("""
+            Copy also failed for \(sourceURL.lastPathComponent, privacy: .public): \
+            \(nsError.domain, privacy: .public) code \(nsError.code) — \
+            \(nsError.localizedDescription, privacy: .public)
+            """)
             return nil
         }
     }

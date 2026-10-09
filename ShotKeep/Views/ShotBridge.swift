@@ -23,6 +23,7 @@ enum ShotBridge {
             },
             openFolder: appState.openVaultFolder,
             openPrivacySettings: appState.openPrivacySettings,
+            relaunch: appState.relaunch,
             chooseFolder: appState.chooseCustomFolder,
             openSettings: openSettings,
             quit: { NSApp.terminate(nil) }

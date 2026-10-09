@@ -3,7 +3,9 @@ import Combine
 
 final class AppState: ObservableObject {
     @Published private(set) var screenshots: [ScreenshotItem] = []
-    @Published var permissionDenied = false
+    /// `nil` once the folder is readable. Holding the reason rather than a
+    /// Bool is what lets the card name the right pane of System Settings.
+    @Published private(set) var accessFailure: FolderAccessFailure?
 
     private let storage = ScreenshotStorage()
     private let watcher = ScreenshotWatcher()
@@ -20,15 +22,45 @@ final class AppState: ObservableObject {
         observeClipboard()
     }
 
+    /// Opens the pane that actually holds the grant. A folder inside a File
+    /// Provider domain is allowed under Files and Folders; Full Disk Access
+    /// covers it too, but that is a far bigger ask for a menu bar app, and
+    /// pointing there was why users kept flipping a switch that changed
+    /// nothing.
     func openPrivacySettings() {
+        let anchor: String
+        switch accessFailure {
+        case .cloudProvider:
+            anchor = "Privacy_FilesAndFolders"
+        default:
+            anchor = "Privacy_AllFiles"
+        }
         NSWorkspace.shared.open(
-            URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles")!
+            URL(string: "x-apple.systempreferences:com.apple.preference.security?\(anchor)")!
         )
     }
 
+    /// macOS caches a TCC denial for the lifetime of the process, which is
+    /// why System Settings offers "Quit & Reopen" whenever a switch is
+    /// flipped. Re-testing in-process cannot get past that cache, so the
+    /// card offers a real relaunch instead of a retry that could never
+    /// succeed.
+    func relaunch() {
+        let configuration = NSWorkspace.OpenConfiguration()
+        configuration.createsNewApplicationInstance = true
+        NSWorkspace.shared.openApplication(
+            at: Bundle.main.bundleURL,
+            configuration: configuration
+        ) { _, _ in
+            DispatchQueue.main.async { NSApp.terminate(nil) }
+        }
+    }
+
+    /// Called every time the popover opens: a grant made in System Settings
+    /// while the app was running is noticed only if we look again.
     func retryScreenshotAccess() {
-        guard permissionDenied else { return }
-        permissionDenied = false
+        guard accessFailure != nil else { return }
+        accessFailure = nil
         watcher.startWatching()
     }
 
@@ -43,7 +75,7 @@ final class AppState: ObservableObject {
 
         guard panel.runModal() == .OK, let url = panel.url else { return }
         FolderPreferences.setCustomDirectory(url)
-        permissionDenied = false
+        accessFailure = nil
         watcher.restart()
     }
 
@@ -100,9 +132,9 @@ final class AppState: ObservableObject {
     }
 
     private func observeNewScreenshots() {
-        watcher.onPermissionDenied = { [weak self] in
+        watcher.onAccessFailed = { [weak self] failure in
             DispatchQueue.main.async {
-                self?.permissionDenied = true
+                self?.accessFailure = failure
             }
         }
         watcher.onNewScreenshot = { [weak self] url in

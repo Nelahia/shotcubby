@@ -102,6 +102,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if popover.isShown {
             popover.performClose(nil)
         } else {
+            // Re-check here rather than in the SwiftUI view: the popover's
+            // hosting controller is built once and reused, so onAppear fires
+            // only on the first show and a grant made later is never noticed.
+            appState.retryScreenshotAccess()
             popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
             NSApp.activate(ignoringOtherApps: true)
         }

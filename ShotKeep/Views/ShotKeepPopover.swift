@@ -10,7 +10,7 @@
 //
 //      let view = PopoverView(
 //          shots: store.shots,                       // newest first or any order
-//          needsFolderAccess: store.needsFolderAccess,
+//          accessFailure: store.accessFailure,         // nil once readable
 //          watchedFolder: store.screenshotFolder,    // e.g. ~/Desktop
 //          keepFolder: store.keepFolder,             // ~/ShotKeep
 //          actions: .live(keepFolder: store.keepFolder,
@@ -48,6 +48,7 @@ struct ShotActions {
     var rename: (Shot, String) -> Void
     var openFolder: () -> Void
     var openPrivacySettings: () -> Void
+    var relaunch: () -> Void
     var chooseFolder: () -> Void
     var openSettings: () -> Void
     var quit: () -> Void
@@ -89,6 +90,7 @@ struct ShotActions {
                     NSWorkspace.shared.open(url)
                 }
             },
+            relaunch: {},
             chooseFolder: chooseFolder,
             openSettings: openSettings,
             quit: { NSApp.terminate(nil) }
@@ -178,7 +180,7 @@ struct ShotKeepGlyph: View {
 
 struct PopoverView: View {
     let shots: [Shot]
-    let needsFolderAccess: Bool
+    let accessFailure: FolderAccessFailure?
     let watchedFolder: URL
     let keepFolder: URL
     let actions: ShotActions
@@ -211,8 +213,8 @@ struct PopoverView: View {
     var body: some View {
         VStack(spacing: 0) {
             header
-            if needsFolderAccess {
-                AccessCard(watchedFolder: watchedFolder, keepFolder: keepFolder, actions: actions)
+            if let failure = accessFailure {
+                AccessCard(failure: failure, watchedFolder: watchedFolder, keepFolder: keepFolder, actions: actions)
                     .padding(.horizontal, 14)
             } else {
                 filterBar.padding(.horizontal, 14)
@@ -484,10 +486,45 @@ final class ThumbnailCache {
 // MARK: - Folder access card
 
 private struct AccessCard: View {
+    let failure: FolderAccessFailure
     let watchedFolder: URL
     let keepFolder: URL
     let actions: ShotActions
     @Environment(\.colorScheme) private var scheme
+
+    // MARK: - Copy
+    //
+    // Each case names the thing the user has to act on. A cloud-synced
+    // folder is granted in a different System Settings pane than a plain
+    // Desktop, under the provider's name rather than "screenshot folder" —
+    // so the card has to say "OneDrive", or the instruction doesn't match
+    // what's actually on screen in System Settings.
+
+    private var title: String {
+        switch failure {
+        case .cloudProvider(let name): return "Let ShotKeep read your \(name) folder"
+        case .protectedFolder: return "Let ShotKeep read your screenshot folder"
+        case .missing: return "That screenshot folder is gone"
+        }
+    }
+
+    private var explanation: String {
+        switch failure {
+        case .cloudProvider(let name):
+            return "Your screenshots land in a folder \(name) syncs, and macOS keeps those behind their own permission. Allow ShotKeep under Files and Folders — the Desktop switch doesn't cover this one."
+        case .protectedFolder:
+            return "macOS needs your OK before ShotKeep can move new screenshots out of it. Nothing else in the folder is touched."
+        case .missing:
+            return "ShotKeep can't find the folder it was watching. Pick the folder your screenshots actually go to."
+        }
+    }
+
+    private var settingsLabel: String {
+        switch failure {
+        case .cloudProvider: return "Open Files & Folders"
+        default: return "Open Privacy Settings"
+        }
+    }
 
     var body: some View {
         let t = Theme.resolve(scheme)
@@ -499,10 +536,10 @@ private struct AccessCard: View {
             .foregroundStyle(t.warn)
 
             VStack(alignment: .leading, spacing: 6) {
-                Text("Let ShotKeep read your screenshot folder")
+                Text(title)
                     .font(.system(size: 16, weight: .semibold))
                     .fixedSize(horizontal: false, vertical: true)
-                Text("macOS needs your OK before ShotKeep can move new screenshots out of it. Nothing else in the folder is touched.")
+                Text(explanation)
                     .foregroundStyle(t.muted)
                     .lineSpacing(2)
                     .fixedSize(horizontal: false, vertical: true)
@@ -520,9 +557,9 @@ private struct AccessCard: View {
             .background(t.bg, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
             .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous).strokeBorder(t.line))
 
-            VStack(spacing: 6) {
-                Button(action: actions.openPrivacySettings) {
-                    Text("Open Privacy Settings")
+            if case .missing = failure {
+                Button(action: actions.chooseFolder) {
+                    Text("Choose Folder…")
                         .font(.system(size: 13, weight: .semibold))
                         .foregroundStyle(t.bg)
                         .frame(maxWidth: .infinity).frame(height: 34)
@@ -531,14 +568,39 @@ private struct AccessCard: View {
                 }
                 .buttonStyle(.plain)
                 .keyboardShortcut(.defaultAction)
+            } else {
+                VStack(spacing: 6) {
+                    Button(action: actions.openPrivacySettings) {
+                        Text(settingsLabel)
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundStyle(t.bg)
+                            .frame(maxWidth: .infinity).frame(height: 34)
+                            .background(t.ink, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .keyboardShortcut(.defaultAction)
 
-                Button(action: actions.chooseFolder) {
-                    Text("Use a different folder…")
-                        .foregroundStyle(t.muted)
-                        .frame(maxWidth: .infinity).frame(height: 30)
-                        .contentShape(Rectangle())
+                    // macOS caches the denial for the life of the process, so a
+                    // grant given just now can't reach the already-running app.
+                    // This is the same thing System Settings calls "Quit &
+                    // Reopen" — without it the card looks broken to someone who
+                    // just said yes.
+                    Button(action: actions.relaunch) {
+                        Text("Already allowed? Relaunch ShotKeep")
+                            .font(.system(size: 12))
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(t.accent)
+
+                    Button(action: actions.chooseFolder) {
+                        Text("Use a different folder…")
+                            .foregroundStyle(t.muted)
+                            .frame(maxWidth: .infinity).frame(height: 30)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
             }
         }
         .padding(18)
@@ -644,7 +706,7 @@ private struct KeyHint: View {
              date: now.addingTimeInterval(Double(-i) * 4 * 3600),
              source: i % 3 == 0 ? .clipboard : .file)
     }
-    return PopoverView(shots: sample, needsFolderAccess: false,
+    return PopoverView(shots: sample, accessFailure: nil,
                        watchedFolder: URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("Desktop"),
                        keepFolder: folder,
                        actions: .live(keepFolder: folder, chooseFolder: {}, openSettings: {}))
@@ -652,8 +714,17 @@ private struct KeyHint: View {
 
 #Preview("Needs access") {
     let folder = URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("ShotKeep")
-    return PopoverView(shots: [], needsFolderAccess: true,
+    return PopoverView(shots: [], accessFailure: .protectedFolder,
                        watchedFolder: URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("Desktop"),
+                       keepFolder: folder,
+                       actions: .live(keepFolder: folder, chooseFolder: {}, openSettings: {}))
+}
+
+#Preview("Needs cloud access") {
+    let folder = URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("ShotKeep")
+    return PopoverView(shots: [], accessFailure: .cloudProvider(name: "OneDrive"),
+                       watchedFolder: URL(fileURLWithPath: NSHomeDirectory())
+                           .appendingPathComponent("Library/CloudStorage/OneDrive-Example/Desktop"),
                        keepFolder: folder,
                        actions: .live(keepFolder: folder, chooseFolder: {}, openSettings: {}))
 }

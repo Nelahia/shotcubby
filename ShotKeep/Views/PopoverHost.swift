@@ -8,11 +8,10 @@ struct PopoverHost: View {
     var body: some View {
         PopoverView(
             shots: appState.screenshots.map(ShotBridge.toShot),
-            needsFolderAccess: appState.permissionDenied,
+            accessFailure: appState.accessFailure,
             watchedFolder: URL(fileURLWithPath: appState.screenshotDirectory),
             keepFolder: appState.vaultURL,
             actions: ShotBridge.actions(for: appState, openSettings: openSettings)
         )
-        .onAppear { appState.retryScreenshotAccess() }
     }
 }

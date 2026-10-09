@@ -26,9 +26,31 @@ targets:
     sources:
       - ShotKeep
     info:
+      # xcodegen regenerates ShotKeep/Info.plist from this block on every
+      # `xcodegen generate`, so anything missing here is silently dropped
+      # from the built app. The usage descriptions have to live here:
+      # without them macOS cannot show the TCC consent prompt for a
+      # protected folder and denies access outright, which surfaces as a
+      # permission card that never clears no matter what the user toggles
+      # in System Settings.
       path: ShotKeep/Info.plist
       properties:
         LSUIElement: true
+        NSDesktopFolderUsageDescription: >-
+          ShotKeep moves new screenshots out of this folder into ~/ShotKeep.
+        NSDocumentsFolderUsageDescription: >-
+          Needed only if you pick a custom screenshot folder inside Documents.
+        NSDownloadsFolderUsageDescription: >-
+          Needed only if you pick a custom screenshot folder inside Downloads.
+        # A Desktop redirected by OneDrive, Google Drive or iCloud lives in
+        # ~/Library/CloudStorage, inside a File Provider domain. macOS guards
+        # those with a service of their own: the three keys above do not
+        # apply, and without this one the folder is denied with no prompt
+        # ever shown — which is exactly how the permission card became
+        # unclearable for anyone with a cloud-redirected Desktop.
+        NSFileProviderDomainUsageDescription: >-
+          ShotKeep moves new screenshots out of your cloud-synced screenshot
+          folder into ~/ShotKeep. Nothing else in the folder is read.
     entitlements:
       path: ShotKeep/ShotKeep.entitlements
       properties:
