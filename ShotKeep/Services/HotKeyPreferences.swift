@@ -3,17 +3,20 @@ import Carbon.HIToolbox
 
 /// Persists the user's chosen global shortcut for opening Spotlight search.
 ///
-/// Default is Option + Comma. Deliberately not Command + Comma: this is a
-/// system-wide Carbon hotkey, so it would otherwise steal the near-universal
-/// "Open Preferences" shortcut from whatever app is frontmost.
+/// Default is Command + Slash. This is a system-wide Carbon hotkey, so it
+/// would otherwise steal whatever that combo already does — checked against
+/// Apple's own Command-key shortcut list (support.apple.com/102650): every
+/// letter is claimed by something, but ⌘/ is about as obscure as it gets
+/// (toggles the Finder window status bar, a feature most people have never
+/// touched), and it's right next to Comma on the keyboard.
 enum HotKeyPreferences {
     private static let keyCodeDefaultsKey = "spotlightHotKeyCode"
     private static let modifiersDefaultsKey = "spotlightHotKeyModifiers"
 
     static let didChangeNotification = Notification.Name("HotKeyPreferences.didChange")
 
-    static let defaultKeyCode = UInt32(kVK_ANSI_Comma)
-    static let defaultModifiers = UInt32(optionKey)
+    static let defaultKeyCode = UInt32(kVK_ANSI_Slash)
+    static let defaultModifiers = UInt32(cmdKey)
 
     static var keyCode: UInt32 {
         guard UserDefaults.standard.object(forKey: keyCodeDefaultsKey) != nil else { return defaultKeyCode }
