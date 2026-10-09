@@ -3,17 +3,16 @@ import Carbon.HIToolbox
 
 /// Persists the user's chosen global shortcut for opening Spotlight search.
 ///
-/// Default is Option + the physical key just below Esc, left of "1" — the
-/// same key regardless of keyboard layout (its printed glyph is "@" on a
-/// common QWERTY layout, "²" on French AZERTY; the Carbon keycode kVK_ANSI_Grave
-/// identifies the physical key, not the glyph).
+/// Default is Option + Comma. Deliberately not Command + Comma: this is a
+/// system-wide Carbon hotkey, so it would otherwise steal the near-universal
+/// "Open Preferences" shortcut from whatever app is frontmost.
 enum HotKeyPreferences {
     private static let keyCodeDefaultsKey = "spotlightHotKeyCode"
     private static let modifiersDefaultsKey = "spotlightHotKeyModifiers"
 
     static let didChangeNotification = Notification.Name("HotKeyPreferences.didChange")
 
-    static let defaultKeyCode = UInt32(kVK_ANSI_Grave)
+    static let defaultKeyCode = UInt32(kVK_ANSI_Comma)
     static let defaultModifiers = UInt32(optionKey)
 
     static var keyCode: UInt32 {
