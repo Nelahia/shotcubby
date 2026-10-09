@@ -20,7 +20,7 @@
 //      ↑ ↓      move selection          ↩       copy image and close
 //      ⌘↩       preview in default app  ⌘R      open folder (Finder) and close
 //      ⌘E       rename                  esc     cancel rename, else clear search, else close
-//      ⌘⌫       move to Trash
+//      ⌘⌫       move to Trash           ⌘,      open Settings
 //
 
 import SwiftUI
@@ -146,6 +146,7 @@ final class SpotlightController {
             onPreview: { [weak self] in self?.previewSelected() },
             onReveal: { [weak self] in self?.revealSelected() },
             onDelete: { [weak self] in self?.deleteSelected() },
+            onSettings: actions.openSettings,
             onClose: { [weak self] in self?.closeOrClearSearch() }
         )
         panel.contentView = NSHostingView(rootView: root)
@@ -255,6 +256,8 @@ final class SpotlightController {
             copySelected(); return true
         case kVK_ANSI_E where command:
             model.beginRename(); return true
+        case kVK_ANSI_Comma where command:
+            actions.openSettings(); return true
         case kVK_Delete where command:
             deleteSelected(); return true
         default:
@@ -275,6 +278,7 @@ struct SpotlightView: View {
     let onPreview: () -> Void
     let onReveal: () -> Void
     let onDelete: () -> Void
+    let onSettings: () -> Void
     let onClose: () -> Void
 
     @FocusState private var searchFocused: Bool
@@ -384,6 +388,7 @@ struct SpotlightView: View {
             HintButton(key: "⌘E", label: "Rename", action: model.beginRename)
             HintButton(key: "⌘⌫", label: "Trash", action: onDelete)
             Spacer()
+            HintButton(key: "⌘,", label: "Settings", action: onSettings)
             HintButton(key: "esc", label: "Close", action: onClose)
         }
         .padding(.horizontal, 16)
