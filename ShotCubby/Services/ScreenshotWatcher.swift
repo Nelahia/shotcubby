@@ -21,7 +21,7 @@ enum FolderAccessFailure: Equatable {
 }
 
 final class ScreenshotWatcher {
-    private let logger = Logger(subsystem: "com.nelahian.shotnest", category: "ScreenshotWatcher")
+    private let logger = Logger(subsystem: "com.nelahian.shotcubby", category: "ScreenshotWatcher")
 
     var onNewScreenshot: ((URL) -> Void)?
     var onAccessFailed: ((FolderAccessFailure) -> Void)?
@@ -30,7 +30,7 @@ final class ScreenshotWatcher {
     /// used to own that set; the polling fallback below can now fire at the
     /// same time, and two threads mutating one Set is a crash, not a missed
     /// screenshot.
-    private let queue = DispatchQueue(label: "com.nelahian.shotnest.watcher")
+    private let queue = DispatchQueue(label: "com.nelahian.shotcubby.watcher")
 
     private var source: DispatchSourceFileSystemObject?
     private var pollTimer: DispatchSourceTimer?

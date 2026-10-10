@@ -1,4 +1,4 @@
-name: ShotNest
+name: ShotCubby
 options:
   bundleIdPrefix: com.nelahian
   deploymentTarget:
@@ -20,24 +20,24 @@ settings:
     # the real Developer ID signature (it's required for notarization).
 
 targets:
-  ShotNest:
+  ShotCubby:
     type: application
     platform: macOS
     sources:
-      - ShotNest
+      - ShotCubby
     info:
-      # xcodegen regenerates ShotNest/Info.plist from this block on every
+      # xcodegen regenerates ShotCubby/Info.plist from this block on every
       # `xcodegen generate`, so anything missing here is silently dropped
       # from the built app. The usage descriptions have to live here:
       # without them macOS cannot show the TCC consent prompt for a
       # protected folder and denies access outright, which surfaces as a
       # permission card that never clears no matter what the user toggles
       # in System Settings.
-      path: ShotNest/Info.plist
+      path: ShotCubby/Info.plist
       properties:
         LSUIElement: true
         NSDesktopFolderUsageDescription: >-
-          ShotNest moves new screenshots out of this folder into ~/ShotNest.
+          ShotCubby moves new screenshots out of this folder into ~/ShotCubby.
         NSDocumentsFolderUsageDescription: >-
           Needed only if you pick a custom screenshot folder inside Documents.
         NSDownloadsFolderUsageDescription: >-
@@ -49,18 +49,18 @@ targets:
         # ever shown — which is exactly how the permission card became
         # unclearable for anyone with a cloud-redirected Desktop.
         NSFileProviderDomainUsageDescription: >-
-          ShotNest moves new screenshots out of your cloud-synced screenshot
-          folder into ~/ShotNest. Nothing else in the folder is read.
+          ShotCubby moves new screenshots out of your cloud-synced screenshot
+          folder into ~/ShotCubby. Nothing else in the folder is read.
     entitlements:
-      path: ShotNest/ShotNest.entitlements
+      path: ShotCubby/ShotCubby.entitlements
       properties:
         com.apple.security.app-sandbox: false
     settings:
       base:
         CODE_SIGN_IDENTITY: "-"
         CODE_SIGN_STYLE: Manual
-        PRODUCT_BUNDLE_IDENTIFIER: com.nelahian.shotnest
-        INFOPLIST_FILE: ShotNest/Info.plist
+        PRODUCT_BUNDLE_IDENTIFIER: com.nelahian.shotcubby
+        INFOPLIST_FILE: ShotCubby/Info.plist
         GENERATE_INFOPLIST_FILE: false
         LD_RUNPATH_SEARCH_PATHS: "@executable_path/../Frameworks"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon

@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct ShotNestApp: App {
+struct ShotCubbyApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
     var body: some Scene {
@@ -37,12 +37,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         NSApp.activate(ignoringOtherApps: true)
     }
 
-    /// Called when the user tries to open ShotNest again while it's already
+    /// Called when the user tries to open ShotCubby again while it's already
     /// running — double-clicking it in Finder/Applications, or launching it
     /// via Spotlight search — and it has no visible windows to bring
     /// forward. An .accessory app has none by design, so without this the
     /// click would silently do nothing. The Spotlight search panel is the
-    /// closest thing ShotNest has to a main window, so that's what opens.
+    /// closest thing ShotCubby has to a main window, so that's what opens.
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
         spotlight?.show()
         return true
@@ -53,7 +53,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         guard let button = statusItem?.button else { return }
         button.image = NSImage(named: "MenuBarGlyph")
         button.image?.isTemplate = true
-        button.image?.accessibilityDescription = "ShotNest"
+        button.image?.accessibilityDescription = "ShotCubby"
         button.action = #selector(handleStatusItemClick)
         button.target = self
         button.sendAction(on: [.leftMouseUp, .rightMouseUp])
@@ -84,7 +84,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func showSettingsWindow() {
         if settingsWindow == nil {
             let window = NSWindow(contentViewController: NSHostingController(rootView: SettingsView()))
-            window.title = "ShotNest Settings"
+            window.title = "ShotCubby Settings"
             window.styleMask = [.titled, .closable]
             window.isReleasedWhenClosed = false
             settingsWindow = window
@@ -182,7 +182,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         menu.addItem(.separator())
 
         let quitItem = NSMenuItem(
-            title: "Quit ShotNest",
+            title: "Quit ShotCubby",
             action: #selector(quitApp),
             keyEquivalent: "q"
         )

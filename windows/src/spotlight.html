@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>ShotCubby Search</title>
+    <link rel="stylesheet" href="shared.css" />
+    <style>
+      /* [hidden] must win over the flex rules below it, which otherwise
+         outrank the UA stylesheet's [hidden]{display:none} by specificity. */
+      #list[hidden],
+      #preview[hidden],
+      #spot-empty[hidden] {
+        display: none;
+      }
+      #search-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        height: 60px;
+        padding: 0 18px;
+        border-bottom: 1px solid var(--line);
+        flex: none;
+      }
+      #search-row .glyph {
+        width: 24px;
+        height: 24px;
+        flex: none;
+      }
+      #search-input {
+        flex: 1;
+        border: 0;
+        outline: none;
+        background: transparent;
+        color: var(--ink);
+        font: inherit;
+        font-size: 22px;
+      }
+      #search-input::placeholder {
+        color: var(--muted);
+      }
+      #result-count {
+        font-family: ui-monospace, Consolas, monospace;
+        font-size: 12px;
+        color: var(--muted);
+        padding: 2px 8px;
+        border-radius: 999px;
+        background: var(--line);
+      }
+      #body {
+        flex: 1;
+        min-height: 0;
+        display: flex;
+      }
+      #list {
+        width: 300px;
+        flex: none;
+        overflow-y: auto;
+        padding: 8px;
+        border-right: 1px solid var(--line);
+      }
+      .row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 6px 8px;
+        border-radius: 8px;
+        cursor: default;
+      }
+      .row.selected {
+        background: color-mix(in srgb, var(--accent) 20%, transparent);
+      }
+      .row .thumb {
+        width: 52px;
+        height: 39px;
+        flex: none;
+        border-radius: 5px;
+        background: var(--tile);
+        box-shadow: inset 0 0 0 1px var(--line);
+        overflow: hidden;
+      }
+      .row .thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+      .row .meta {
+        min-width: 0;
+        flex: 1;
+      }
+      .row .name {
+        font-size: 13px;
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .row .name input {
+        width: 100%;
+        font: inherit;
+        font-weight: 500;
+        background: transparent;
+        color: var(--ink);
+        border: 0;
+        outline: none;
+      }
+      .row .when {
+        font-family: ui-monospace, Consolas, monospace;
+        font-size: 11px;
+        color: var(--muted);
+      }
+      #preview {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 16px;
+      }
+      #preview img {
+        flex: 1;
+        min-height: 0;
+        width: 100%;
+        object-fit: contain;
+        border-radius: 8px;
+      }
+      #preview .file {
+        font-family: ui-monospace, Consolas, monospace;
+        font-size: 13px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      #preview .sub {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      #spot-empty {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        color: var(--muted);
+        text-align: center;
+      }
+      #hints {
+        position: relative;
+        flex: none;
+      }
+      .footer {
+        display: flex;
+        align-items: center;
+        height: 40px;
+        padding: 0 8px 0 16px;
+        border-top: 1px solid var(--line);
+        font-size: 12px;
+      }
+      .footer-primary {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        overflow-x: auto;
+      }
+      .footer-spacer {
+        flex: 1;
+      }
+      .hint {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--muted);
+        white-space: nowrap;
+      }
+      .hint:hover {
+        color: var(--ink);
+      }
+      .actions-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        height: 28px;
+        padding: 0 6px 0 10px;
+        border-radius: 7px;
+        white-space: nowrap;
+      }
+      .actions-btn:hover,
+      .actions-btn.open {
+        background: var(--line);
+      }
+      .actions-label {
+        font-weight: 500;
+      }
+      .actions-menu {
+        position: absolute;
+        bottom: 46px;
+        right: 8px;
+        width: 248px;
+        padding: 5px;
+        border-radius: 10px;
+        background: var(--panel);
+        box-shadow: 0 0 0 1px var(--line), 0 8px 24px -4px rgba(0, 0, 0, 0.4);
+      }
+      .actions-menu-sep {
+        height: 1px;
+        margin: 5px 8px;
+        background: var(--line);
+      }
+      .actions-menu-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        width: 100%;
+        height: 30px;
+        padding: 0 8px 0 10px;
+        border-radius: 6px;
+        font-size: 13px;
+      }
+      .actions-menu-item.highlighted {
+        background: color-mix(in srgb, var(--accent) 20%, transparent);
+      }
+      .actions-menu-item.destructive {
+        color: #e5484d;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="panel">
+      <div id="search-row">
+        <span class="glyph"></span>
+        <input id="search-input" placeholder="Search screenshots" spellcheck="false" />
+        <span id="result-count">0</span>
+      </div>
+      <div id="body">
+        <div id="list"></div>
+        <div id="preview"></div>
+        <div id="spot-empty" hidden></div>
+      </div>
+      <div id="hints"></div>
+    </div>
+    <script type="module" src="spotlight.js"></script>
+  </body>
+</html>

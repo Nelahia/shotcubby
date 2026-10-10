@@ -1,0 +1,224 @@
+import { invoke, listen, currentWindow, el, GLYPH_SVG, thumbnailUrl } from "./shared.js";
+import { renderRow } from "./spotlight-row.js";
+import { createSpotlightFooter } from "./spotlight-footer.js";
+import { createSpotlightActions } from "./spotlight-actions.js";
+
+const state = {
+  shots: [],
+  query: "",
+  selection: null,
+  renamingId: null,
+};
+
+document.querySelector("#search-row .glyph").innerHTML = GLYPH_SVG;
+const searchInput = document.getElementById("search-input");
+
+function results() {
+  const q = state.query.trim().toLowerCase();
+  const sorted = [...state.shots].sort((a, b) => b.created_at - a.created_at);
+  const matched = q ? sorted.filter((s) => s.name.toLowerCase().includes(q)) : sorted;
+  return matched.slice(0, 60);
+}
+
+function selected() {
+  return results().find((s) => s.id === state.selection) ?? null;
+}
+
+function move(delta) {
+  const list = results();
+  if (list.length === 0) return;
+  const current = list.findIndex((s) => s.id === state.selection);
+  const next = Math.max(0, Math.min(list.length - 1, (current < 0 ? 0 : current) + delta));
+  state.selection = list[next].id;
+  render();
+}
+
+async function reset() {
+  state.shots = await invoke("list_screenshots");
+  state.query = "";
+  state.renamingId = null;
+  const list = results();
+  state.selection = list[0]?.id ?? null;
+  searchInput.value = "";
+  footer.close();
+  render();
+  searchInput.focus();
+}
+
+function render() {
+  const list = results();
+  document.getElementById("result-count").textContent = String(list.length);
+
+  const listEl = document.getElementById("list");
+  const previewEl = document.getElementById("preview");
+  const emptyEl = document.getElementById("spot-empty");
+
+  if (list.length === 0) {
+    listEl.hidden = true;
+    previewEl.hidden = true;
+    emptyEl.hidden = false;
+    emptyEl.innerHTML = "";
+    emptyEl.appendChild(
+      el("div", "", state.query ? `No screenshot named "${state.query}"` : "No screenshots yet")
+    );
+    emptyEl.appendChild(el("div", "", state.query ? "Try fewer letters." : "Press Win+Shift+S and it lands here."));
+    return;
+  }
+
+  listEl.hidden = false;
+  previewEl.hidden = false;
+  emptyEl.hidden = true;
+
+  const rowCallbacks = {
+    onSelect: (shot) => {
+      state.selection = shot.id;
+      state.renamingId = null;
+      footer.close();
+      render();
+    },
+    onCopy: copySelected,
+    onCommitRename: commitRename,
+    onCancelRename: () => {
+      state.renamingId = null;
+      render();
+    },
+  };
+
+  listEl.textContent = "";
+  for (const shot of list) {
+    listEl.appendChild(renderRow(shot, shot.id === state.selection, shot.id === state.renamingId, rowCallbacks));
+  }
+
+  renderPreview(previewEl, selected());
+
+  const selectedRow = listEl.querySelector(".row.selected");
+  if (selectedRow) selectedRow.scrollIntoView({ block: "nearest" });
+}
+
+function renderPreview(previewEl, current) {
+  previewEl.textContent = "";
+  if (!current) return;
+
+  const img = el("img");
+  thumbnailUrl(current.path, 420).then((url) => {
+    if (url) img.src = url;
+  });
+  previewEl.appendChild(img);
+  previewEl.appendChild(el("div", "file", current.id));
+  const sub = `${new Date(current.created_at).toLocaleString()} · ${current.source === "clipboard" ? "from clipboard" : "file"}`;
+  previewEl.appendChild(el("div", "sub", sub));
+}
+
+async function commitRename(shot, newName) {
+  state.renamingId = null;
+  const trimmed = newName.trim();
+  if (trimmed && trimmed !== shot.name) {
+    const renamed = await invoke("rename_screenshot", { id: shot.id, newName: trimmed });
+    state.shots = await invoke("list_screenshots");
+    state.selection = renamed.id;
+  }
+  render();
+}
+
+function beginRename() {
+  const shot = selected();
+  if (shot) {
+    state.renamingId = shot.id;
+    render();
+  }
+}
+
+const { copySelected, previewSelected, revealSelected, deleteSelected } = createSpotlightActions({
+  getSelected: selected,
+  onDeleted: (shot) => {
+    state.shots = state.shots.filter((s) => s.id !== shot.id);
+    const list = results();
+    state.selection = list[0]?.id ?? null;
+    render();
+  },
+});
+
+function closeOrClearSearch() {
+  if (state.query) {
+    state.query = "";
+    searchInput.value = "";
+    render();
+  } else {
+    currentWindow().hide();
+  }
+}
+
+searchInput.addEventListener("input", () => {
+  state.query = searchInput.value;
+  const list = results();
+  state.selection = list[0]?.id ?? null;
+  footer.close();
+  render();
+});
+
+document.addEventListener("keydown", (e) => {
+  if (state.renamingId) return; // the row's own input handles Enter/Escape
+
+  const ctrl = e.ctrlKey || e.metaKey;
+
+  if (footer.isOpen()) {
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      footer.moveHighlight(1);
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      footer.moveHighlight(-1);
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      footer.runHighlighted();
+    } else if (e.key === "Escape" || (ctrl && e.key.toLowerCase() === "k")) {
+      e.preventDefault();
+      footer.close();
+    }
+    return;
+  }
+
+  if (e.key === "ArrowDown") {
+    e.preventDefault();
+    move(1);
+  } else if (e.key === "ArrowUp") {
+    e.preventDefault();
+    move(-1);
+  } else if (e.key === "Enter") {
+    e.preventDefault();
+    ctrl ? previewSelected() : copySelected();
+  } else if (e.key === "Escape") {
+    e.preventDefault();
+    closeOrClearSearch();
+  } else if (ctrl && e.key.toLowerCase() === "k") {
+    e.preventDefault();
+    footer.toggle();
+  } else if (ctrl && e.key.toLowerCase() === "r") {
+    e.preventDefault();
+    revealSelected();
+  } else if (ctrl && e.key.toLowerCase() === "c" && document.activeElement !== searchInput) {
+    e.preventDefault();
+    copySelected();
+  } else if (ctrl && e.key.toLowerCase() === "e") {
+    e.preventDefault();
+    beginRename();
+  } else if (ctrl && e.key === ",") {
+    e.preventDefault();
+    invoke("open_settings_window");
+  } else if (ctrl && e.key === "Backspace") {
+    e.preventDefault();
+    deleteSelected();
+  }
+});
+
+listen("spotlight-shown", reset);
+
+const footer = createSpotlightFooter(document.getElementById("hints"), {
+  copy: copySelected,
+  preview: previewSelected,
+  reveal: revealSelected,
+  rename: beginRename,
+  trash: deleteSelected,
+  settings: () => invoke("open_settings_window"),
+});
+reset();

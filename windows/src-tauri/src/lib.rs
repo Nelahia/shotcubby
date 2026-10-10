@@ -1,0 +1,123 @@
+mod app_state;
+mod commands;
+mod hotkey;
+mod models;
+mod services;
+mod windows_ui;
+
+use tauri::menu::MenuBuilder;
+use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
+use tauri::{Manager, RunEvent};
+
+use app_state::AppStateInner;
+
+#[cfg_attr(mobile, tauri::mobile_entry_point)]
+pub fn run() {
+    let app = tauri::Builder::default()
+        .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_global_shortcut::Builder::new().build())
+        .invoke_handler(tauri::generate_handler![
+            commands::list_screenshots,
+            commands::get_access_failure,
+            commands::get_vault_dir,
+            commands::get_screenshot_dir,
+            commands::get_thumbnail,
+            commands::open_screenshot,
+            commands::reveal_screenshot,
+            commands::copy_screenshot,
+            commands::delete_screenshot,
+            commands::rename_screenshot,
+            commands::choose_custom_folder,
+            commands::retry_screenshot_access,
+            commands::open_vault_folder,
+            commands::open_windows_security,
+            commands::get_hotkey,
+            commands::set_hotkey,
+            commands::reset_hotkey,
+            commands::open_spotlight_from_popover,
+            commands::open_settings_window,
+            commands::quit_app,
+        ])
+        .setup(|app| {
+            let handle = app.handle().clone();
+            let state = AppStateInner::init(handle.clone());
+            app.manage(state);
+
+            setup_tray(app)?;
+
+            // Created eagerly, on the main thread, during setup. Two reasons:
+            // the hide-on-blur listener needs to be wired up from the start
+            // (mirrors the Mac app building its popover and Spotlight panel
+            // once in `applicationDidFinishLaunching`), and window creation
+            // on Windows has thread affinity — building one later from an
+            // IPC command handler (which runs on a worker thread, not the
+            // main thread) hangs. Settings is otherwise only ever opened
+            // from a command, so it needs the same eager treatment.
+            windows_ui::ensure_popover(&handle);
+            windows_ui::ensure_spotlight(&handle);
+            windows_ui::ensure_settings(&handle);
+
+            hotkey::init(&handle);
+            hotkey::init_capture_shortcuts(&handle);
+
+            app.state::<AppStateInner>().start();
+
+            Ok(())
+        })
+        .build(tauri::generate_context!())
+        .expect("error while building ShotCubby");
+
+    app.run(|_app_handle, event| {
+        // A tray utility only exits via the Quit menu item / command
+        // (`commands::quit_app`, which calls `app.exit(0)`) — closing a
+        // window (e.g. Settings) must never take the whole app down with it.
+        if let RunEvent::ExitRequested { api, .. } = event {
+            api.prevent_exit();
+        }
+    });
+}
+
+fn setup_tray(app: &tauri::App) -> tauri::Result<()> {
+    let menu = MenuBuilder::new(app)
+        .text("search", "Search…")
+        .text("open_folder", "Open Folder")
+        .text("settings", "Settings…")
+        .separator()
+        .text("quit", "Quit ShotCubby")
+        .build()?;
+
+    let icon = tauri::image::Image::from_bytes(include_bytes!("../icons/tray-icon.png"))?;
+
+    let tray = TrayIconBuilder::new()
+        .icon(icon)
+        .tooltip("ShotCubby")
+        .menu(&menu)
+        .show_menu_on_left_click(false)
+        .on_menu_event(|app, event| match event.id().as_ref() {
+            "search" => windows_ui::toggle_spotlight(app),
+            "open_folder" => {
+                let _ = commands::open_vault_folder(app.clone(), app.state());
+            }
+            "settings" => windows_ui::open_settings(app),
+            "quit" => app.exit(0),
+            _ => {}
+        })
+        .on_tray_icon_event(|tray, event| {
+            if let TrayIconEvent::Click {
+                button: MouseButton::Left,
+                button_state: MouseButtonState::Up,
+                rect,
+                ..
+            } = event
+            {
+                windows_ui::toggle_popover_near_tray(tray.app_handle(), rect);
+            }
+        })
+        .build(app)?;
+
+    // Must be kept alive for the app's lifetime — dropping the returned
+    // handle can make the OS tray icon disappear.
+    app.manage(tray);
+
+    Ok(())
+}

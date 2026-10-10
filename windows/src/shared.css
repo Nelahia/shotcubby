@@ -1,0 +1,140 @@
+:root {
+  --bg: #f6f8fa;
+  --panel: #ffffff;
+  --ink: #0c1216;
+  --muted: #56646e;
+  --line: rgba(0, 0, 0, 0.1);
+  --accent: #0fb6c9;
+  --tile: #e3e9ed;
+  --warn: #a85a00;
+  --logo-primary: #14191d;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14191d;
+    --panel: #1e262b;
+    --ink: #f1f5f7;
+    --muted: #9aa8b1;
+    --line: rgba(255, 255, 255, 0.1);
+    --accent: #35d6e6;
+    --tile: #232c32;
+    --warn: #f2b25c;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+  cursor: default;
+}
+
+body {
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 13px;
+  color: var(--ink);
+}
+
+input,
+textarea {
+  -webkit-user-select: text;
+  user-select: text;
+  cursor: text;
+}
+
+.mono {
+  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+
+.panel {
+  background: var(--bg);
+  border-radius: 14px;
+  box-shadow: 0 0 0 1px var(--line), 0 24px 48px -16px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.icon {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex: none;
+}
+
+.kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  font-size: 11px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  box-shadow: inset 0 0 0 1px var(--line);
+  color: var(--muted);
+}
+
+.scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  border-radius: 8px;
+  box-shadow: inset 0 0 0 1.5px var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+
+.tile:hover .scrim {
+  opacity: 1;
+}
+
+.overlay-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.overlay-btn:hover {
+  background: var(--logo-primary);
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 4px;
+}

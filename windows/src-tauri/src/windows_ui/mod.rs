@@ -1,0 +1,26 @@
+mod popover;
+mod settings;
+mod spotlight;
+
+pub use popover::{ensure_popover, toggle_popover_near_tray};
+pub use settings::{ensure_settings, open_settings};
+pub use spotlight::{ensure_spotlight, toggle_spotlight};
+
+use tauri::{WebviewWindow, WindowEvent};
+
+pub const POPOVER_LABEL: &str = "popover";
+pub const SPOTLIGHT_LABEL: &str = "spotlight";
+pub const SETTINGS_LABEL: &str = "settings";
+
+/// Shared by all three windows: the Mac equivalents (`NSPopover`'s
+/// `.transient` behavior, `SpotlightPanel.resignKey`) all close on losing
+/// focus, so Settings — the one window with normal decorations — is the
+/// only one that opts out (see `settings.rs`).
+fn hide_on_blur(window: &WebviewWindow) {
+    let window_for_closure = window.clone();
+    window.on_window_event(move |event| {
+        if let WindowEvent::Focused(false) = event {
+            let _ = window_for_closure.hide();
+        }
+    });
+}

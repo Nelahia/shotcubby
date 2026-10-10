@@ -1,6 +1,6 @@
 //
-//  ShotNestPopover.swift
-//  ShotNest
+//  ShotCubbyPopover.swift
+//  ShotCubby
 //
 //  Popover UI: header, source filter, thumbnail grid grouped by day,
 //  hover actions, inline rename, folder-access card, footer.
@@ -12,7 +12,7 @@
 //          shots: store.shots,                       // newest first or any order
 //          accessFailure: store.accessFailure,         // nil once readable
 //          watchedFolder: store.screenshotFolder,    // e.g. ~/Desktop
-//          keepFolder: store.keepFolder,             // ~/ShotNest
+//          keepFolder: store.keepFolder,             // ~/ShotCubby
 //          actions: .live(chooseFolder: { store.pickFolder() },
 //                         openSettings: { /* show your settings window */ })
 //      )
@@ -139,7 +139,7 @@ private func mono(_ size: CGFloat, _ weight: Font.Weight = .regular) -> Font {
 
 // MARK: - Glyph (viewfinder brackets around a kept shot)
 
-struct ShotNestGlyph: View {
+struct ShotCubbyGlyph: View {
     var body: some View {
         Canvas { ctx, size in
             let s = min(size.width, size.height) / 24
@@ -231,10 +231,10 @@ struct PopoverView: View {
 
     private var header: some View {
         HStack(spacing: 8) {
-            ShotNestGlyph()
+            ShotCubbyGlyph()
                 .frame(width: 18, height: 18)
                 .foregroundStyle(t.ink)
-            Text("ShotNest").font(.system(size: 14, weight: .semibold))
+            Text("ShotCubby").font(.system(size: 14, weight: .semibold))
             Text("\(visible.count)")
                 .font(mono(11))
                 .foregroundStyle(t.muted)
@@ -292,7 +292,7 @@ struct PopoverView: View {
         Group {
             if visible.isEmpty {
                 VStack(spacing: 6) {
-                    ShotNestGlyph().frame(width: 28, height: 28).foregroundStyle(t.muted)
+                    ShotCubbyGlyph().frame(width: 28, height: 28).foregroundStyle(t.muted)
                     Text("No screenshots yet").font(.system(size: 13, weight: .medium))
                     Text("Press ⌘⇧4 and it lands here.").font(.system(size: 12)).foregroundStyle(t.muted)
                 }
@@ -508,8 +508,8 @@ private struct AccessCard: View {
 
     private var title: String {
         switch failure {
-        case .cloudProvider(let name): return "Let ShotNest read your \(name) folder"
-        case .protectedFolder: return "Let ShotNest read your screenshot folder"
+        case .cloudProvider(let name): return "Let ShotCubby read your \(name) folder"
+        case .protectedFolder: return "Let ShotCubby read your screenshot folder"
         case .missing: return "That screenshot folder is gone"
         }
     }
@@ -517,11 +517,11 @@ private struct AccessCard: View {
     private var explanation: String {
         switch failure {
         case .cloudProvider(let name):
-            return "Your screenshots land in a folder \(name) syncs, and macOS keeps those behind their own permission. Allow ShotNest under Files and Folders — the Desktop switch doesn't cover this one."
+            return "Your screenshots land in a folder \(name) syncs, and macOS keeps those behind their own permission. Allow ShotCubby under Files and Folders — the Desktop switch doesn't cover this one."
         case .protectedFolder:
-            return "macOS needs your OK before ShotNest can move new screenshots out of it. Nothing else in the folder is touched."
+            return "macOS needs your OK before ShotCubby can move new screenshots out of it. Nothing else in the folder is touched."
         case .missing:
-            return "ShotNest can't find the folder it was watching. Pick the folder your screenshots actually go to."
+            return "ShotCubby can't find the folder it was watching. Pick the folder your screenshots actually go to."
         }
     }
 
@@ -593,7 +593,7 @@ private struct AccessCard: View {
                     // Reopen" — without it the card looks broken to someone who
                     // just said yes.
                     Button(action: actions.relaunch) {
-                        Text("Already allowed? Relaunch ShotNest")
+                        Text("Already allowed? Relaunch ShotCubby")
                             .font(.system(size: 12))
                     }
                     .buttonStyle(.plain)
@@ -710,7 +710,7 @@ private struct KeyHint: View {
 
 #Preview("Grid") {
     let now = Date()
-    let folder = URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("ShotNest")
+    let folder = URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("ShotCubby")
     let sample: [Shot] = (0..<9).map { i in
         Shot(url: folder.appendingPathComponent("Screenshot \(i).png"),
              date: now.addingTimeInterval(Double(-i) * 4 * 3600),
@@ -723,7 +723,7 @@ private struct KeyHint: View {
 }
 
 #Preview("Needs access") {
-    let folder = URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("ShotNest")
+    let folder = URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("ShotCubby")
     return PopoverView(shots: [], accessFailure: .protectedFolder,
                        watchedFolder: URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("Desktop"),
                        keepFolder: folder,
@@ -731,7 +731,7 @@ private struct KeyHint: View {
 }
 
 #Preview("Needs cloud access") {
-    let folder = URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("ShotNest")
+    let folder = URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("ShotCubby")
     return PopoverView(shots: [], accessFailure: .cloudProvider(name: "OneDrive"),
                        watchedFolder: URL(fileURLWithPath: NSHomeDirectory())
                            .appendingPathComponent("Library/CloudStorage/OneDrive-Example/Desktop"),

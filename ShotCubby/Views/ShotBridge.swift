@@ -1,10 +1,10 @@
 import AppKit
 
 /// Bridges AppState (ObservableObject, ScreenshotItem) to the value-based
-/// Shot/ShotActions API shared by ShotNestPopover.swift and
-/// ShotNestSpotlight.swift. Actions go through AppState's own methods
+/// Shot/ShotActions API shared by ShotCubbyPopover.swift and
+/// ShotCubbySpotlight.swift. Actions go through AppState's own methods
 /// rather than ShotActions.live(...), so the in-memory `screenshots` array
-/// stays in sync with rename/delete — nothing else watches the ~/ShotNest
+/// stays in sync with rename/delete — nothing else watches the ~/ShotCubby
 /// vault folder itself for those changes. Shared by PopoverHost and
 /// AppDelegate's SpotlightController so both surfaces act on the same data.
 enum ShotBridge {

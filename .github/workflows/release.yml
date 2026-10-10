@@ -13,7 +13,7 @@ jobs:
     runs-on: macos-15
 
     env:
-      APP_NAME: ShotNest
+      APP_NAME: ShotCubby
 
     steps:
       - uses: actions/checkout@v4
@@ -32,8 +32,8 @@ jobs:
 
       - name: Set release version in Info.plist
         run: |
-          plutil -replace CFBundleShortVersionString -string "${{ steps.version.outputs.version }}" ShotNest/Info.plist
-          plutil -replace CFBundleVersion -string "${{ github.run_number }}" ShotNest/Info.plist
+          plutil -replace CFBundleShortVersionString -string "${{ steps.version.outputs.version }}" ShotCubby/Info.plist
+          plutil -replace CFBundleVersion -string "${{ github.run_number }}" ShotCubby/Info.plist
 
       - name: Import Developer ID signing certificate
         env:
@@ -69,8 +69,8 @@ jobs:
         env:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
-          xcodebuild -project ShotNest.xcodeproj \
-            -scheme ShotNest \
+          xcodebuild -project ShotCubby.xcodeproj \
+            -scheme ShotCubby \
             -configuration Release \
             -archivePath build/${{ env.APP_NAME }}.xcarchive \
             -destination "generic/platform=macOS" \
@@ -180,20 +180,14 @@ jobs:
         with:
           files: ${{ env.APP_NAME }}.dmg
           body: |
-            ## ShotNest ${{ github.ref_name }}
+            ## ShotCubby ${{ github.ref_name }}
 
             Menu bar app that automatically captures and organizes all your macOS screenshots.
 
             This build is **signed with a Developer ID Application certificate and notarized by Apple** — it opens with no Gatekeeper warning.
 
-            ### Install via Homebrew
-            ```bash
-            brew tap nelahia/tap
-            brew install --cask shotnest
-            ```
-
             ### Manual install
-            Download `ShotNest.dmg`, open it, drag `ShotNest.app` to Applications.
+            Download `ShotCubby.dmg`, open it, drag `ShotCubby.app` to Applications.
 
             ### Requirements
             - macOS 14.0 (Sonoma) or later

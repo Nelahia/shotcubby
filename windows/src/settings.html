@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>ShotCubby Settings</title>
+    <link rel="stylesheet" href="shared.css" />
+    <style>
+      body {
+        padding: 20px;
+        background: var(--bg);
+      }
+      .row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .row .label {
+        flex: 1;
+        font-size: 13px;
+      }
+      #hotkey-field {
+        min-width: 160px;
+        font-family: ui-monospace, Consolas, monospace;
+        font-size: 12px;
+        padding: 6px 10px;
+        border-radius: 6px;
+        background: var(--line);
+        box-shadow: inset 0 0 0 2px transparent;
+        text-align: center;
+      }
+      #hotkey-field.recording {
+        box-shadow: inset 0 0 0 2px var(--accent);
+      }
+      #reset-btn {
+        font-size: 13px;
+        padding: 6px 10px;
+        border-radius: 6px;
+      }
+      #reset-btn:hover {
+        background: var(--line);
+      }
+      #footer-text {
+        margin-top: 14px;
+        font-size: 12px;
+        color: var(--muted);
+        line-height: 1.5;
+      }
+      #error {
+        margin-top: 8px;
+        font-size: 12px;
+        color: var(--warn);
+        min-height: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="row">
+      <span class="label">Open Spotlight search</span>
+      <button id="hotkey-field"></button>
+      <button id="reset-btn">Reset</button>
+    </div>
+    <div id="error"></div>
+    <div id="footer-text">
+      Click the field, then press a key combination with at least one modifier (Ctrl, Alt, Shift, Win). Esc cancels.
+    </div>
+    <script type="module" src="settings.js"></script>
+  </body>
+</html>

@@ -2,13 +2,13 @@ import Foundation
 import os
 
 final class ScreenshotStorage {
-    private let logger = Logger(subsystem: "com.nelahian.shotnest", category: "ScreenshotStorage")
+    private let logger = Logger(subsystem: "com.nelahian.shotcubby", category: "ScreenshotStorage")
 
     let vaultURL: URL
 
     init() {
         vaultURL = FileManager.default.homeDirectoryForCurrentUser
-            .appendingPathComponent("ShotNest")
+            .appendingPathComponent("ShotCubby")
     }
 
     func ensureVaultExists() {
@@ -19,7 +19,7 @@ final class ScreenshotStorage {
         )
     }
 
-    /// ShotNest was renamed from ShotKeep, which used ~/ShotKeep as its
+    /// ShotCubby was renamed from ShotKeep, which used ~/ShotKeep as its
     /// vault. Someone upgrading shouldn't lose every capture they'd already
     /// filed there — if the new vault doesn't exist yet but the old one
     /// does, move it wholesale before the fresh one would otherwise get
