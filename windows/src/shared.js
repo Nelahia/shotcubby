@@ -4,6 +4,12 @@ export const listen = (event, handler) => tauri.event.listen(event, handler);
 export const currentWindow = () => tauri.window.getCurrentWindow();
 export const appVersion = () => tauri.app.getVersion();
 
+/** Sizes the window to the height of `#content` (+ the body padding), so no empty space is left. */
+export function fitWindowToContent(width) {
+  const height = document.getElementById("content").offsetHeight + 40;
+  return currentWindow().setSize(new tauri.dpi.LogicalSize(width, height));
+}
+
 export function el(tag, className, text) {
   const node = document.createElement(tag);
   if (className) node.className = className;

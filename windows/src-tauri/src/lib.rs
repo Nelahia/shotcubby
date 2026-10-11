@@ -37,6 +37,8 @@ pub fn run() {
             commands::reset_hotkey,
             commands::get_auto_update,
             commands::set_auto_update,
+            commands::get_update_status,
+            commands::check_for_updates,
             commands::open_spotlight_from_popover,
             commands::open_settings_window,
             commands::show_copy_toast,
@@ -88,6 +90,7 @@ fn setup_tray(app: &tauri::App) -> tauri::Result<()> {
         .text("search", "Search…")
         .text("open_folder", "Open Folder")
         .text("settings", "Settings…")
+        .text("check_update", "Check for Updates…")
         .separator()
         .text("quit", "Quit ShotCubby")
         .build()?;
@@ -105,6 +108,13 @@ fn setup_tray(app: &tauri::App) -> tauri::Result<()> {
                 let _ = commands::open_vault_folder(app.clone(), app.state());
             }
             "settings" => windows_ui::open_settings(app),
+            "check_update" => {
+                windows_ui::open_settings(app);
+                let app = app.clone();
+                tauri::async_runtime::spawn(async move {
+                    services::updater::check_and_install(&app).await;
+                });
+            }
             "quit" => app.exit(0),
             _ => {}
         })

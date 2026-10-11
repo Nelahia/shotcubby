@@ -23,6 +23,14 @@
         flex: 1;
         font-size: 13px;
       }
+      .row .status {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 2px;
+      }
+      .reset-btn:disabled {
+        opacity: 0.5;
+      }
       .hotkey-field {
         min-width: 170px;
         font-family: ui-monospace, Consolas, monospace;
@@ -44,11 +52,6 @@
       .reset-btn:hover {
         background: var(--line);
       }
-      #version {
-        margin-top: 14px;
-        font-size: 12px;
-        color: var(--muted);
-      }
       #footer-text {
         margin-top: 14px;
         font-size: 12px;
@@ -64,11 +67,12 @@
     </style>
   </head>
   <body>
+    <div id="content">
     <div id="rows"></div>
     <div id="error"></div>
-    <div id="version"></div>
     <div id="footer-text">
       Click a field, then press the combination you want: a modifier (Ctrl, Alt, Shift, Win) plus a key, or a lone function / PrintScreen key. Esc cancels.
+    </div>
     </div>
     <script type="module" src="settings.js"></script>
   </body>
