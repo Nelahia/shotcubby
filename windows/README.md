@@ -16,10 +16,12 @@ light and dependency-free in the same spirit as the Swift/SwiftUI original.
 - Tray icon → click for a popover (thumbnails grouped by day, hover to copy/reveal/
   delete, double-click a name to rename). Right-click for Search…/Open Folder/Settings…/
   Quit.
-- A global shortcut (default **Ctrl+Alt+/**, customizable in Settings) opens a
-  Spotlight-style search panel: type to filter, arrow keys to move, Enter to copy,
-  Ctrl+Enter to preview, Ctrl+R to reveal, Ctrl+E to rename, Ctrl+Backspace to delete,
-  Ctrl+, for Settings, Esc to close.
+- A global shortcut (default **Ctrl+/**) opens a Spotlight-style search panel: type to
+  filter, arrow keys to move, Enter to preview, Ctrl+C to copy, Ctrl+R to reveal,
+  Ctrl+E to rename, Ctrl+Backspace to delete, Ctrl+K for all actions, Ctrl+, for
+  Settings, Esc to close.
+- Full-screen and region captures have their own global shortcuts (default
+  **Alt+Shift+3** / **Alt+Shift+4**). Every shortcut can be rebound in Settings.
 - Deletes always go to the Recycle Bin — never a permanent delete.
 
 ## Requirements

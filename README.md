@@ -1,132 +1,67 @@
 # ShotCubby
 
-A lightweight macOS menu bar app that automatically captures, organizes, and stores all your screenshots in one place.
+Every screenshot you take, automatically collected in one folder and one click away.
+A small menu bar (macOS) / system tray (Windows) app.
 
 ![Menu Bar](assets/menubar-overview.png)
 
-## What it does
+## Why
 
-ShotCubby lives in your menu bar as a small folder icon and works silently in the background.
+Screenshots pile up on the Desktop, get lost in Downloads, or vanish in the
+clipboard. ShotCubby quietly catches all of them, files them in a single place,
+and lets you find, copy or rename any of them in a couple of keystrokes.
 
-![Icon](assets/menubar-icon.png)
+- **Nothing to do** — keep taking screenshots the way you already do.
+- **One place** — `~/ShotCubby` (macOS) or `%USERPROFILE%\ShotCubby` (Windows).
+- **Fast to reach** — a Spotlight-style search opens from anywhere.
+- **Safe** — deleting always goes to the Trash / Recycle Bin, never permanently.
+- **Private** — works entirely on your machine, no account, no network.
 
-**It captures screenshots from two sources:**
+## What it captures
 
-| Shortcut | macOS behavior | ShotCubby behavior |
+| macOS | Windows | What happens |
 |---|---|---|
-| `Cmd + Shift + 3` | Saves full screen to Desktop | Detects the new file, moves it to `~/ShotCubby/` |
-| `Cmd + Shift + 4` | Saves selection to Desktop | Detects the new file, moves it to `~/ShotCubby/` |
-| `Cmd + Shift + Ctrl + 3` | Copies full screen to clipboard | Detects clipboard image, saves it to `~/ShotCubby/` |
-| `Cmd + Shift + Ctrl + 4` | Copies selection to clipboard | Detects clipboard image, saves it to `~/ShotCubby/` |
+| `Cmd + Shift + 3` | `Alt + Shift + 3` | Full screen → filed in your ShotCubby folder |
+| `Cmd + Shift + 4` | `Alt + Shift + 4` | Selected area → filed in your ShotCubby folder |
+| `Cmd + Shift + Ctrl + 3 / 4` | `Win + Shift + S` | Copied to the clipboard → saved to your ShotCubby folder |
 
-**Click the folder icon to access your screenshots:**
+On Windows the capture shortcuts can be changed freely in **Settings**; on macOS
+the system's own screenshot shortcuts are used.
 
-- Thumbnail preview for each screenshot
-- Click to open in Preview
-- Hover to reveal actions: **copy**, **reveal in Finder**, **delete**
-- Screenshot count in the header
-- "Open Folder" to jump to `~/ShotCubby/` in Finder
+## Using it
 
-## How it works
+**Click the menu bar / tray icon** for your recent screenshots, grouped by day, with
+thumbnails. Click one to open it; hover to copy, reveal in the file manager or delete;
+double-click a name to rename it.
 
-```
-┌─────────────────────────────────────────────────┐
-│                    ShotCubby                     │
-│                                                 │
-│   ┌──────────────┐     ┌──────────────────┐     │
-│   │ File Watcher │────▶│                  │     │
-│   │  (FSEvents)  │     │    ~/ShotCubby/   │     │
-│   └──────────────┘     │                  │     │
-│                        │  Organized PNG   │     │
-│   ┌──────────────┐     │  storage with    │     │
-│   │  Clipboard   │────▶│  thumbnails      │     │
-│   │   Watcher    │     │                  │     │
-│   └──────────────┘     └──────────────────┘     │
-│                              │                  │
-│                              ▼                  │
-│                     ┌────────────────┐          │
-│                     │ Menu Bar       │          │
-│                     │ Popover UI     │          │
-│                     └────────────────┘          │
-└─────────────────────────────────────────────────┘
-```
+**Open the search from anywhere** with the global shortcut (default
+`Cmd + /` on macOS, `Ctrl + /` on Windows — both customizable in Settings),
+then type to filter and use the keyboard:
 
-- **File Watcher** — Monitors your screenshot directory (Desktop by default) using macOS FSEvents. When a new screenshot file appears, it moves it to `~/ShotCubby/`.
-- **Clipboard Watcher** — Polls the system pasteboard every 0.8s. When a new image is copied via `Cmd+Shift+Ctrl`, it saves it as a PNG in `~/ShotCubby/`.
-- **Popover UI** — SwiftUI view with async thumbnails (via QuickLookThumbnailing), hover actions, and quick access.
+| Action | macOS | Windows |
+|---|---|---|
+| Move in the list | `↑` `↓` | `↑` `↓` |
+| Preview | `↩` | `Enter` |
+| Copy | `Cmd + C` | `Ctrl + C` |
+| Rename | `Cmd + E` | `Ctrl + E` |
+| Open folder | `Cmd + R` | `Ctrl + R` |
+| Move to Trash | `Cmd + ⌫` | `Ctrl + ⌫` |
+| All actions menu | `Cmd + K` | `Ctrl + K` |
+| Settings | `Cmd + ,` | `Ctrl + ,` |
+| Close | `Esc` | `Esc` |
 
-## Installation
+**Settings** let you change the search shortcut (and, on Windows, the capture
+shortcuts) and pick a custom screenshot folder.
 
-### Manual download
+## Install
 
-- **macOS**: download `ShotCubby.dmg` from the [latest release](https://github.com/Nelahia/shotcubby/releases/latest), open it, and drag `ShotCubby.app` to `/Applications`. Releases are **signed with a Developer ID Application certificate and notarized by Apple**, so the app opens with no Gatekeeper warning.
-- **Windows**: download `ShotCubby-Setup.exe` (or `ShotCubby.msi`) from the same [latest release](https://github.com/Nelahia/shotcubby/releases/latest). Releases that were not code-signed make Windows SmartScreen warn on first run — click "More info" → "Run anyway". See [`windows/`](windows) for details and [Code signing policy](#code-signing-policy).
+Download the installer for your system from the
+[latest release](https://github.com/Nelahia/shotcubby/releases/latest):
 
-### Build from source
+- **macOS 14+**: `ShotCubby.dmg`, then drag the app to Applications.
+- **Windows 10/11**: `ShotCubby-Setup.exe` (or `ShotCubby.msi`).
 
-Requires macOS 14.0+, Xcode 16+, and [XcodeGen](https://github.com/yonaskolb/XcodeGen).
-
-```bash
-git clone https://github.com/Nelahia/shotcubby.git
-cd shotcubby
-brew install xcodegen
-xcodegen generate
-xcodebuild -project ShotCubby.xcodeproj \
-  -scheme ShotCubby \
-  -configuration Release \
-  -derivedDataPath build
-open build/Build/Products/Release/ShotCubby.app
-```
-
-### Launch at login (optional)
-
-1. Open **System Settings** → **General** → **Login Items**
-2. Click **+** and select `ShotCubby.app`
-
-## Project structure
-
-```
-ShotCubby/
-├── ShotCubbyApp.swift              # Entry point, AppDelegate, NSStatusItem
-├── AppState.swift                 # Observable state manager
-├── Services/
-│   ├── ScreenshotWatcher.swift    # FSEvents file system watcher
-│   ├── ScreenshotStorage.swift    # File operations (move, load, delete)
-│   └── ClipboardWatcher.swift     # Pasteboard monitor for clipboard screenshots
-├── Models/
-│   └── ScreenshotItem.swift       # Screenshot data model
-├── Views/
-│   ├── PopoverView.swift          # Main popover layout
-│   ├── ScreenshotRow.swift        # Individual screenshot row with actions
-│   ├── AsyncThumbnail.swift       # Async thumbnail via QuickLookThumbnailing
-│   └── EmptyStateView.swift       # Empty state placeholder
-├── Info.plist
-└── ShotCubby.entitlements
-```
-
-## Tech stack
-
-- **Swift 5.9** + **SwiftUI** + **AppKit**
-- **FSEvents** via `DispatchSource` for file monitoring
-- **NSPasteboard** polling for clipboard capture
-- **QuickLookThumbnailing** for async thumbnail generation
-- **No external dependencies**
-
-## Release process
-
-Pushing a `v*` tag triggers `.github/workflows/release.yml`, which builds, signs with a
-Developer ID Application certificate, notarizes via the App Store Connect API, and
-packages the app as a `.dmg`. It requires these GitHub repo secrets to be set (no values
-here, just names):
-
-| Secret | Purpose |
-|---|---|
-| `APPLE_CERTIFICATE_P12_BASE64` | Base64 of the exported Developer ID Application `.p12` |
-| `APPLE_CERTIFICATE_PASSWORD` | Password protecting that `.p12` |
-| `APPLE_TEAM_ID` | Apple Developer Team ID |
-| `APPLE_API_KEY_ID` | App Store Connect API key ID (used for notarization) |
-| `APPLE_API_ISSUER_ID` | App Store Connect API issuer ID |
-| `APPLE_API_KEY_P8_BASE64` | Base64 of the App Store Connect API private key (`.p8`) |
+To start ShotCubby at login on macOS: **System Settings → General → Login Items → +**.
 
 ## Code signing policy
 
