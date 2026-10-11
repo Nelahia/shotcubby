@@ -4,13 +4,17 @@ import { invoke, currentWindow } from "./shared.js";
  * The four actions a selected result can trigger, each closing the panel
  * afterward except delete (which just drops the row). `getSelected` reads
  * the caller's current selection; `onDeleted` lets the caller update its
- * own list/selection state after a successful delete.
+ * own list/selection state after a successful delete; `onCopied` lets the
+ * caller flash a "copied" confirmation in the panel before it closes.
  */
-export function createSpotlightActions({ getSelected, onDeleted }) {
+export function createSpotlightActions({ getSelected, onCopied, onDeleted }) {
   async function copySelected() {
     const shot = getSelected();
     if (!shot) return;
     await invoke("copy_screenshot", { path: shot.path });
+    onCopied(shot);
+    await new Promise((resolve) => setTimeout(resolve, 380));
+    invoke("show_copy_toast");
     await currentWindow().hide();
   }
 

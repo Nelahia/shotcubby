@@ -9,7 +9,7 @@ permissions:
   contents: write
 
 jobs:
-  build:
+  build-mac:
     runs-on: macos-15
 
     env:
@@ -171,25 +171,95 @@ jobs:
           security delete-keychain "$KEYCHAIN_PATH" || true
           rm -f "$RUNNER_TEMP/certificate.p12" "$API_KEY_PATH"
 
-      - name: Get SHA256
+      - name: Upload DMG artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mac-dmg
+          path: ${{ env.APP_NAME }}.dmg
+
+  build-windows:
+    runs-on: windows-latest
+
+    env:
+      APP_NAME: ShotCubby
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install frontend dependencies
+        working-directory: windows
+        run: npm ci
+
+      - name: Build Tauri app
+        working-directory: windows
+        run: npm run build
+
+      - name: Upload Windows installers
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-installers
+          path: |
+            windows/src-tauri/target/release/bundle/nsis/*.exe
+            windows/src-tauri/target/release/bundle/msi/*.msi
+
+  release:
+    needs: [build-mac, build-windows]
+    runs-on: ubuntu-latest
+
+    env:
+      APP_NAME: ShotCubby
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: mac-dmg
+          path: dist/mac
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: windows-installers
+          path: dist/windows
+
+      # Tauri names installers after its own version (e.g. ShotCubby_0.1.0_x64-setup.exe);
+      # stable names let the landing page link to releases/latest/download/<name>.
+      - name: Give Windows installers stable names
+        run: |
+          mv dist/windows/nsis/*.exe "dist/windows/${{ env.APP_NAME }}-Setup.exe"
+          mv dist/windows/msi/*.msi "dist/windows/${{ env.APP_NAME }}.msi"
+
+      - name: Get macOS SHA256
         id: sha
-        run: echo "sha256=$(shasum -a 256 ${{ env.APP_NAME }}.dmg | awk '{print $1}')" >> "$GITHUB_OUTPUT"
+        run: echo "sha256=$(sha256sum "dist/mac/${{ env.APP_NAME }}.dmg" | awk '{print $1}')" >> "$GITHUB_OUTPUT"
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          files: ${{ env.APP_NAME }}.dmg
+          files: |
+            dist/mac/${{ env.APP_NAME }}.dmg
+            dist/windows/*.exe
+            dist/windows/*.msi
+          generate_release_notes: true
           body: |
             ## ShotCubby ${{ github.ref_name }}
 
-            Menu bar app that automatically captures and organizes all your macOS screenshots.
+            Menu bar app that automatically captures and organizes all your screenshots.
 
-            This build is **signed with a Developer ID Application certificate and notarized by Apple** — it opens with no Gatekeeper warning.
+            ### macOS
+            Signed with a Developer ID Application certificate and notarized by Apple —
+            opens with no Gatekeeper warning.
 
-            ### Manual install
-            Download `ShotCubby.dmg`, open it, drag `ShotCubby.app` to Applications.
-
-            ### Requirements
-            - macOS 14.0 (Sonoma) or later
+            Download `${{ env.APP_NAME }}.dmg`, open it, drag `${{ env.APP_NAME }}.app` to Applications.
+            Requires macOS 14.0 (Sonoma) or later.
 
             **SHA256:** `${{ steps.sha.outputs.sha256 }}`
+
+            ### Windows
+            Unsigned — Windows SmartScreen will warn on first run ("More info" → "Run anyway").
+
+            Download `${{ env.APP_NAME }}-Setup.exe` (or `${{ env.APP_NAME }}.msi`). Requires Windows 10/11.

@@ -16,6 +16,11 @@ pub fn open_settings_window(app: AppHandle) {
 }
 
 #[tauri::command]
+pub fn show_copy_toast(app: AppHandle) {
+    windows_ui::show_copy_toast(&app);
+}
+
+#[tauri::command]
 pub fn quit_app(app: AppHandle) {
     app.exit(0);
 }

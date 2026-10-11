@@ -84,6 +84,86 @@
         object-fit: cover;
         display: block;
       }
+      .row .thumb {
+        position: relative;
+      }
+      .copied-badge {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: color-mix(in srgb, var(--accent) 55%, transparent);
+        color: #fff;
+        animation: copied-badge 0.9s ease forwards;
+      }
+      .copied-badge .icon {
+        width: 18px;
+        height: 18px;
+        stroke-width: 2.5;
+      }
+      @keyframes copied-badge {
+        0% {
+          opacity: 0;
+          transform: scale(0.7);
+        }
+        15% {
+          opacity: 1;
+          transform: scale(1);
+        }
+        75% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 0;
+        }
+      }
+      .panel {
+        position: relative;
+      }
+      #copy-flash {
+        position: absolute;
+        top: 68px;
+        left: 50%;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 14px;
+        border-radius: 999px;
+        background: var(--accent);
+        color: #fff;
+        font-size: 12px;
+        font-weight: 500;
+        box-shadow: 0 8px 20px -6px rgba(0, 0, 0, 0.4);
+        pointer-events: none;
+        z-index: 5;
+      }
+      #copy-flash .icon {
+        width: 14px;
+        height: 14px;
+        stroke-width: 2.5;
+      }
+      #copy-flash.flash {
+        animation: copy-flash 0.9s ease forwards;
+      }
+      @keyframes copy-flash {
+        0% {
+          opacity: 0;
+          transform: translate(-50%, -12px);
+        }
+        15% {
+          opacity: 1;
+          transform: translate(-50%, 0);
+        }
+        75% {
+          opacity: 1;
+          transform: translate(-50%, 0);
+        }
+        100% {
+          opacity: 0;
+          transform: translate(-50%, -6px);
+        }
+      }
       .row .meta {
         min-width: 0;
         flex: 1;
@@ -224,6 +304,11 @@
       .actions-menu-item.destructive {
         color: #e5484d;
       }
+      .actions-menu.context {
+        position: fixed;
+        bottom: auto;
+        right: auto;
+      }
     </style>
   </head>
   <body>
@@ -239,6 +324,8 @@
         <div id="spot-empty" hidden></div>
       </div>
       <div id="hints"></div>
+      <div id="context-menu"></div>
+      <div id="copy-flash" hidden></div>
     </div>
     <script type="module" src="spotlight.js"></script>
   </body>

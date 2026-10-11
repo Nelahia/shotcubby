@@ -57,6 +57,11 @@ ShotCubby lives in your menu bar as a small folder icon and works silently in th
 
 ## Installation
 
+### Manual download
+
+- **macOS**: download `ShotCubby.dmg` from the [latest release](https://github.com/Nelahia/shotcubby/releases/latest), open it, and drag `ShotCubby.app` to `/Applications`. Releases are **signed with a Developer ID Application certificate and notarized by Apple**, so the app opens with no Gatekeeper warning.
+- **Windows**: download the `.exe` (NSIS) or `.msi` installer from the same [latest release](https://github.com/Nelahia/shotcubby/releases/latest). This build is unsigned, so Windows SmartScreen will warn on first run — click "More info" → "Run anyway". See [`windows/`](windows) for details.
+
 ### Build from source
 
 Requires macOS 14.0+, Xcode 16+, and [XcodeGen](https://github.com/yonaskolb/XcodeGen).

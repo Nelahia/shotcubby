@@ -17,16 +17,18 @@
 //      }
 //
 //  Keys inside the panel:
-//      ↑ ↓      move selection          ↩       copy image and close
-//      ⌘↩       preview in default app  ⌘R      open folder (Finder) and close
+//      ↑ ↓      move selection          ↩       preview in default app and close
+//      ⌘C       copy image and close    ⌘R      open folder (Finder) and close
 //      ⌘E       rename                  esc     cancel rename, else clear search, else close
 //      ⌘⌫       move to Trash           ⌘,      open Settings
 //      ⌘K       open the Actions menu (↑↓ to move, ↩ to run, esc to close the menu only)
+//      Right-click an item for a context menu with its available actions.
 //
 
 import SwiftUI
 import AppKit
 import ImageIO
+import QuartzCore
 import Carbon.HIToolbox
 import os
 
@@ -93,6 +95,7 @@ final class SpotlightModel: ObservableObject {
     @Published var renameDraft = ""
     @Published var showActions = false
     @Published var actionIndex = 0
+    @Published var copiedId: URL?
 
     var results: [Shot] {
         let q = query.trimmingCharacters(in: .whitespaces)
@@ -170,8 +173,8 @@ final class SpotlightController {
         panel.animationBehavior = .utilityWindow
 
         menuActions = [
-            SpotlightAction(title: "Copy", keys: "↩", run: { [weak self] in self?.copySelected() }),
-            SpotlightAction(title: "Preview", keys: "⌘↩", run: { [weak self] in self?.previewSelected() }),
+            SpotlightAction(title: "Preview", keys: "↩", run: { [weak self] in self?.previewSelected() }),
+            SpotlightAction(title: "Copy", keys: "⌘C", run: { [weak self] in self?.copySelected() }),
             SpotlightAction(title: "Rename", keys: "⌘E", run: { [weak self] in self?.model.beginRename() }),
             SpotlightAction(title: "Open Folder", keys: "⌘R", run: { [weak self] in self?.revealSelected() }),
             SpotlightAction(title: "Move to Trash", keys: "⌘⌫", destructive: true, run: { [weak self] in self?.deleteSelected() }),
@@ -180,7 +183,7 @@ final class SpotlightController {
 
         let root = SpotlightView(
             model: model,
-            onCopy: { [weak self] in self?.copySelected() },
+            onOpen: { [weak self] in self?.previewSelected() },
             menuActions: menuActions
         )
         panel.contentView = NSHostingView(rootView: root)
@@ -195,6 +198,7 @@ final class SpotlightController {
         model.shots = provider()
         model.query = ""
         model.selection = model.results.first?.id
+        model.copiedId = nil
         model.showCount += 1
 
         let mouse = NSEvent.mouseLocation
@@ -223,7 +227,16 @@ final class SpotlightController {
     private func copySelected() {
         guard let shot = model.selected else { return }
         actions.copy(shot)
-        hide()
+        withAnimation(.easeOut(duration: 0.18)) { model.copiedId = shot.id }
+        // Let the "Copied" badge/pill be visible briefly before the panel
+        // closes, then hand off to CopyToast — the panel is about to
+        // disappear, so the confirmation needs its own window to still be
+        // readable afterward.
+        Task { @MainActor [weak self] in
+            try? await Task.sleep(for: .milliseconds(380))
+            CopyToast.shared.show()
+            self?.hide()
+        }
     }
 
     private func previewSelected() {
@@ -297,8 +310,7 @@ final class SpotlightController {
         case kVK_UpArrow:
             model.move(-1); return true
         case kVK_Return, kVK_ANSI_KeypadEnter:
-            if command { previewSelected() } else { copySelected() }
-            return true
+            previewSelected(); return true
         case kVK_Escape:
             closeOrClearSearch(); return true
         case kVK_ANSI_R where command:
@@ -321,6 +333,91 @@ final class SpotlightController {
     }
 }
 
+// MARK: - Copy confirmation toast
+//
+// Shown centered near the top of the screen right after the panel closes —
+// the panel itself is about to disappear, so this is a separate floating
+// window that stays readable on its own for a moment.
+
+@MainActor
+private final class CopyToast {
+    static let shared = CopyToast()
+
+    private var panel: NSPanel?
+    private var dismissToken = 0
+
+    private static let size = NSSize(width: 150, height: 44)
+    private static let topMargin: CGFloat = 24
+
+    func show() {
+        let panel = ensurePanel()
+
+        let mouse = NSEvent.mouseLocation
+        let screen = NSScreen.screens.first { $0.frame.contains(mouse) } ?? NSScreen.main
+        guard let visible = screen?.visibleFrame else { return }
+
+        let finalOrigin = NSPoint(x: visible.midX - Self.size.width / 2,
+                                  y: visible.maxY - Self.size.height - Self.topMargin)
+        let startOrigin = NSPoint(x: finalOrigin.x, y: finalOrigin.y + 10)
+        panel.setFrame(NSRect(origin: startOrigin, size: Self.size), display: false)
+        panel.alphaValue = 0
+        panel.orderFrontRegardless()
+
+        NSAnimationContext.runAnimationGroup { ctx in
+            ctx.duration = 0.18
+            ctx.timingFunction = CAMediaTimingFunction(name: .easeOut)
+            panel.animator().alphaValue = 1
+            panel.animator().setFrame(NSRect(origin: finalOrigin, size: Self.size), display: true)
+        }
+
+        dismissToken += 1
+        let token = dismissToken
+        Task { @MainActor [weak self] in
+            try? await Task.sleep(for: .milliseconds(900))
+            guard let self, self.dismissToken == token else { return }
+            NSAnimationContext.runAnimationGroup({ ctx in
+                ctx.duration = 0.25
+                panel.animator().alphaValue = 0
+            }, completionHandler: { [weak self] in
+                if self?.dismissToken == token { panel.orderOut(nil) }
+            })
+        }
+    }
+
+    private func ensurePanel() -> NSPanel {
+        if let panel { return panel }
+        let newPanel = NSPanel(contentRect: NSRect(origin: .zero, size: Self.size),
+                               styleMask: [.borderless, .nonactivatingPanel],
+                               backing: .buffered, defer: true)
+        newPanel.level = .floating
+        newPanel.isOpaque = false
+        newPanel.backgroundColor = .clear
+        newPanel.hasShadow = true
+        newPanel.hidesOnDeactivate = false
+        newPanel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .transient]
+        newPanel.ignoresMouseEvents = true
+        newPanel.contentView = NSHostingView(rootView: CopyToastView())
+        panel = newPanel
+        return newPanel
+    }
+}
+
+private struct CopyToastView: View {
+    @Environment(\.colorScheme) private var scheme
+
+    var body: some View {
+        let t = Theme.resolve(scheme)
+        HStack(spacing: 6) {
+            Image(systemName: "checkmark").font(.system(size: 12, weight: .bold))
+            Text("Copied").font(.system(size: 13, weight: .medium))
+        }
+        .foregroundStyle(.white)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(t.accent, in: Capsule())
+        .padding(4)
+    }
+}
+
 // MARK: - View
 
 private func spotMono(_ size: CGFloat) -> Font {
@@ -329,7 +426,7 @@ private func spotMono(_ size: CGFloat) -> Font {
 
 struct SpotlightView: View {
     @ObservedObject var model: SpotlightModel
-    let onCopy: () -> Void
+    let onOpen: () -> Void
     let menuActions: [SpotlightAction]
 
     @FocusState private var searchFocused: Bool
@@ -365,6 +462,13 @@ struct SpotlightView: View {
                 .padding(.trailing, 8).padding(.bottom, 46)
             }
         }
+        .overlay(alignment: .top) {
+            if model.copiedId != nil {
+                CopyFlashPill()
+                    .padding(.top, 68)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+            }
+        }
         .onAppear { searchFocused = true }
         .onChange(of: model.showCount) { _, _ in searchFocused = true }
     }
@@ -393,10 +497,21 @@ struct SpotlightView: View {
                 LazyVStack(spacing: 2) {
                     ForEach(results) { shot in
                         SpotlightRow(shot: shot, selected: shot.id == model.selection,
+                                     copied: shot.id == model.copiedId,
                                      renaming: $model.renaming, draft: $model.renameDraft)
                             .id(shot.id)
-                            .onTapGesture(count: 2) { model.renaming = nil; model.selection = shot.id; onCopy() }
+                            .onTapGesture(count: 2) { model.renaming = nil; model.selection = shot.id; onOpen() }
                             .onTapGesture { model.renaming = nil; model.selection = shot.id }
+                            .contextMenu {
+                                ForEach(menuActions.filter { $0.title != "Settings" }) { action in
+                                    Button(role: action.destructive ? .destructive : nil) {
+                                        model.selection = shot.id
+                                        action.run()
+                                    } label: {
+                                        Text(action.title)
+                                    }
+                                }
+                            }
                     }
                 }
                 .padding(8)
@@ -560,9 +675,28 @@ private struct KeyCap: View {
     }
 }
 
+/// The "Copied" pill shown at the top of the panel, right under the search
+/// row, while the panel is still open.
+private struct CopyFlashPill: View {
+    @Environment(\.colorScheme) private var scheme
+
+    var body: some View {
+        let t = Theme.resolve(scheme)
+        HStack(spacing: 6) {
+            Image(systemName: "checkmark").font(.system(size: 11, weight: .bold))
+            Text("Copied").font(.system(size: 12, weight: .medium))
+        }
+        .foregroundStyle(.white)
+        .padding(.horizontal, 14).padding(.vertical, 6)
+        .background(t.accent, in: Capsule())
+        .shadow(color: .black.opacity(0.3), radius: 10, y: 4)
+    }
+}
+
 private struct SpotlightRow: View {
     let shot: Shot
     let selected: Bool
+    let copied: Bool
     @Binding var renaming: URL?
     @Binding var draft: String
     @FocusState private var fieldFocused: Bool
@@ -577,6 +711,18 @@ private struct SpotlightRow: View {
                 .frame(width: 52, height: 39)
                 .clipShape(RoundedRectangle(cornerRadius: 5, style: .continuous))
                 .overlay(RoundedRectangle(cornerRadius: 5, style: .continuous).strokeBorder(t.line))
+                .overlay {
+                    if copied {
+                        RoundedRectangle(cornerRadius: 5, style: .continuous)
+                            .fill(t.accent.opacity(0.55))
+                            .overlay {
+                                Image(systemName: "checkmark")
+                                    .font(.system(size: 12, weight: .bold))
+                                    .foregroundStyle(.white)
+                            }
+                            .transition(.scale.combined(with: .opacity))
+                    }
+                }
             VStack(alignment: .leading, spacing: 2) {
                 if isRenaming {
                     TextField("Name", text: $draft)

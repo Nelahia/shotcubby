@@ -5,6 +5,7 @@ use tauri::{AppHandle, Emitter};
 
 use crate::models::ScreenshotItem;
 use crate::services::{self, AccessFailure, ClipboardWatcher, ScreenshotWatcher};
+use crate::windows_ui;
 
 /// Mirrors `AppState.swift`: the in-memory source of truth the frontend
 /// windows read through commands and get pushed updates for via events.
@@ -42,6 +43,8 @@ impl AppStateInner {
                 // flagged as inaccessible (e.g. the user just fixed it).
                 *access_failure_for_new.lock().unwrap() = None;
                 let _ = app_handle_for_new.emit("screenshot-added", &item);
+                services::capture::play_capture_sound();
+                windows_ui::show_toast(&app_handle_for_new, &item);
             };
 
             let access_failure_for_failed = access_failure.clone();
@@ -67,6 +70,8 @@ impl AppStateInner {
                 let item = ScreenshotItem::from_path(path);
                 screenshots_for_clipboard.lock().unwrap().insert(0, item.clone());
                 let _ = app_handle_for_clipboard.emit("screenshot-added", &item);
+                services::capture::play_capture_sound();
+                windows_ui::show_toast(&app_handle_for_clipboard, &item);
             };
 
             ClipboardWatcher::new(on_new_image)

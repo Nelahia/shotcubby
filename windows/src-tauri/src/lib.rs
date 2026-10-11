@@ -36,6 +36,7 @@ pub fn run() {
             commands::reset_hotkey,
             commands::open_spotlight_from_popover,
             commands::open_settings_window,
+            commands::show_copy_toast,
             commands::quit_app,
         ])
         .setup(|app| {
@@ -56,6 +57,8 @@ pub fn run() {
             windows_ui::ensure_popover(&handle);
             windows_ui::ensure_spotlight(&handle);
             windows_ui::ensure_settings(&handle);
+            windows_ui::ensure_toast(&handle);
+            windows_ui::ensure_copy_toast(&handle);
 
             hotkey::init(&handle);
             hotkey::init_capture_shortcuts(&handle);

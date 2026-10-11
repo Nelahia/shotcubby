@@ -38,7 +38,7 @@ pub fn apply(app: &AppHandle, hotkey_str: &str) -> Result<(), String> {
 }
 
 /// Registers the fixed full-screen and region capture shortcuts at startup.
-/// Each just simulates Windows' own screenshot tool (`capture.rs`) — the
+/// Each just triggers Windows' own screenshot tool (`capture.rs`) — the
 /// existing file/clipboard watchers pick up the result from there.
 pub fn init_capture_shortcuts(app: &AppHandle) {
     let global_shortcut = app.global_shortcut();
@@ -51,9 +51,9 @@ pub fn init_capture_shortcuts(app: &AppHandle) {
         eprintln!("Failed to register '{FULL_SCREEN_CAPTURE_HOTKEY}': {err}");
     }
 
-    if let Err(err) = global_shortcut.on_shortcut(REGION_CAPTURE_HOTKEY, |_app, _shortcut, event| {
+    if let Err(err) = global_shortcut.on_shortcut(REGION_CAPTURE_HOTKEY, |app, _shortcut, event| {
         if event.state == ShortcutState::Pressed {
-            capture::trigger_region_capture();
+            capture::trigger_region_capture(app);
         }
     }) {
         eprintln!("Failed to register '{REGION_CAPTURE_HOTKEY}': {err}");

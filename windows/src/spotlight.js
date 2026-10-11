@@ -1,13 +1,15 @@
-import { invoke, listen, currentWindow, el, GLYPH_SVG, thumbnailUrl } from "./shared.js";
+import { invoke, listen, currentWindow, el, svgIcon, GLYPH_SVG, ICONS, thumbnailUrl } from "./shared.js";
 import { renderRow } from "./spotlight-row.js";
 import { createSpotlightFooter } from "./spotlight-footer.js";
 import { createSpotlightActions } from "./spotlight-actions.js";
+import { createContextMenu } from "./spotlight-context-menu.js";
 
 const state = {
   shots: [],
   query: "",
   selection: null,
   renamingId: null,
+  copiedId: null,
 };
 
 document.querySelector("#search-row .glyph").innerHTML = GLYPH_SVG;
@@ -37,10 +39,13 @@ async function reset() {
   state.shots = await invoke("list_screenshots");
   state.query = "";
   state.renamingId = null;
+  state.copiedId = null;
   const list = results();
   state.selection = list[0]?.id ?? null;
   searchInput.value = "";
   footer.close();
+  contextMenu.hide();
+  hideCopyFlash();
   render();
   searchInput.focus();
 }
@@ -76,17 +81,23 @@ function render() {
       footer.close();
       render();
     },
-    onCopy: copySelected,
+    onOpen: previewSelected,
     onCommitRename: commitRename,
     onCancelRename: () => {
       state.renamingId = null;
       render();
     },
+    onContextMenu: (shot, x, y) => {
+      footer.close();
+      contextMenu.show(x, y);
+    },
   };
 
   listEl.textContent = "";
   for (const shot of list) {
-    listEl.appendChild(renderRow(shot, shot.id === state.selection, shot.id === state.renamingId, rowCallbacks));
+    listEl.appendChild(
+      renderRow(shot, shot.id === state.selection, shot.id === state.renamingId, shot.id === state.copiedId, rowCallbacks)
+    );
   }
 
   renderPreview(previewEl, selected());
@@ -128,8 +139,31 @@ function beginRename() {
   }
 }
 
+const copyFlashEl = document.getElementById("copy-flash");
+copyFlashEl.innerHTML = `${svgIcon(ICONS.check)}<span>Copied</span>`;
+copyFlashEl.addEventListener("animationend", () => {
+  copyFlashEl.hidden = true;
+});
+
+function showCopyFlash() {
+  copyFlashEl.hidden = false;
+  copyFlashEl.classList.remove("flash");
+  void copyFlashEl.offsetWidth; // restart the animation on back-to-back copies
+  copyFlashEl.classList.add("flash");
+}
+
+function hideCopyFlash() {
+  copyFlashEl.hidden = true;
+  copyFlashEl.classList.remove("flash");
+}
+
 const { copySelected, previewSelected, revealSelected, deleteSelected } = createSpotlightActions({
   getSelected: selected,
+  onCopied: (shot) => {
+    state.copiedId = shot.id;
+    showCopyFlash();
+    render();
+  },
   onDeleted: (shot) => {
     state.shots = state.shots.filter((s) => s.id !== shot.id);
     const list = results();
@@ -153,6 +187,7 @@ searchInput.addEventListener("input", () => {
   const list = results();
   state.selection = list[0]?.id ?? null;
   footer.close();
+  contextMenu.hide();
   render();
 });
 
@@ -160,6 +195,14 @@ document.addEventListener("keydown", (e) => {
   if (state.renamingId) return; // the row's own input handles Enter/Escape
 
   const ctrl = e.ctrlKey || e.metaKey;
+
+  if (contextMenu.isOpen()) {
+    if (e.key === "Escape") {
+      e.preventDefault();
+      contextMenu.hide();
+    }
+    return;
+  }
 
   if (footer.isOpen()) {
     if (e.key === "ArrowDown") {
@@ -186,7 +229,7 @@ document.addEventListener("keydown", (e) => {
     move(-1);
   } else if (e.key === "Enter") {
     e.preventDefault();
-    ctrl ? previewSelected() : copySelected();
+    previewSelected();
   } else if (e.key === "Escape") {
     e.preventDefault();
     closeOrClearSearch();
@@ -221,4 +264,14 @@ const footer = createSpotlightFooter(document.getElementById("hints"), {
   trash: deleteSelected,
   settings: () => invoke("open_settings_window"),
 });
+
+const itemActions = [
+  { keys: "↩", label: "Preview", run: previewSelected },
+  { keys: "Ctrl C", label: "Copy", run: copySelected },
+  { keys: "Ctrl E", label: "Rename", run: beginRename },
+  { keys: "Ctrl R", label: "Open Folder", run: revealSelected },
+  { keys: "Ctrl ⌫", label: "Move to Trash", run: deleteSelected, destructive: true },
+];
+const contextMenu = createContextMenu(document.getElementById("context-menu"), itemActions);
+
 reset();

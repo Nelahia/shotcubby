@@ -8,8 +8,8 @@ import { el } from "./shared.js";
  */
 export function createSpotlightFooter(container, actions) {
   const primary = [
-    { keys: "↩", label: "Copy", run: actions.copy },
-    { keys: "Ctrl ↩", label: "Preview", run: actions.preview },
+    { keys: "↩", label: "Preview", run: actions.preview },
+    { keys: "Ctrl C", label: "Copy", run: actions.copy },
   ];
   const menuItems = [
     { keys: "Ctrl E", label: "Rename", run: actions.rename },
