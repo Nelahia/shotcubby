@@ -9,6 +9,7 @@ import { el, relativeLabel, svgIcon, thumbnailUrl, ICONS } from "./shared.js";
  */
 export function renderRow(shot, isSelected, isRenaming, isCopied, callbacks) {
   const row = el("div", isSelected ? "row selected" : "row");
+  row.dataset.id = shot.id;
   row.addEventListener("click", () => callbacks.onSelect(shot));
   row.addEventListener("dblclick", () => {
     callbacks.onSelect(shot);

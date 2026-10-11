@@ -62,10 +62,26 @@ export function sourceLabel(item) {
   return dot >= 0 ? item.id.slice(dot + 1).toUpperCase() : "";
 }
 
-export async function thumbnailUrl(path, maxPx) {
-  try {
-    return await invoke("get_thumbnail", { path, maxPx });
-  } catch {
-    return null;
+const THUMBNAIL_CACHE_LIMIT = 200;
+const thumbnailCache = new Map();
+
+/**
+ * Cached per (path, size): lists re-request every thumbnail on each rebuild,
+ * and an uncached round trip to the backend leaves the image blank for a
+ * frame — visible as flicker. A failed load is not kept, so it can retry.
+ */
+export function thumbnailUrl(path, maxPx) {
+  const key = `${path}|${maxPx}`;
+  let pending = thumbnailCache.get(key);
+  if (!pending) {
+    pending = invoke("get_thumbnail", { path, maxPx }).catch(() => null);
+    pending.then((url) => {
+      if (url === null) thumbnailCache.delete(key);
+    });
+    thumbnailCache.set(key, pending);
+    if (thumbnailCache.size > THUMBNAIL_CACHE_LIMIT) {
+      thumbnailCache.delete(thumbnailCache.keys().next().value);
+    }
   }
+  return pending;
 }

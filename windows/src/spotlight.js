@@ -1,8 +1,9 @@
-import { invoke, listen, currentWindow, el, svgIcon, GLYPH_SVG, ICONS, thumbnailUrl } from "./shared.js";
+import { invoke, listen, currentWindow, el, svgIcon, GLYPH_SVG, ICONS } from "./shared.js";
 import { renderRow } from "./spotlight-row.js";
 import { createSpotlightFooter } from "./spotlight-footer.js";
 import { createSpotlightActions } from "./spotlight-actions.js";
 import { createContextMenu } from "./spotlight-context-menu.js";
+import { renderPreview } from "./spotlight-preview.js";
 
 const state = {
   shots: [],
@@ -32,7 +33,7 @@ function move(delta) {
   const current = list.findIndex((s) => s.id === state.selection);
   const next = Math.max(0, Math.min(list.length - 1, (current < 0 ? 0 : current) + delta));
   state.selection = list[next].id;
-  render();
+  updateSelection();
 }
 
 async function reset() {
@@ -100,24 +101,24 @@ function render() {
     );
   }
 
-  renderPreview(previewEl, selected());
+  renderPreview(previewEl, selected(), (shot) => shot.id === state.selection);
 
   const selectedRow = listEl.querySelector(".row.selected");
   if (selectedRow) selectedRow.scrollIntoView({ block: "nearest" });
 }
 
-function renderPreview(previewEl, current) {
-  previewEl.textContent = "";
-  if (!current) return;
-
-  const img = el("img");
-  thumbnailUrl(current.path, 420).then((url) => {
-    if (url) img.src = url;
-  });
-  previewEl.appendChild(img);
-  previewEl.appendChild(el("div", "file", current.id));
-  const sub = `${new Date(current.created_at).toLocaleString()} · ${current.source === "clipboard" ? "from clipboard" : "file"}`;
-  previewEl.appendChild(el("div", "sub", sub));
+/**
+ * Arrow-key navigation only changes which row is highlighted: moving the
+ * `.selected` class and refreshing the preview, instead of rebuilding every
+ * row (which re-requested all thumbnails and made the whole list flicker).
+ */
+function updateSelection() {
+  const listEl = document.getElementById("list");
+  listEl.querySelector(".row.selected")?.classList.remove("selected");
+  const row = [...listEl.children].find((r) => r.dataset.id === state.selection);
+  row?.classList.add("selected");
+  row?.scrollIntoView({ block: "nearest" });
+  renderPreview(document.getElementById("preview"), selected(), (shot) => shot.id === state.selection);
 }
 
 async function commitRename(shot, newName) {
