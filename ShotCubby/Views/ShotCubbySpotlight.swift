@@ -151,8 +151,9 @@ final class SpotlightController {
     /// resolves against the selection at the time it's invoked — no need
     /// to recompute the list itself on every access. Read by handle(_:) to
     /// run the highlighted entry, and by the view to render the footer and
-    /// the dropdown menu.
-    private let menuActions: [SpotlightAction]
+    /// the dropdown menu. A `var` with a default so `self` is fully
+    /// initialized before the closures below capture it.
+    private var menuActions: [SpotlightAction] = []
 
     private static let size = NSSize(width: 720, height: 460)
 
