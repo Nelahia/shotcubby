@@ -60,7 +60,7 @@ ShotCubby lives in your menu bar as a small folder icon and works silently in th
 ### Manual download
 
 - **macOS**: download `ShotCubby.dmg` from the [latest release](https://github.com/Nelahia/shotcubby/releases/latest), open it, and drag `ShotCubby.app` to `/Applications`. Releases are **signed with a Developer ID Application certificate and notarized by Apple**, so the app opens with no Gatekeeper warning.
-- **Windows**: download the `.exe` (NSIS) or `.msi` installer from the same [latest release](https://github.com/Nelahia/shotcubby/releases/latest). This build is unsigned, so Windows SmartScreen will warn on first run — click "More info" → "Run anyway". See [`windows/`](windows) for details.
+- **Windows**: download `ShotCubby-Setup.exe` (or `ShotCubby.msi`) from the same [latest release](https://github.com/Nelahia/shotcubby/releases/latest). Releases that were not code-signed make Windows SmartScreen warn on first run — click "More info" → "Run anyway". See [`windows/`](windows) for details and [Code signing policy](#code-signing-policy).
 
 ### Build from source
 
@@ -128,6 +128,19 @@ here, just names):
 | `APPLE_API_ISSUER_ID` | App Store Connect API issuer ID |
 | `APPLE_API_KEY_P8_BASE64` | Base64 of the App Store Connect API private key (`.p8`) |
 
+## Code signing policy
+
+Windows installers are signed through the free open-source program of the
+SignPath Foundation: free code signing provided by [SignPath.io](https://signpath.io),
+certificate by [SignPath Foundation](https://signpath.org).
+
+- Only binaries built by the [release workflow](.github/workflows/release.yml)
+  from this repository's tagged source are submitted for signing.
+- The maintainer ([Nelahia](https://github.com/Nelahia)) is the sole author,
+  reviewer and approver of signing requests.
+- **Privacy**: ShotCubby works entirely on your machine. It does not collect or
+  send any data, and makes no network connections of its own.
+
 ## License
 
-Proprietary — all rights reserved.
+[MIT](LICENSE)
