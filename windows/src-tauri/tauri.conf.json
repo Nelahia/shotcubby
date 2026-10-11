@@ -22,5 +22,16 @@
       "icons/128x128@2x.png",
       "icons/icon.ico"
     ]
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDYwQkI4OUEyRUEzN0RBQjcKUldTMzJqZnFvb203WU9mR2Z5NmM0djVsWDRQUVNiSjRJL3dKQ3pYM0pMNHFUVVNZZjZNVTdZMjQK",
+      "endpoints": [
+        "https://github.com/Nelahia/shotcubby/releases/latest/download/latest.json"
+      ],
+      "windows": {
+        "installMode": "passive"
+      }
+    }
   }
 }

@@ -249,6 +249,17 @@ jobs:
             cp windows/src-tauri/target/release/bundle/msi/*.msi out/
           fi
 
+      # The in-app updater only installs files signed with the project's
+      # update key. Done last: signing the installer (SignPath above) changes
+      # its bytes, and this signature must cover the file that gets published.
+      - name: Sign installer for the in-app updater
+        working-directory: windows
+        shell: bash
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        run: npx tauri signer sign ../out/*.exe
+
       - name: Upload Windows installers
         uses: actions/upload-artifact@v4
         with:
@@ -279,6 +290,18 @@ jobs:
         run: |
           mv dist/windows/*.exe "dist/windows/${{ env.APP_NAME }}-Setup.exe"
           mv dist/windows/*.msi "dist/windows/${{ env.APP_NAME }}.msi"
+          mv dist/windows/*.exe.sig "dist/windows/${{ env.APP_NAME }}-Setup.exe.sig"
+
+      # What the app's updater reads to learn that a newer release exists.
+      - name: Write updater manifest
+        run: |
+          jq -n \
+            --arg version "${GITHUB_REF_NAME#v}" \
+            --arg date "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --arg url "https://github.com/${{ github.repository }}/releases/download/${GITHUB_REF_NAME}/${{ env.APP_NAME }}-Setup.exe" \
+            --arg sig "$(cat "dist/windows/${{ env.APP_NAME }}-Setup.exe.sig")" \
+            '{version: $version, pub_date: $date, platforms: {"windows-x86_64": {signature: $sig, url: $url}}}' \
+            > dist/latest.json
 
       - name: Get macOS SHA256
         id: sha
@@ -291,6 +314,7 @@ jobs:
             dist/mac/${{ env.APP_NAME }}.dmg
             dist/windows/*.exe
             dist/windows/*.msi
+            dist/latest.json
           generate_release_notes: true
           body: |
             ## ShotCubby ${{ github.ref_name }}

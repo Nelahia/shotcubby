@@ -77,3 +77,11 @@ windows/
     ├── spotlight.html / .js    global search panel
     └── settings.html / .js     hotkey settings
 ```
+
+## Updates
+
+The app checks this repository's GitHub releases a few seconds after launch and every
+6 hours, then downloads, verifies (against the public key in `tauri.conf.json`) and
+installs a newer release before restarting. Switch it off in Settings. The release
+workflow signs the installer with the update key (`TAURI_SIGNING_PRIVATE_KEY` secrets)
+and publishes `latest.json` next to it.

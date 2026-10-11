@@ -9,6 +9,9 @@ use std::sync::OnceLock;
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct AppConfig {
     pub custom_directory: Option<PathBuf>,
+    /// Stored negated so the default (key absent) means "updates on".
+    #[serde(default)]
+    pub auto_update_disabled: bool,
     /// Shortcut per `HotkeyAction::id()`.
     #[serde(default)]
     pub hotkeys: BTreeMap<String, String>,

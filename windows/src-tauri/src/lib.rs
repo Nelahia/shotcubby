@@ -16,6 +16,7 @@ pub fn run() {
     let app = tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .invoke_handler(tauri::generate_handler![
             commands::list_screenshots,
             commands::get_access_failure,
@@ -34,6 +35,8 @@ pub fn run() {
             commands::get_hotkeys,
             commands::set_hotkey,
             commands::reset_hotkey,
+            commands::get_auto_update,
+            commands::set_auto_update,
             commands::open_spotlight_from_popover,
             commands::open_settings_window,
             commands::show_copy_toast,
@@ -61,6 +64,7 @@ pub fn run() {
             windows_ui::ensure_copy_toast(&handle);
 
             hotkey::init(&handle);
+            services::updater::start(handle.clone());
 
             app.state::<AppStateInner>().start();
 

@@ -15,7 +15,9 @@ and lets you find, copy or rename any of them in a couple of keystrokes.
 - **One place** — `~/ShotCubby` (macOS) or `%USERPROFILE%\ShotCubby` (Windows).
 - **Fast to reach** — a Spotlight-style search opens from anywhere.
 - **Safe** — deleting always goes to the Trash / Recycle Bin, never permanently.
-- **Private** — works entirely on your machine, no account, no network.
+- **Private** — works entirely on your machine: no account, no tracking, your
+  screenshots never leave it. The only network request is the Windows update check
+  (see [Updates](#updates)).
 
 ## What it captures
 
@@ -63,6 +65,18 @@ Download the installer for your system from the
 
 To start ShotCubby at login on macOS: **System Settings → General → Login Items → +**.
 
+## Updates
+
+- **Windows**: ShotCubby checks for a new version a few seconds after launch, then every
+  few hours, and installs it automatically before restarting. Each update is verified
+  against the project's signing key, so only releases published by the maintainer can
+  install. The check is a single request to this repository's
+  [GitHub releases](https://github.com/Nelahia/shotcubby/releases); it sends no
+  personal data and no identifier. Turn it off in **Settings → Install updates
+  automatically**.
+- **macOS**: download the new `ShotCubby.dmg` from the
+  [latest release](https://github.com/Nelahia/shotcubby/releases/latest) and replace the app.
+
 ## Code signing policy
 
 Windows installers are signed through the free open-source program of the
@@ -74,7 +88,8 @@ certificate by [SignPath Foundation](https://signpath.org).
 - The maintainer ([Nelahia](https://github.com/Nelahia)) is the sole author,
   reviewer and approver of signing requests.
 - **Privacy**: ShotCubby works entirely on your machine. It does not collect or
-  send any data, and makes no network connections of its own.
+  send any data. The only network request the Windows app makes is the optional
+  update check described in [Updates](#updates), which sends nothing about you.
 
 ## License
 
