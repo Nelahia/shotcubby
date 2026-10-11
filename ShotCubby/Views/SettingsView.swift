@@ -21,11 +21,20 @@ struct SettingsView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
+
+            Section {
+                LabeledContent("Version", value: Self.versionLabel)
+            }
         }
         .formStyle(.grouped)
-        .frame(width: 440, height: 140)
+        .frame(width: 440, height: 190)
         .onChange(of: keyCode) { _, _ in save() }
         .onChange(of: modifiers) { _, _ in save() }
+    }
+
+    /// The release version stamped into Info.plist by the release workflow.
+    private static var versionLabel: String {
+        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "—"
     }
 
     private func save() {

@@ -96,7 +96,7 @@ fn setup_tray(app: &tauri::App) -> tauri::Result<()> {
 
     let tray = TrayIconBuilder::new()
         .icon(icon)
-        .tooltip("ShotCubby")
+        .tooltip(format!("ShotCubby {}", app.package_info().version))
         .menu(&menu)
         .show_menu_on_left_click(false)
         .on_menu_event(|app, event| match event.id().as_ref() {

@@ -2,6 +2,7 @@ const tauri = window.__TAURI__;
 export const invoke = (cmd, args) => tauri.core.invoke(cmd, args);
 export const listen = (event, handler) => tauri.event.listen(event, handler);
 export const currentWindow = () => tauri.window.getCurrentWindow();
+export const appVersion = () => tauri.app.getVersion();
 
 export function el(tag, className, text) {
   const node = document.createElement(tag);
