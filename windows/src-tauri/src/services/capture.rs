@@ -2,7 +2,7 @@ use tauri::AppHandle;
 use tauri_plugin_opener::OpenerExt;
 use windows::Win32::UI::Input::KeyboardAndMouse::{
     SendInput, INPUT, INPUT_0, INPUT_KEYBOARD, KEYBDINPUT, KEYBD_EVENT_FLAGS, KEYEVENTF_KEYUP,
-    VIRTUAL_KEY, VK_LWIN, VK_MENU, VK_SHIFT, VK_SNAPSHOT,
+    VIRTUAL_KEY, VK_CONTROL, VK_LWIN, VK_MENU, VK_RWIN, VK_SHIFT, VK_SNAPSHOT,
 };
 use windows::Win32::System::Diagnostics::Debug::MessageBeep;
 use windows::Win32::UI::WindowsAndMessaging::MB_OK;
@@ -13,15 +13,19 @@ const VK_UNASSIGNED: VIRTUAL_KEY = VIRTUAL_KEY(0xE8);
 
 /// Simulates `Win+PrtScn`: Windows writes a full-screen capture straight to
 /// a file in `Pictures\Screenshots`, which `screenshot_watcher` already
-/// watches — no separate capture code needed here. The hotkey's Alt+Shift
-/// are still physically held when it fires, so they're released first —
-/// otherwise Windows sees `Win+Alt+PrtScn` (Game Bar's active-window capture).
+/// watches — no separate capture code needed here. The hotkey's modifiers
+/// (whichever the user bound) are still physically held when it fires, so
+/// all of them are released first — otherwise Windows sees e.g.
+/// `Win+Alt+PrtScn` (Game Bar's active-window capture). Releasing a key
+/// that isn't held is harmless.
 pub fn trigger_full_screen_capture() {
     send(&[
         key_event(VK_UNASSIGNED, false),
         key_event(VK_UNASSIGNED, true),
+        key_event(VK_CONTROL, true),
         key_event(VK_MENU, true),
         key_event(VK_SHIFT, true),
+        key_event(VK_RWIN, true),
         key_event(VK_LWIN, false),
         key_event(VK_SNAPSHOT, false),
         key_event(VK_SNAPSHOT, true),

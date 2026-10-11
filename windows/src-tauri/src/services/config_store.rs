@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
 use std::path::PathBuf;
 use std::sync::OnceLock;
 
@@ -8,7 +9,13 @@ use std::sync::OnceLock;
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct AppConfig {
     pub custom_directory: Option<PathBuf>,
-    pub hotkey: Option<String>,
+    /// Shortcut per `HotkeyAction::id()`.
+    #[serde(default)]
+    pub hotkeys: BTreeMap<String, String>,
+    /// Pre-`hotkeys` field: the single Spotlight shortcut. Read once on
+    /// load and folded into `hotkeys`, never written back.
+    #[serde(default, skip_serializing)]
+    hotkey: Option<String>,
 }
 
 fn config_path() -> PathBuf {
@@ -23,10 +30,14 @@ fn config_path() -> PathBuf {
 }
 
 pub fn load() -> AppConfig {
-    std::fs::read_to_string(config_path())
+    let mut config: AppConfig = std::fs::read_to_string(config_path())
         .ok()
         .and_then(|s| serde_json::from_str(&s).ok())
-        .unwrap_or_default()
+        .unwrap_or_default();
+    if let Some(legacy) = config.hotkey.take() {
+        config.hotkeys.entry("spotlight".to_string()).or_insert(legacy);
+    }
+    config
 }
 
 pub fn save(config: &AppConfig) {

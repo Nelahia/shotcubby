@@ -31,7 +31,7 @@ pub fn run() {
             commands::retry_screenshot_access,
             commands::open_vault_folder,
             commands::open_windows_security,
-            commands::get_hotkey,
+            commands::get_hotkeys,
             commands::set_hotkey,
             commands::reset_hotkey,
             commands::open_spotlight_from_popover,
@@ -61,7 +61,6 @@ pub fn run() {
             windows_ui::ensure_copy_toast(&handle);
 
             hotkey::init(&handle);
-            hotkey::init_capture_shortcuts(&handle);
 
             app.state::<AppStateInner>().start();
 

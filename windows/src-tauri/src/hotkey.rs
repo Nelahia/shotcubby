@@ -1,61 +1,52 @@
 use tauri::AppHandle;
 use tauri_plugin_global_shortcut::{GlobalShortcutExt, ShortcutState};
 
-use crate::services::{capture, hotkey_preferences};
+use crate::services::capture;
+use crate::services::hotkey_action::HotkeyAction;
+use crate::services::hotkey_preferences;
 use crate::windows_ui;
 
-/// Fixed, non-customizable equivalents of macOS's Cmd+Shift+3/4 — unlike the
-/// Spotlight hotkey below, these just trigger Windows' own screenshot tools,
-/// so there's no "current value" to store or display in Settings.
-const FULL_SCREEN_CAPTURE_HOTKEY: &str = "Alt+Shift+3";
-const REGION_CAPTURE_HOTKEY: &str = "Alt+Shift+4";
-
-/// Registers the persisted shortcut at startup. Mirrors
+/// Registers every persisted shortcut at startup. Mirrors
 /// `AppDelegate.registerHotKey()`.
 pub fn init(app: &AppHandle) {
-    let current = hotkey_preferences::current();
-    if let Err(err) = apply(app, &current) {
-        eprintln!("Failed to register hotkey '{current}': {err}");
+    for action in HotkeyAction::ALL {
+        let current = hotkey_preferences::current(action);
+        if let Err(err) = register(app, action, &current) {
+            eprintln!("Failed to register hotkey '{current}' for {}: {err}", action.id());
+        }
     }
 }
 
-/// Unregisters only the previously-bound Spotlight hotkey (not
-/// `unregister_all()` — that would also wipe the fixed capture shortcuts
-/// registered by `init_capture_shortcuts`) and registers `hotkey_str` with
-/// a handler that toggles the Spotlight panel.
-pub fn apply(app: &AppHandle, hotkey_str: &str) -> Result<(), String> {
-    let global_shortcut = app.global_shortcut();
-    let _ = global_shortcut.unregister(hotkey_preferences::current().as_str());
+/// Rebinds `action` to `hotkey_str`. The new combo is registered before the
+/// old one is released, so a combo that is refused (already taken by another
+/// action or another app) leaves the working binding untouched.
+pub fn apply(app: &AppHandle, action: HotkeyAction, hotkey_str: &str) -> Result<(), String> {
+    let previous = hotkey_preferences::current(action);
+    if previous.eq_ignore_ascii_case(hotkey_str) {
+        return Ok(());
+    }
+    register(app, action, hotkey_str)?;
+    let _ = app.global_shortcut().unregister(previous.as_str());
+    Ok(())
+}
 
-    let app_for_handler = app.clone();
-    global_shortcut
-        .on_shortcut(hotkey_str, move |_app, _shortcut, event| {
+fn register(app: &AppHandle, action: HotkeyAction, hotkey_str: &str) -> Result<(), String> {
+    app.global_shortcut()
+        .on_shortcut(hotkey_str, move |app, _shortcut, event| {
             if event.state == ShortcutState::Pressed {
-                windows_ui::toggle_spotlight(&app_for_handler);
+                run(app, action);
             }
         })
         .map_err(|e| e.to_string())
 }
 
-/// Registers the fixed full-screen and region capture shortcuts at startup.
-/// Each just triggers Windows' own screenshot tool (`capture.rs`) — the
-/// existing file/clipboard watchers pick up the result from there.
-pub fn init_capture_shortcuts(app: &AppHandle) {
-    let global_shortcut = app.global_shortcut();
-
-    if let Err(err) = global_shortcut.on_shortcut(FULL_SCREEN_CAPTURE_HOTKEY, |_app, _shortcut, event| {
-        if event.state == ShortcutState::Pressed {
-            capture::trigger_full_screen_capture();
-        }
-    }) {
-        eprintln!("Failed to register '{FULL_SCREEN_CAPTURE_HOTKEY}': {err}");
-    }
-
-    if let Err(err) = global_shortcut.on_shortcut(REGION_CAPTURE_HOTKEY, |app, _shortcut, event| {
-        if event.state == ShortcutState::Pressed {
-            capture::trigger_region_capture(app);
-        }
-    }) {
-        eprintln!("Failed to register '{REGION_CAPTURE_HOTKEY}': {err}");
+/// Spotlight toggles its panel; the capture shortcuts just trigger Windows'
+/// own screenshot tools (`capture.rs`) — the existing file/clipboard
+/// watchers pick up the result from there.
+fn run(app: &AppHandle, action: HotkeyAction) {
+    match action {
+        HotkeyAction::Spotlight => windows_ui::toggle_spotlight(app),
+        HotkeyAction::FullScreenCapture => capture::trigger_full_screen_capture(),
+        HotkeyAction::RegionCapture => capture::trigger_region_capture(app),
     }
 }

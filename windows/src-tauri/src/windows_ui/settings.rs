@@ -12,7 +12,7 @@ pub fn ensure_settings(app: &AppHandle) -> WebviewWindow {
 
     let window = WebviewWindowBuilder::new(app, SETTINGS_LABEL, WebviewUrl::App("settings.html".into()))
         .title("ShotCubby Settings")
-        .inner_size(440.0, 170.0)
+        .inner_size(500.0, 290.0)
         .resizable(false)
         .minimizable(false)
         .maximizable(false)

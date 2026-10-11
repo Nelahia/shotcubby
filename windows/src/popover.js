@@ -32,10 +32,10 @@ document.getElementById("settings-btn").innerHTML = svgIcon(ICONS.gear);
 document.querySelector("#spotlight-btn span").innerHTML = svgIcon(ICONS.search);
 
 async function refresh() {
-  const [shots, accessFailure, hotkey, screenshotDir, vaultDir] = await Promise.all([
+  const [shots, accessFailure, hotkeys, screenshotDir, vaultDir] = await Promise.all([
     invoke("list_screenshots"),
     invoke("get_access_failure"),
-    invoke("get_hotkey"),
+    invoke("get_hotkeys"),
     invoke("get_screenshot_dir"),
     invoke("get_vault_dir"),
   ]);
@@ -43,7 +43,7 @@ async function refresh() {
   state.accessFailure = accessFailure;
   state.screenshotDir = screenshotDir;
   state.vaultDir = vaultDir;
-  document.getElementById("spotlight-kbd").textContent = hotkey.display;
+  document.getElementById("spotlight-kbd").textContent = hotkeys.find((h) => h.action === "spotlight").display;
   render();
 }
 

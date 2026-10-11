@@ -9,6 +9,11 @@
         padding: 20px;
         background: var(--bg);
       }
+      #rows {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
       .row {
         display: flex;
         align-items: center;
@@ -18,8 +23,8 @@
         flex: 1;
         font-size: 13px;
       }
-      #hotkey-field {
-        min-width: 160px;
+      .hotkey-field {
+        min-width: 170px;
         font-family: ui-monospace, Consolas, monospace;
         font-size: 12px;
         padding: 6px 10px;
@@ -28,15 +33,15 @@
         box-shadow: inset 0 0 0 2px transparent;
         text-align: center;
       }
-      #hotkey-field.recording {
+      .hotkey-field.recording {
         box-shadow: inset 0 0 0 2px var(--accent);
       }
-      #reset-btn {
+      .reset-btn {
         font-size: 13px;
         padding: 6px 10px;
         border-radius: 6px;
       }
-      #reset-btn:hover {
+      .reset-btn:hover {
         background: var(--line);
       }
       #footer-text {
@@ -54,14 +59,10 @@
     </style>
   </head>
   <body>
-    <div class="row">
-      <span class="label">Open Spotlight search</span>
-      <button id="hotkey-field"></button>
-      <button id="reset-btn">Reset</button>
-    </div>
+    <div id="rows"></div>
     <div id="error"></div>
     <div id="footer-text">
-      Click the field, then press a key combination with at least one modifier (Ctrl, Alt, Shift, Win). Esc cancels.
+      Click a field, then press the combination you want: a modifier (Ctrl, Alt, Shift, Win) plus a key, or a lone function / PrintScreen key. Esc cancels.
     </div>
     <script type="module" src="settings.js"></script>
   </body>

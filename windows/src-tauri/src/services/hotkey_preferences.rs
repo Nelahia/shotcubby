@@ -1,8 +1,5 @@
 use super::config_store;
-
-/// Default global shortcut for toggling the Spotlight-style search panel.
-/// Fully user-customizable from Settings.
-pub const DEFAULT_HOTKEY: &str = "Ctrl+/";
+use super::hotkey_action::HotkeyAction;
 
 const MODIFIER_TOKENS: &[&str] = &[
     "CTRL",
@@ -16,31 +13,47 @@ const MODIFIER_TOKENS: &[&str] = &[
     "WIN",
 ];
 
-pub fn current() -> String {
-    config_store::load().hotkey.unwrap_or_else(default)
+pub fn current(action: HotkeyAction) -> String {
+    config_store::load()
+        .hotkeys
+        .get(action.id())
+        .cloned()
+        .unwrap_or_else(|| default(action))
 }
 
-pub fn default() -> String {
-    DEFAULT_HOTKEY.to_string()
+pub fn default(action: HotkeyAction) -> String {
+    action.default_hotkey().to_string()
 }
 
-/// Rejects combos with no modifier — the same requirement the Mac recorder
-/// field enforces so a shortcut can never collide with plain typing.
-pub fn has_modifier(hotkey: &str) -> bool {
-    hotkey
+/// Whether a combo can safely be bound globally. A modifier keeps it from
+/// colliding with plain typing; keys that never type anything (function
+/// keys, PrintScreen...) are fine on their own, which is what lets a
+/// capture shortcut be a bare `PrintScreen`.
+pub fn is_allowed(hotkey: &str) -> bool {
+    let has_modifier = hotkey
         .split('+')
-        .any(|token| MODIFIER_TOKENS.contains(&token.trim().to_uppercase().as_str()))
+        .any(|token| MODIFIER_TOKENS.contains(&token.trim().to_uppercase().as_str()));
+    has_modifier || is_standalone_key(hotkey.trim())
 }
 
-pub fn set(hotkey: String) {
+fn is_standalone_key(key: &str) -> bool {
+    let upper = key.to_uppercase();
+    let is_function_key = upper
+        .strip_prefix('F')
+        .and_then(|n| n.parse::<u8>().ok())
+        .is_some_and(|n| (1..=24).contains(&n));
+    is_function_key || matches!(upper.as_str(), "PRINTSCREEN" | "SCROLLLOCK" | "PAUSE")
+}
+
+pub fn set(action: HotkeyAction, hotkey: String) {
     let mut config = config_store::load();
-    config.hotkey = Some(hotkey);
+    config.hotkeys.insert(action.id().to_string(), hotkey);
     config_store::save(&config);
 }
 
-pub fn reset() {
+pub fn reset(action: HotkeyAction) {
     let mut config = config_store::load();
-    config.hotkey = None;
+    config.hotkeys.remove(action.id());
     config_store::save(&config);
 }
 
@@ -89,6 +102,7 @@ fn describe_token(token: &str) -> String {
         "ARROWLEFT" | "LEFT" => "\u{2190}".to_string(),
         "ARROWRIGHT" | "RIGHT" => "\u{2192}".to_string(),
         "SPACE" => "Space".to_string(),
+        "PRINTSCREEN" => "PrtScn".to_string(),
         "BACKSPACE" => "\u{232b}".to_string(),
         other if other.chars().count() == 1 => other.to_string(),
         other => {

@@ -188,6 +188,12 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@stable
 
+      # Cache compiled dependencies between releases; the optimized build
+      # recompiles all of them from scratch otherwise (~7 min).
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: windows/src-tauri
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
