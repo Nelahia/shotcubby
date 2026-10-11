@@ -21,6 +21,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var settingsWindow: NSWindow?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        // Before anything reads the vault or the saved shortcut.
+        LegacyMigration.run()
         NSApp.setActivationPolicy(.accessory)
         setupMenuBar()
         setupPopover()

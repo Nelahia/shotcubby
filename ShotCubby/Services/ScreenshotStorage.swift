@@ -12,25 +12,10 @@ final class ScreenshotStorage {
     }
 
     func ensureVaultExists() {
-        migrateLegacyVaultIfNeeded()
         try? FileManager.default.createDirectory(
             at: vaultURL,
             withIntermediateDirectories: true
         )
-    }
-
-    /// ShotCubby was renamed from ShotKeep, which used ~/ShotKeep as its
-    /// vault. Someone upgrading shouldn't lose every capture they'd already
-    /// filed there — if the new vault doesn't exist yet but the old one
-    /// does, move it wholesale before the fresh one would otherwise get
-    /// created empty.
-    private func migrateLegacyVaultIfNeeded() {
-        let legacyURL = FileManager.default.homeDirectoryForCurrentUser
-            .appendingPathComponent("ShotKeep")
-        guard !FileManager.default.fileExists(atPath: vaultURL.path),
-              FileManager.default.fileExists(atPath: legacyURL.path)
-        else { return }
-        try? FileManager.default.moveItem(at: legacyURL, to: vaultURL)
     }
 
     /// Moves a capture into the vault. A plain rename is enough on a local
