@@ -214,7 +214,12 @@ final class SpotlightController {
                                  y: visible.midY - Self.size.height / 2 + visible.height * 0.08)
             panel.setFrame(NSRect(origin: origin, size: Self.size), display: true)
         }
+        // The hosting view still holds the previous list until SwiftUI has applied
+        // the reset above, which showed up as one frame of the old order flashing
+        // by. Stay invisible for that frame.
+        panel.alphaValue = 0
         panel.makeKeyAndOrderFront(nil)
+        DispatchQueue.main.async { [weak self] in self?.panel.alphaValue = 1 }
 
         if keyMonitor == nil {
             keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
@@ -737,8 +742,17 @@ private struct SpotlightImage: View {
                     .clipShape(RoundedRectangle(cornerRadius: fill ? 0 : 8, style: .continuous))
             }
         }
+        // The view keeps its @State when only the url changes (the preview pane
+        // is one view for every selection): swap in the new picture from the cache
+        // at once, or clear it, so the previous screenshot never lingers on screen
+        // while the next one loads.
+        .onChange(of: url, initial: true) { _, newURL in
+            image = SpotlightImageCache.shared.cachedImage(for: newURL, maxPixel: maxPoints * displayScale)
+        }
         .task(id: url) {
-            image = await SpotlightImageCache.shared.image(for: url, maxPixel: maxPoints * displayScale)
+            if image == nil {
+                image = await SpotlightImageCache.shared.image(for: url, maxPixel: maxPoints * displayScale)
+            }
         }
     }
 }
@@ -748,8 +762,16 @@ private final class SpotlightImageCache {
     static let shared = SpotlightImageCache()
     private let cache = NSCache<NSString, NSImage>()
 
+    private func key(for url: URL, maxPixel: CGFloat) -> NSString {
+        "\(url.path)#\(Int(maxPixel))" as NSString
+    }
+
+    func cachedImage(for url: URL, maxPixel: CGFloat) -> NSImage? {
+        cache.object(forKey: key(for: url, maxPixel: maxPixel))
+    }
+
     func image(for url: URL, maxPixel: CGFloat) async -> NSImage? {
-        let key = "\(url.path)#\(Int(maxPixel))" as NSString
+        let key = key(for: url, maxPixel: maxPixel)
         if let cached = cache.object(forKey: key) { return cached }
         let cgImage = await Task.detached(priority: .userInitiated) { () -> CGImage? in
             guard let source = CGImageSourceCreateWithURL(url as CFURL, nil) else { return nil }

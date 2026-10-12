@@ -83,6 +83,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     /// press never reaches its SwiftUI content reliably, so watch for it here.
     /// A text field being edited (renaming a screenshot) keeps Esc for itself.
     func popoverDidShow(_ notification: Notification) {
+        // Without being the key window the popover gets no key events at all —
+        // Esc included — so the monitor below would never fire.
+        popover.contentViewController?.view.window?.makeKey()
         popoverKeyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
             guard let self, event.keyCode == UInt16(kVK_Escape) else { return event }
             if self.popover.contentViewController?.view.window?.firstResponder is NSText { return event }
