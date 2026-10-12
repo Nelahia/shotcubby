@@ -3,6 +3,7 @@ import SwiftUI
 struct SettingsView: View {
     @State private var keyCode: UInt32 = HotKeyPreferences.keyCode
     @State private var modifiers: UInt32 = HotKeyPreferences.modifiers
+    @State private var showInDock = DockPreferences.showInDock
 
     var body: some View {
         Form {
@@ -35,11 +36,20 @@ struct SettingsView: View {
             }
 
             Section {
+                Toggle("Show in the Dock", isOn: $showInDock)
+            } footer: {
+                Text("Clicking the Dock icon opens the search panel.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Section {
                 LabeledContent("Version", value: Self.versionLabel)
             }
         }
         .formStyle(.grouped)
-        .frame(width: 480, height: 560)
+        .frame(width: 480, height: 640)
+        .onChange(of: showInDock) { _, show in DockPreferences.set(show) }
         .onChange(of: keyCode) { _, _ in save() }
         .onChange(of: modifiers) { _, _ in save() }
     }

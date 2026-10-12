@@ -32,6 +32,8 @@ the system's own screenshot shortcuts are used.
 
 ## Using it
 
+**On macOS the app also sits in the Dock**: clicking its icon opens the search panel (turn it off in Settings → Show in the Dock).
+
 **Click the menu bar / tray icon** for your recent screenshots, grouped by day, with
 thumbnails. Click one to open it; hover to copy, reveal in the file manager or delete;
 double-click a name to rename it.

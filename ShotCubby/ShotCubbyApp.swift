@@ -29,7 +29,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         // Before anything reads the vault or the saved shortcut.
         LegacyMigration.run()
-        NSApp.setActivationPolicy(.accessory)
+        DockPreferences.apply()
         setupMenuBar()
         setupPopover()
         setupSpotlight()
@@ -39,17 +39,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         // user clicking the status item — and the global Spotlight hotkey
         // genuinely does not fire until that first activation happens, so
         // on a crowded menu bar (icon pushed off / hidden) the shortcut was
-        // dead on arrival with no way to discover why. .accessory apps can
-        // still activate; this only keeps them out of the Dock and ⌘-Tab,
-        // it does not require any visible window.
+        // dead on arrival with no way to discover why. It needs no visible window.
         NSApp.activate(ignoringOtherApps: true)
     }
 
     /// Called when the user tries to open ShotCubby again while it's already
     /// running — double-clicking it in Finder/Applications, or launching it
     /// via Spotlight search — and it has no visible windows to bring
-    /// forward. An .accessory app has none by design, so without this the
-    /// click would silently do nothing. The Spotlight search panel is the
+    /// forward — which is also what clicking the Dock icon does. ShotCubby has
+    /// no window by design, so without this the click would do nothing. The Spotlight search panel is the
     /// closest thing ShotCubby has to a main window, so that's what opens.
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
         spotlight?.show()
