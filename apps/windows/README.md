@@ -1,6 +1,6 @@
 # ShotCubby for Windows
 
-A Windows port of the macOS [ShotCubby](../ShotCubby) menu-bar app: it watches for
+A Windows port of the macOS [ShotCubby](../macos) menu-bar app: it watches for
 screenshots (file-based and clipboard-based), files them into `%USERPROFILE%\ShotCubby`,
 and gives quick access through a tray popover and a Spotlight-style global search panel.
 
@@ -62,7 +62,7 @@ Produces an NSIS and MSI installer under `src-tauri/target/release/bundle/`.
 ## Project layout
 
 ```
-windows/
+apps/windows/
 ├── src-tauri/          Rust backend
 │   └── src/
 │       ├── lib.rs          tray + window + hotkey wiring (thin)

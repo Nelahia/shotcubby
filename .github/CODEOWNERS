@@ -1,7 +1,8 @@
 # Whatever decides how releases are built, signed and updated needs the
 # maintainer's own review — a pull request touching these cannot be merged
 # on anyone else's approval.
-/.github/                            @Nelahia
-/.claude/                            @Nelahia
-/project.yml                         @Nelahia
-/windows/src-tauri/tauri.conf.json   @Nelahia
+/.github/                                 @Nelahia
+/.claude/                                 @Nelahia
+/.signpath/                               @Nelahia
+/apps/macos/project.yml                   @Nelahia
+/apps/windows/src-tauri/tauri.conf.json   @Nelahia

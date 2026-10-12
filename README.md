@@ -3,7 +3,7 @@
 Every screenshot you take, automatically collected in one folder and one click away.
 A small menu bar (macOS) / system tray (Windows) app.
 
-![Menu Bar](assets/menubar-overview.png)
+![Menu Bar](docs/images/menubar-overview.png)
 
 ## Why
 
@@ -98,6 +98,20 @@ certificate by [SignPath Foundation](https://signpath.org).
 - **Privacy**: ShotCubby works entirely on your machine. It does not collect or
   send any data. The only network request the app makes is the optional
   update check described in [Updates](#updates), which sends nothing about you.
+
+## Building from source
+
+The two apps are independent native projects that share no code:
+
+```
+apps/
+├── macos/      Swift / SwiftUI menu-bar app, built with XcodeGen + Xcode
+└── windows/    Tauri tray app (Rust backend, plain HTML/CSS/JS frontend)
+```
+
+See [apps/macos](apps/macos/README.md) and [apps/windows](apps/windows/README.md) for
+requirements and build steps. Releases for both are built by the
+[release workflow](.github/workflows/release.yml).
 
 ## License
 

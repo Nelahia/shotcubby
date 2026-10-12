@@ -30,6 +30,12 @@ jobs:
     env:
       APP_NAME: ShotCubby
 
+    # Every `run` step works from the macOS app's folder; `uses` steps
+    # (upload-artifact) still resolve paths from the repository root.
+    defaults:
+      run:
+        working-directory: apps/macos
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -212,8 +218,8 @@ jobs:
         with:
           name: mac-dmg
           path: |
-            ${{ env.APP_NAME }}.dmg
-            sparkle-signature.txt
+            apps/macos/${{ env.APP_NAME }}.dmg
+            apps/macos/sparkle-signature.txt
 
   build-windows:
     if: inputs.platform != 'mac'
@@ -239,19 +245,19 @@ jobs:
       # recompiles all of them from scratch otherwise (~7 min).
       - uses: Swatinem/rust-cache@v2
         with:
-          workspaces: windows/src-tauri
+          workspaces: apps/windows/src-tauri
 
       - uses: actions/setup-node@v4
         with:
           node-version: 20
 
       - name: Install frontend dependencies
-        working-directory: windows
+        working-directory: apps/windows
         run: npm ci
 
       # Same tag-derived version as the macOS Info.plist, so both apps report it.
       - name: Build Tauri app
-        working-directory: windows
+        working-directory: apps/windows
         shell: bash
         run: npm run build -- --config "{\"version\":\"${TAG#v}\"}"
 
@@ -261,8 +267,8 @@ jobs:
         with:
           name: windows-unsigned
           path: |
-            windows/src-tauri/target/release/bundle/nsis/*.exe
-            windows/src-tauri/target/release/bundle/msi/*.msi
+            apps/windows/src-tauri/target/release/bundle/nsis/*.exe
+            apps/windows/src-tauri/target/release/bundle/msi/*.msi
 
       # Free signing from the SignPath Foundation (open-source program).
       # Skipped until the SIGNPATH_API_TOKEN secret exists, so releases keep
@@ -286,20 +292,20 @@ jobs:
           if [ -d signed ]; then
             find signed \( -name '*.exe' -o -name '*.msi' \) -exec cp {} out/ \;
           else
-            cp windows/src-tauri/target/release/bundle/nsis/*.exe out/
-            cp windows/src-tauri/target/release/bundle/msi/*.msi out/
+            cp apps/windows/src-tauri/target/release/bundle/nsis/*.exe out/
+            cp apps/windows/src-tauri/target/release/bundle/msi/*.msi out/
           fi
 
       # The in-app updater only installs files signed with the project's
       # update key. Done last: signing the installer (SignPath above) changes
       # its bytes, and this signature must cover the file that gets published.
       - name: Sign installer for the in-app updater
-        working-directory: windows
+        working-directory: apps/windows
         shell: bash
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
-        run: npx tauri signer sign ../out/*.exe
+        run: npx tauri signer sign ../../out/*.exe
 
       - name: Upload Windows installers
         uses: actions/upload-artifact@v4
