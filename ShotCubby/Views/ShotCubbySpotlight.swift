@@ -95,7 +95,6 @@ final class SpotlightModel: ObservableObject {
     @Published var renameDraft = ""
     @Published var showActions = false
     @Published var actionIndex = 0
-    @Published var copiedId: URL?
 
     var results: [Shot] {
         let q = query.trimmingCharacters(in: .whitespaces)
@@ -194,7 +193,6 @@ final class SpotlightController {
         model.shots = provider()
         model.query = ""
         model.selection = model.results.first?.id
-        model.copiedId = nil
         model.showCount += 1
 
         let mouse = NSEvent.mouseLocation
@@ -223,16 +221,10 @@ final class SpotlightController {
     private func copySelected() {
         guard let shot = model.selected else { return }
         actions.copy(shot)
-        withAnimation(.easeOut(duration: 0.18)) { model.copiedId = shot.id }
-        // Let the "Copied" badge/pill be visible briefly before the panel
-        // closes, then hand off to CopyToast — the panel is about to
-        // disappear, so the confirmation needs its own window to still be
-        // readable afterward.
-        Task { @MainActor [weak self] in
-            try? await Task.sleep(for: .milliseconds(380))
-            CopyToast.shared.show()
-            self?.hide()
-        }
+        // Close at once: the only confirmation is the toast, a separate
+        // window at the top of the screen that outlives the panel.
+        hide()
+        CopyToast.shared.show()
     }
 
     private func previewSelected() {
@@ -401,17 +393,15 @@ private final class CopyToast {
 }
 
 private struct CopyToastView: View {
-    @Environment(\.colorScheme) private var scheme
-
     var body: some View {
-        let t = Theme.resolve(scheme)
         HStack(spacing: 6) {
             Image(systemName: "checkmark").font(.system(size: 12, weight: .bold))
             Text("Copied").font(.system(size: 13, weight: .medium))
         }
         .foregroundStyle(.white)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(t.accent, in: Capsule())
+        .background(Theme.logoPrimary, in: Capsule())
+        .overlay(Capsule().strokeBorder(Color.white.opacity(0.14)))
         .padding(4)
     }
 }
@@ -460,13 +450,6 @@ struct SpotlightView: View {
                 .padding(.trailing, 8).padding(.bottom, 46)
             }
         }
-        .overlay(alignment: .top) {
-            if model.copiedId != nil {
-                CopyFlashPill()
-                    .padding(.top, 68)
-                    .transition(.move(edge: .top).combined(with: .opacity))
-            }
-        }
         .onAppear { searchFocused = true }
         .onChange(of: model.showCount) { _, _ in searchFocused = true }
     }
@@ -495,7 +478,6 @@ struct SpotlightView: View {
                 LazyVStack(spacing: 2) {
                     ForEach(results) { shot in
                         SpotlightRow(shot: shot, selected: shot.id == model.selection,
-                                     copied: shot.id == model.copiedId,
                                      renaming: $model.renaming, draft: $model.renameDraft)
                             .id(shot.id)
                             .onTapGesture(count: 2) { model.renaming = nil; model.selection = shot.id; onOpen() }
@@ -676,28 +658,9 @@ private struct KeyCap: View {
     }
 }
 
-/// The "Copied" pill shown at the top of the panel, right under the search
-/// row, while the panel is still open.
-private struct CopyFlashPill: View {
-    @Environment(\.colorScheme) private var scheme
-
-    var body: some View {
-        let t = Theme.resolve(scheme)
-        HStack(spacing: 6) {
-            Image(systemName: "checkmark").font(.system(size: 11, weight: .bold))
-            Text("Copied").font(.system(size: 12, weight: .medium))
-        }
-        .foregroundStyle(.white)
-        .padding(.horizontal, 14).padding(.vertical, 6)
-        .background(t.accent, in: Capsule())
-        .shadow(color: .black.opacity(0.3), radius: 10, y: 4)
-    }
-}
-
 private struct SpotlightRow: View {
     let shot: Shot
     let selected: Bool
-    let copied: Bool
     @Binding var renaming: URL?
     @Binding var draft: String
     @FocusState private var fieldFocused: Bool
@@ -712,18 +675,6 @@ private struct SpotlightRow: View {
                 .frame(width: 52, height: 39)
                 .clipShape(RoundedRectangle(cornerRadius: 5, style: .continuous))
                 .overlay(RoundedRectangle(cornerRadius: 5, style: .continuous).strokeBorder(t.line))
-                .overlay {
-                    if copied {
-                        RoundedRectangle(cornerRadius: 5, style: .continuous)
-                            .fill(t.accent.opacity(0.55))
-                            .overlay {
-                                Image(systemName: "checkmark")
-                                    .font(.system(size: 12, weight: .bold))
-                                    .foregroundStyle(.white)
-                            }
-                            .transition(.scale.combined(with: .opacity))
-                    }
-                }
             VStack(alignment: .leading, spacing: 2) {
                 if isRenaming {
                     TextField("Name", text: $draft)

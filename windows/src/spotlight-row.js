@@ -1,13 +1,12 @@
-import { el, relativeLabel, svgIcon, thumbnailUrl, ICONS } from "./shared.js";
+import { el, relativeLabel, thumbnailUrl } from "./shared.js";
 
 /**
  * One result row in the Spotlight list: thumbnail + name (or an inline
  * rename field) + relative time. `callbacks` is `{ onSelect, onOpen,
  * onCommitRename, onCancelRename, onContextMenu }`, all called with no
- * extra bookkeeping — the caller owns `render()`. `isCopied` briefly
- * overlays a check badge on the thumbnail right after this row was copied.
+ * extra bookkeeping — the caller owns `render()`.
  */
-export function renderRow(shot, isSelected, isRenaming, isCopied, callbacks) {
+export function renderRow(shot, isSelected, isRenaming, callbacks) {
   const row = el("div", isSelected ? "row selected" : "row");
   row.dataset.id = shot.id;
   row.addEventListener("click", () => callbacks.onSelect(shot));
@@ -25,11 +24,6 @@ export function renderRow(shot, isSelected, isRenaming, isCopied, callbacks) {
   thumbnailUrl(shot.path, 56).then((url) => {
     if (url) thumb.appendChild(el("img")).src = url;
   });
-  if (isCopied) {
-    const badge = el("div", "copied-badge");
-    badge.innerHTML = svgIcon(ICONS.check);
-    thumb.appendChild(badge);
-  }
   row.appendChild(thumb);
 
   const meta = el("div", "meta");

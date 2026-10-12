@@ -1,4 +1,4 @@
-import { invoke, listen, currentWindow, el, svgIcon, GLYPH_SVG, ICONS } from "./shared.js";
+import { invoke, listen, currentWindow, el, GLYPH_SVG } from "./shared.js";
 import { renderRow } from "./spotlight-row.js";
 import { createSpotlightFooter } from "./spotlight-footer.js";
 import { createSpotlightActions } from "./spotlight-actions.js";
@@ -10,7 +10,6 @@ const state = {
   query: "",
   selection: null,
   renamingId: null,
-  copiedId: null,
 };
 
 document.querySelector("#search-row .glyph").innerHTML = GLYPH_SVG;
@@ -40,13 +39,11 @@ async function reset() {
   state.shots = await invoke("list_screenshots");
   state.query = "";
   state.renamingId = null;
-  state.copiedId = null;
   const list = results();
   state.selection = list[0]?.id ?? null;
   searchInput.value = "";
   footer.close();
   contextMenu.hide();
-  hideCopyFlash();
   render();
   searchInput.focus();
 }
@@ -97,7 +94,7 @@ function render() {
   listEl.textContent = "";
   for (const shot of list) {
     listEl.appendChild(
-      renderRow(shot, shot.id === state.selection, shot.id === state.renamingId, shot.id === state.copiedId, rowCallbacks)
+      renderRow(shot, shot.id === state.selection, shot.id === state.renamingId, rowCallbacks)
     );
   }
 
@@ -140,31 +137,8 @@ function beginRename() {
   }
 }
 
-const copyFlashEl = document.getElementById("copy-flash");
-copyFlashEl.innerHTML = `${svgIcon(ICONS.check)}<span>Copied</span>`;
-copyFlashEl.addEventListener("animationend", () => {
-  copyFlashEl.hidden = true;
-});
-
-function showCopyFlash() {
-  copyFlashEl.hidden = false;
-  copyFlashEl.classList.remove("flash");
-  void copyFlashEl.offsetWidth; // restart the animation on back-to-back copies
-  copyFlashEl.classList.add("flash");
-}
-
-function hideCopyFlash() {
-  copyFlashEl.hidden = true;
-  copyFlashEl.classList.remove("flash");
-}
-
 const { copySelected, previewSelected, revealSelected, deleteSelected } = createSpotlightActions({
   getSelected: selected,
-  onCopied: (shot) => {
-    state.copiedId = shot.id;
-    showCopyFlash();
-    render();
-  },
   onDeleted: (shot) => {
     state.shots = state.shots.filter((s) => s.id !== shot.id);
     const list = results();
