@@ -45,9 +45,11 @@ pub fn toggle_spotlight(app: &AppHandle) {
             .or_else(|| app.primary_monitor().ok().flatten());
 
         if let Some(monitor) = monitor {
+            // Physical work area vs logical window size: scale before centring.
+            let scale = monitor.scale_factor();
             let area = monitor.work_area();
-            let x = area.position.x as f64 + (area.size.width as f64 - SPOTLIGHT_SIZE.0) / 2.0;
-            let y = area.position.y as f64 + (area.size.height as f64 - SPOTLIGHT_SIZE.1) / 2.0;
+            let x = area.position.x as f64 + (area.size.width as f64 - SPOTLIGHT_SIZE.0 * scale) / 2.0;
+            let y = area.position.y as f64 + (area.size.height as f64 - SPOTLIGHT_SIZE.1 * scale) / 2.0;
             let _ = window.set_position(PhysicalPosition::new(x, y));
         }
     }

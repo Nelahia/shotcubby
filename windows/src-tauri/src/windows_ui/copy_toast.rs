@@ -48,9 +48,12 @@ pub fn show_copy_toast(app: &AppHandle) {
         .or_else(|| app.primary_monitor().ok().flatten());
 
     if let Some(monitor) = monitor {
+        // The work area is in physical pixels but the sizes are logical, so
+        // scale them — otherwise a 150% / 200% display shifts it off-centre.
+        let scale = monitor.scale_factor();
         let area = monitor.work_area();
-        let x = area.position.x as f64 + (area.size.width as f64 - COPY_TOAST_SIZE.0) / 2.0;
-        let y = area.position.y as f64 + COPY_TOAST_MARGIN;
+        let x = area.position.x as f64 + (area.size.width as f64 - COPY_TOAST_SIZE.0 * scale) / 2.0;
+        let y = area.position.y as f64 + COPY_TOAST_MARGIN * scale;
         let _ = window.set_position(PhysicalPosition::new(x, y));
     }
 
