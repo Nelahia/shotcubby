@@ -6,12 +6,45 @@
     <link rel="stylesheet" href="shared.css" />
     <style>
       body {
-        padding: 20px;
+        display: flex;
         background: var(--bg);
       }
+      #sidebar {
+        width: 180px;
+        flex: none;
+        padding: 16px 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        background: var(--panel);
+        box-shadow: inset -1px 0 0 var(--line);
+      }
+      .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 10px;
+        border-radius: 8px;
+        text-align: left;
+      }
+      .nav-item:hover {
+        background: var(--line);
+      }
+      .nav-item.selected {
+        font-weight: 600;
+        background: color-mix(in srgb, var(--accent) 16%, transparent);
+        box-shadow: inset 3px 0 0 var(--accent);
+      }
       #content {
-        max-height: calc(100vh - 40px);
+        flex: 1;
+        min-width: 0;
+        padding: 20px 24px;
         overflow-y: auto;
+      }
+      #page-title {
+        margin: 0 0 14px;
+        font-size: 17px;
+        font-weight: 600;
       }
       #rows {
         display: flex;
@@ -157,13 +190,13 @@
     </style>
   </head>
   <body>
-    <div id="content">
-    <div id="rows"></div>
-    <div id="error"></div>
-    <div id="footer-text">
-      Click a field, then press the combination you want: a modifier (Ctrl, Alt, Shift, Win) plus a key, or a lone function / PrintScreen key. Esc cancels.
-    </div>
-    </div>
+    <nav id="sidebar"></nav>
+    <main id="content">
+      <h1 id="page-title"></h1>
+      <div id="rows"></div>
+      <div id="error"></div>
+      <div id="footer-text"></div>
+    </main>
     <script type="module" src="settings.js"></script>
   </body>
 </html>

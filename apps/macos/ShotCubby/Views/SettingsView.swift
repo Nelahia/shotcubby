@@ -2,76 +2,21 @@ import SwiftUI
 
 struct SettingsView: View {
     @ObservedObject var appState: AppState
-    @State private var keyCode: UInt32 = HotKeyPreferences.keyCode
-    @State private var modifiers: UInt32 = HotKeyPreferences.modifiers
-    @State private var showInDock = DockPreferences.showInDock
-    @State private var organizeByDay = OrganizePreferences.organizeByDay
-    @State private var checksAutomatically = AppUpdater.shared.automaticallyChecks
+    @State private var pane: SettingsPane = .general
 
     var body: some View {
-        Form {
-            Section {
-                Toggle("Show in the Dock", isOn: $showInDock)
-                Toggle("File past days into dated folders", isOn: $organizeByDay)
-                Toggle("Check for updates automatically", isOn: $checksAutomatically)
-                LabeledContent("Version \(Self.versionLabel)") {
-                    Button("Check for Updates…") { AppUpdater.shared.checkForUpdates() }
-                }
-            } header: {
-                Text("General")
-            } footer: {
-                Text("Clicking the Dock icon opens the search panel. Filing keeps today's screenshots in the main folder and moves older ones into YYYY-MM-DD folders.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+        NavigationSplitView {
+            List(SettingsPane.allCases, selection: $pane) { pane in
+                Label(pane.title, systemImage: pane.symbol).tag(pane)
             }
-
-            VaultFolderSection(appState: appState)
-
-            Section {
-                HStack {
-                    Text("Open Spotlight search")
-                    Spacer()
-                    HotKeyRecorderField(keyCode: $keyCode, modifiers: $modifiers)
-                    Button("Reset") {
-                        keyCode = HotKeyPreferences.defaultKeyCode
-                        modifiers = HotKeyPreferences.defaultModifiers
-                    }
-                }
-            } header: {
-                Text("Global shortcut")
-            } footer: {
-                Text("Click the field, then press a key combination with at least one modifier (⌘ ⌥ ⌃ ⇧). Esc cancels.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-
-            Section {
-                ForEach(SpotlightCommand.allCases) { command in
-                    SpotlightShortcutRow(command: command)
-                }
-            } header: {
-                Text("Inside the search panel")
-            } footer: {
-                Text("Return and the function keys can be used alone; every other shortcut needs a modifier.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+            .navigationSplitViewColumnWidth(190)
+        } detail: {
+            switch pane {
+            case .general: GeneralSettingsPane()
+            case .screenshots: ScreenshotsSettingsPane(appState: appState)
+            case .shortcuts: ShortcutsSettingsPane()
             }
         }
-        .formStyle(.grouped)
-        .frame(width: 560, height: 620)
-        .onChange(of: showInDock) { _, show in DockPreferences.set(show) }
-        .onChange(of: organizeByDay) { _, on in OrganizePreferences.set(on) }
-        .onChange(of: checksAutomatically) { _, on in AppUpdater.shared.automaticallyChecks = on }
-        .onChange(of: keyCode) { _, _ in save() }
-        .onChange(of: modifiers) { _, _ in save() }
-    }
-
-    /// The release version stamped into Info.plist by the release workflow.
-    private static var versionLabel: String {
-        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "—"
-    }
-
-    private func save() {
-        HotKeyPreferences.set(keyCode: keyCode, modifiers: modifiers)
+        .frame(width: 720, height: 460)
     }
 }

@@ -4,16 +4,6 @@ export const listen = (event, handler) => tauri.event.listen(event, handler);
 export const currentWindow = () => tauri.window.getCurrentWindow();
 export const appVersion = () => tauri.app.getVersion();
 
-/**
- * Sizes the window to the height of `#content` (+ the body padding), so no
- * empty space is left, but never taller than `maxHeight` (the content then
- * scrolls).
- */
-export function fitWindowToContent(width, maxHeight = Infinity) {
-  const height = Math.min(document.getElementById("content").scrollHeight + 40, maxHeight);
-  return currentWindow().setSize(new tauri.dpi.LogicalSize(width, height));
-}
-
 export function el(tag, className, text) {
   const node = document.createElement(tag);
   if (className) node.className = className;
@@ -32,6 +22,7 @@ export const ICONS = {
   gear: '<circle cx="12" cy="12" r="3"></circle><path d="M19.4 13a7.6 7.6 0 0 0 0-2l2-1.5-2-3.4-2.3 1a7.7 7.7 0 0 0-1.7-1l-.3-2.6h-4l-.3 2.6a7.7 7.7 0 0 0-1.7 1l-2.3-1-2 3.4L6.6 11a7.6 7.6 0 0 0 0 2l-2 1.5 2 3.4 2.3-1a7.7 7.7 0 0 0 1.7 1l.3 2.6h4l.3-2.6a7.7 7.7 0 0 0 1.7-1l2.3 1 2-3.4z"></path>',
   search: '<circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4.5 4.5"></path>',
   check: '<path d="M5 12.5l4.5 4.5L19 7"></path>',
+  keyboard: '<rect x="2.5" y="6" width="19" height="12" rx="2.5"></rect><path d="M6.5 10h.01M10 10h.01M13.5 10h.01M17 10h.01M7.5 14h9"></path>',
 };
 
 /** Brackets-around-a-kept-shot glyph, ported from `ShotCubbyGlyph` (SwiftUI Canvas). */
