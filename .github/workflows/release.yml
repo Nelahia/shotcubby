@@ -4,12 +4,27 @@ on:
   push:
     tags:
       - 'v*'
+  # Manual run, used by the release skills to build one platform or both.
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag to build and publish (e.g. v2.2.22)
+        required: true
+      platform:
+        description: Which app to rebuild; the other one is carried over from the previous release
+        type: choice
+        options: [both, mac, windows]
+        default: both
 
 permissions:
   contents: write
 
+env:
+  TAG: ${{ inputs.tag || github.ref_name }}
+
 jobs:
   build-mac:
+    if: inputs.platform != 'windows'
     runs-on: macos-15
 
     env:
@@ -21,7 +36,7 @@ jobs:
       - name: Derive version from tag
         id: version
         run: |
-          VERSION="${GITHUB_REF_NAME#v}"
+          VERSION="${TAG#v}"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Install build tools
@@ -178,6 +193,7 @@ jobs:
           path: ${{ env.APP_NAME }}.dmg
 
   build-windows:
+    if: inputs.platform != 'mac'
     runs-on: windows-latest
 
     # SignPath reads the uploaded artifact back through the Actions API.
@@ -212,7 +228,7 @@ jobs:
       - name: Build Tauri app
         working-directory: windows
         shell: bash
-        run: npm run build -- --config "{\"version\":\"${GITHUB_REF_NAME#v}\"}"
+        run: npm run build -- --config "{\"version\":\"${TAG#v}\"}"
 
       - name: Upload unsigned installers
         id: unsigned
@@ -268,6 +284,8 @@ jobs:
 
   release:
     needs: [build-mac, build-windows]
+    # A platform skipped by a manual run is not a failure.
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') }}
     runs-on: ubuntu-latest
 
     env:
@@ -275,18 +293,38 @@ jobs:
 
     steps:
       - uses: actions/download-artifact@v4
+        if: inputs.platform != 'windows'
         with:
           name: mac-dmg
           path: dist/mac
 
       - uses: actions/download-artifact@v4
+        if: inputs.platform != 'mac'
         with:
           name: windows-installers
           path: dist/windows
 
+      # The 'latest' download links need both apps in the newest release, so
+      # the platform that was not rebuilt is copied over from the previous one.
+      - name: Carry over the macOS disk image
+        if: inputs.platform == 'windows'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release download --repo "${{ github.repository }}" --pattern "${{ env.APP_NAME }}.dmg" --dir dist/mac
+
+      - name: Carry over the Windows installers
+        if: inputs.platform == 'mac'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download --repo "${{ github.repository }}" --dir dist/windows \
+            --pattern "${{ env.APP_NAME }}-Setup.exe" --pattern "${{ env.APP_NAME }}.msi" --pattern latest.json
+          mv dist/windows/latest.json dist/latest.json
+
       # Tauri names installers after its own version (e.g. ShotCubby_0.1.0_x64-setup.exe);
       # stable names let the landing page link to releases/latest/download/<name>.
       - name: Give Windows installers stable names
+        if: inputs.platform != 'mac'
         run: |
           mv dist/windows/*.exe "dist/windows/${{ env.APP_NAME }}-Setup.exe"
           mv dist/windows/*.msi "dist/windows/${{ env.APP_NAME }}.msi"
@@ -294,14 +332,24 @@ jobs:
 
       # What the app's updater reads to learn that a newer release exists.
       - name: Write updater manifest
+        if: inputs.platform != 'mac'
         run: |
           jq -n \
-            --arg version "${GITHUB_REF_NAME#v}" \
+            --arg version "${TAG#v}" \
             --arg date "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-            --arg url "https://github.com/${{ github.repository }}/releases/download/${GITHUB_REF_NAME}/${{ env.APP_NAME }}-Setup.exe" \
+            --arg url "https://github.com/${{ github.repository }}/releases/download/${TAG}/${{ env.APP_NAME }}-Setup.exe" \
             --arg sig "$(cat "dist/windows/${{ env.APP_NAME }}-Setup.exe.sig")" \
             '{version: $version, pub_date: $date, platforms: {"windows-x86_64": {signature: $sig, url: $url}}}' \
             > dist/latest.json
+
+      - name: Describe what was rebuilt
+        id: note
+        run: |
+          case "${{ inputs.platform }}" in
+            mac) echo "note=_Only the macOS app was rebuilt for this release; the Windows installers are the previous release's, unchanged (version $(jq -r .version dist/latest.json))._" >> "$GITHUB_OUTPUT" ;;
+            windows) echo "note=_Only the Windows app was rebuilt for this release; the macOS disk image is the previous release's, unchanged._" >> "$GITHUB_OUTPUT" ;;
+            *) echo "note=" >> "$GITHUB_OUTPUT" ;;
+          esac
 
       - name: Get macOS SHA256
         id: sha
@@ -310,6 +358,8 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ env.TAG }}
+          target_commitish: ${{ github.sha }}
           files: |
             dist/mac/${{ env.APP_NAME }}.dmg
             dist/windows/*.exe
@@ -317,7 +367,9 @@ jobs:
             dist/latest.json
           generate_release_notes: true
           body: |
-            ## ShotCubby ${{ github.ref_name }}
+            ## ShotCubby ${{ env.TAG }}
+
+            ${{ steps.note.outputs.note }}
 
             Menu bar app that automatically captures and organizes all your screenshots.
 
