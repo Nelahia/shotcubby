@@ -51,6 +51,12 @@ fn set(state: &str, detail: Option<String>, stamp: bool) {
 /// a read of `latest.json` on the project's GitHub releases. The setting is
 /// re-read each round, so switching updates off in Settings applies at once.
 pub fn start(app: AppHandle) {
+    // A dev build is older than every release, so it would "update" itself
+    // into the installed app right after launch and replace the build being
+    // tested. "Check now" still works on request.
+    if cfg!(debug_assertions) {
+        return;
+    }
     std::thread::spawn(move || {
         std::thread::sleep(FIRST_CHECK_DELAY);
         loop {

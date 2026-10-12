@@ -91,7 +91,9 @@ pub fn run() {
         // A tray utility only exits via the Quit menu item / command
         // (`commands::quit_app`, which calls `app.exit(0)`) — closing a
         // window (e.g. Settings) must never take the whole app down with it.
-        if let RunEvent::ExitRequested { api, .. } = event {
+        // That window case arrives without an exit code; an explicit
+        // `exit(code)` carries one and must go through, or Quit does nothing.
+        if let RunEvent::ExitRequested { code: None, api, .. } = event {
             api.prevent_exit();
         }
     });
