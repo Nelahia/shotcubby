@@ -66,8 +66,6 @@ Download the installer for your system from the
 - **macOS 14+**: `ShotCubby.dmg`, then drag the app to Applications.
 - **Windows 10/11**: `ShotCubby-Setup.exe` (or `ShotCubby.msi`).
 
-To update on macOS, replace the app in Applications with the new one: the running copy notices and restarts itself.
-
 To start ShotCubby at login on macOS: **System Settings → General → Login Items → +**.
 
 ## Updates
