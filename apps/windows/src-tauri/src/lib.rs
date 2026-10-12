@@ -27,6 +27,9 @@ pub fn run() {
             commands::list_screenshots,
             commands::get_access_failure,
             commands::get_vault_dir,
+            commands::get_vault_info,
+            commands::choose_vault_folder,
+            commands::move_vault,
             commands::get_screenshot_dir,
             commands::get_thumbnail,
             commands::open_screenshot,
@@ -41,6 +44,8 @@ pub fn run() {
             commands::get_hotkeys,
             commands::set_hotkey,
             commands::reset_hotkey,
+            commands::get_organize_by_day,
+            commands::set_organize_by_day,
             commands::get_auto_update,
             commands::set_auto_update,
             commands::get_update_status,
@@ -75,6 +80,7 @@ pub fn run() {
             services::updater::start(handle.clone());
 
             app.state::<AppStateInner>().start();
+            services::day_archive::start(handle.clone());
 
             Ok(())
         })

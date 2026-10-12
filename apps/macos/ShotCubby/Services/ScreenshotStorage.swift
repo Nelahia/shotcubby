@@ -4,11 +4,17 @@ import os
 final class ScreenshotStorage {
     private let logger = Logger(subsystem: "com.nelahian.shotcubby", category: "ScreenshotStorage")
 
-    let vaultURL: URL
+    /// Wherever the user moved the vault, else `~/Documents/ShotCubby`.
+    static var currentVaultURL: URL { VaultPreferences.customURL ?? defaultVaultURL }
 
-    init() {
-        vaultURL = FileManager.default.homeDirectoryForCurrentUser
-            .appendingPathComponent("ShotCubby")
+    var vaultURL: URL { Self.currentVaultURL }
+
+    /// `~/Documents/ShotCubby` — the user's Documents folder, wherever it
+    /// lives (iCloud Drive and similar redirect it).
+    static var defaultVaultURL: URL {
+        let documents = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
+            ?? FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Documents")
+        return documents.appendingPathComponent("ShotCubby")
     }
 
     func ensureVaultExists() {
@@ -55,12 +61,10 @@ final class ScreenshotStorage {
         }
     }
 
+    /// Today's screenshots at the vault's root plus those filed into the
+    /// `YYYY-MM-DD` folders (see `archivePastDays`).
     func loadAll() -> [ScreenshotItem] {
-        guard let files = try? FileManager.default.contentsOfDirectory(
-            at: vaultURL,
-            includingPropertiesForKeys: [.creationDateKey],
-            options: .skipsHiddenFiles
-        ) else { return [] }
+        let files = ([vaultURL] + dayFolders()).flatMap { contents(of: $0) }
 
         return files
             .filter { isImageFile($0) }
@@ -83,7 +87,11 @@ final class ScreenshotStorage {
         guard !sanitized.isEmpty else { return nil }
         guard sanitized != url.deletingPathExtension().lastPathComponent else { return url }
 
-        let destination = uniqueDestination(baseName: sanitized, ext: url.pathExtension)
+        let destination = uniqueDestination(
+            baseName: sanitized,
+            ext: url.pathExtension,
+            in: url.deletingLastPathComponent()
+        )
         do {
             try FileManager.default.moveItem(at: url, to: destination)
             return destination
@@ -95,7 +103,8 @@ final class ScreenshotStorage {
     private func uniqueDestination(for sourceURL: URL) -> URL {
         uniqueDestination(
             baseName: sourceURL.deletingPathExtension().lastPathComponent,
-            ext: sourceURL.pathExtension
+            ext: sourceURL.pathExtension,
+            in: vaultURL
         )
     }
 
@@ -110,7 +119,7 @@ final class ScreenshotStorage {
         return destination
     }
 
-    private func isImageFile(_ url: URL) -> Bool {
+    func isImageFile(_ url: URL) -> Bool {
         ["png", "jpg", "jpeg", "tiff", "heic"].contains(url.pathExtension.lowercased())
     }
 }

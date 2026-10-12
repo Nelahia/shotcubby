@@ -12,7 +12,7 @@ clipboard. ShotCubby quietly catches all of them, files them in a single place,
 and lets you find, copy or rename any of them in a couple of keystrokes.
 
 - **Nothing to do** — keep taking screenshots the way you already do.
-- **One place** — `~/ShotCubby` (macOS) or `%USERPROFILE%\ShotCubby` (Windows).
+- **One place** — `Documents/ShotCubby` on both macOS and Windows by default, movable from Settings.
 - **Fast to reach** — a Spotlight-style search opens from anywhere.
 - **Safe** — deleting always goes to the Trash / Recycle Bin, never permanently.
 - **Private** — works entirely on your machine: no account, no tracking, your

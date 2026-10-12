@@ -12,7 +12,8 @@ final class AppState: ObservableObject {
     private lazy var clipboardWatcher = ClipboardWatcher(storage: storage)
     private var cancellables = Set<AnyCancellable>()
 
-    var vaultURL: URL { storage.vaultURL }
+    /// Published so Settings follows a move.
+    @Published private(set) var vaultURL = ScreenshotStorage.currentVaultURL
     var screenshotDirectory: String { watcher.screenshotDir.path }
 
     func start() {
@@ -79,6 +80,52 @@ final class AppState: ObservableObject {
         watcher.restart()
     }
 
+    /// Asks where, confirms, then moves the whole vault there.
+    func moveVault() {
+        NSApp.activate(ignoringOtherApps: true)
+
+        let panel = NSOpenPanel()
+        panel.canChooseDirectories = true
+        panel.canChooseFiles = false
+        panel.canCreateDirectories = true
+        panel.allowsMultipleSelection = false
+        panel.message = "Choose where ShotCubby keeps your screenshots"
+        panel.prompt = "Choose"
+        guard panel.runModal() == .OK, let chosen = panel.url else { return }
+
+        let target = ScreenshotStorage.target(forChosen: chosen)
+        let alert = NSAlert()
+        alert.messageText = "Move your screenshots to “\(chosen.lastPathComponent)”?"
+        alert.informativeText = """
+        \(ScreenshotStorage.summaryText(screenshots)), dated folders included, will move to the new location. New captures will be saved there.
+
+        From: \((vaultURL.path as NSString).abbreviatingWithTildeInPath)
+        To: \((target.path as NSString).abbreviatingWithTildeInPath)
+        """
+        alert.addButton(withTitle: "Move")
+        alert.addButton(withTitle: "Cancel")
+        guard alert.runModal() == .alertFirstButtonReturn else { return }
+
+        DispatchQueue.global(qos: .userInitiated).async { [storage] in
+            let result = Result { try storage.moveVault(to: target) }
+            DispatchQueue.main.async { [weak self] in self?.finishVaultMove(result) }
+        }
+    }
+
+    private func finishVaultMove(_ result: Result<Void, Error>) {
+        switch result {
+        case .success:
+            vaultURL = storage.vaultURL
+            screenshots = storage.loadAll()
+        case .failure(let error):
+            let alert = NSAlert()
+            alert.alertStyle = .warning
+            alert.messageText = "Can't move"
+            alert.informativeText = error.localizedDescription
+            alert.runModal()
+        }
+    }
+
     func deleteScreenshot(_ item: ScreenshotItem) {
         storage.delete(item.url)
         screenshots.removeAll { $0.id == item.id }
@@ -115,6 +162,31 @@ final class AppState: ObservableObject {
 
     func openVaultFolder() {
         NSWorkspace.shared.open(vaultURL)
+    }
+
+    /// Files past days into dated folders when the option is on: at launch,
+    /// when it is switched on, and every few minutes so a day that ends while
+    /// the app is open is picked up soon after midnight.
+    private func observeDayArchive() {
+        NotificationCenter.default.publisher(for: OrganizePreferences.didChange)
+            .sink { [weak self] _ in self?.archivePastDays() }
+            .store(in: &cancellables)
+        archiveTimer = Timer.scheduledTimer(withTimeInterval: 600, repeats: true) { [weak self] _ in
+            self?.archivePastDays()
+        }
+        archivePastDays()
+    }
+
+    private func archivePastDays() {
+        guard OrganizePreferences.organizeByDay else { return }
+        DispatchQueue.global(qos: .utility).async { [storage] in
+            guard storage.archivePastDays() else { return }
+            // Re-read on the main thread so a capture that arrived meanwhile
+            // is never dropped from the list.
+            DispatchQueue.main.async { [weak self] in
+                self?.screenshots = storage.loadAll()
+            }
+        }
     }
 
     private func loadExistingScreenshots() {

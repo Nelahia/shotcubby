@@ -51,9 +51,9 @@ targets:
         SUPublicEDKey: EHGNXR/AI8vb0ekstia618K6WYrzj9yun3S0eHNI6Eo=
         SUEnableAutomaticChecks: true
         NSDesktopFolderUsageDescription: >-
-          ShotCubby moves new screenshots out of this folder into ~/ShotCubby.
+          ShotCubby moves new screenshots out of this folder into your ShotCubby folder.
         NSDocumentsFolderUsageDescription: >-
-          Needed only if you pick a custom screenshot folder inside Documents.
+          Your ShotCubby folder lives in Documents by default, and ShotCubby also reads a custom screenshot folder there.
         NSDownloadsFolderUsageDescription: >-
           Needed only if you pick a custom screenshot folder inside Downloads.
         # A Desktop redirected by OneDrive, Google Drive or iCloud lives in

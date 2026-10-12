@@ -12,7 +12,8 @@ struct ScreenshotItem: Identifiable, Equatable {
     let createdAt: Date
 
     init(url: URL) {
-        self.id = url.lastPathComponent
+        // The full path: unique even when two day folders hold the same name.
+        self.id = url.path
         self.url = url
         self.name = url.deletingPathExtension().lastPathComponent
         self.createdAt = (try? url.resourceValues(forKeys: [.creationDateKey]))?.creationDate ?? Date()

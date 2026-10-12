@@ -1,5 +1,7 @@
 import { invoke, fitWindowToContent } from "./shared.js";
 import { createHotkeyRow } from "./hotkey-row.js";
+import { createOrganizeRow } from "./organize-row.js";
+import { createVaultRow } from "./vault-row.js";
 import { createAutoUpdateRow } from "./auto-update-row.js";
 import { createUpdateRow } from "./update-row.js";
 
@@ -14,10 +16,12 @@ async function load() {
   const hotkeys = await invoke("get_hotkeys");
   rows.replaceChildren(
     ...hotkeys.map((hotkey) => createHotkeyRow(hotkey, showError)),
+    await createVaultRow(),
+    await createOrganizeRow(),
     await createAutoUpdateRow(),
     await createUpdateRow(),
   );
-  await fitWindowToContent(500);
+  await fitWindowToContent(560, 600);
 }
 
 load();

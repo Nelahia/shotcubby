@@ -1,15 +1,18 @@
 import SwiftUI
 
 struct SettingsView: View {
+    @ObservedObject var appState: AppState
     @State private var keyCode: UInt32 = HotKeyPreferences.keyCode
     @State private var modifiers: UInt32 = HotKeyPreferences.modifiers
     @State private var showInDock = DockPreferences.showInDock
+    @State private var organizeByDay = OrganizePreferences.organizeByDay
     @State private var checksAutomatically = AppUpdater.shared.automaticallyChecks
 
     var body: some View {
         Form {
             Section {
                 Toggle("Show in the Dock", isOn: $showInDock)
+                Toggle("File past days into dated folders", isOn: $organizeByDay)
                 Toggle("Check for updates automatically", isOn: $checksAutomatically)
                 LabeledContent("Version \(Self.versionLabel)") {
                     Button("Check for Updates…") { AppUpdater.shared.checkForUpdates() }
@@ -17,10 +20,12 @@ struct SettingsView: View {
             } header: {
                 Text("General")
             } footer: {
-                Text("Clicking the Dock icon opens the search panel.")
+                Text("Clicking the Dock icon opens the search panel. Filing keeps today's screenshots in the main folder and moves older ones into YYYY-MM-DD folders.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
+
+            VaultFolderSection(appState: appState)
 
             Section {
                 HStack {
@@ -53,8 +58,9 @@ struct SettingsView: View {
             }
         }
         .formStyle(.grouped)
-        .frame(width: 480, height: 700)
+        .frame(width: 560, height: 620)
         .onChange(of: showInDock) { _, show in DockPreferences.set(show) }
+        .onChange(of: organizeByDay) { _, on in OrganizePreferences.set(on) }
         .onChange(of: checksAutomatically) { _, on in AppUpdater.shared.automaticallyChecks = on }
         .onChange(of: keyCode) { _, _ in save() }
         .onChange(of: modifiers) { _, _ in save() }

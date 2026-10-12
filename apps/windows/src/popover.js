@@ -133,6 +133,7 @@ document.getElementById("quit-btn").addEventListener("click", () => invoke("quit
 listen("screenshot-added", refresh);
 listen("screenshot-removed", refresh);
 listen("screenshot-renamed", refresh);
+listen("screenshots-reloaded", refresh);
 listen("access-failure-changed", refresh);
 
 currentWindow().onFocusChanged(({ payload: focused }) => {

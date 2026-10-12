@@ -21,9 +21,9 @@
 	<key>LSUIElement</key>
 	<true/>
 	<key>NSDesktopFolderUsageDescription</key>
-	<string>ShotCubby moves new screenshots out of this folder into ~/ShotCubby.</string>
+	<string>ShotCubby moves new screenshots out of this folder into your ShotCubby folder.</string>
 	<key>NSDocumentsFolderUsageDescription</key>
-	<string>Needed only if you pick a custom screenshot folder inside Documents.</string>
+	<string>Your ShotCubby folder lives in Documents by default, and ShotCubby also reads a custom screenshot folder there.</string>
 	<key>NSDownloadsFolderUsageDescription</key>
 	<string>Needed only if you pick a custom screenshot folder inside Downloads.</string>
 </dict>

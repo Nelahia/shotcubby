@@ -9,9 +9,16 @@ use std::sync::OnceLock;
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct AppConfig {
     pub custom_directory: Option<PathBuf>,
+    /// Where the vault lives when the user moved it; absent means the default.
+    #[serde(default)]
+    pub vault_directory: Option<PathBuf>,
     /// Stored negated so the default (key absent) means "updates on".
     #[serde(default)]
     pub auto_update_disabled: bool,
+    /// Stored negated so the default (key absent) means "file past days into
+    /// `YYYY-MM-DD` folders".
+    #[serde(default)]
+    pub organize_by_day_disabled: bool,
     /// Shortcut per `HotkeyAction::id()`.
     #[serde(default)]
     pub hotkeys: BTreeMap<String, String>,

@@ -7,7 +7,7 @@ struct ShotCubbyApp: App {
 
     var body: some Scene {
         Settings {
-            SettingsView()
+            SettingsView(appState: appDelegate.appState)
         }
     }
 }
@@ -16,7 +16,7 @@ struct ShotCubbyApp: App {
 final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSWindowDelegate {
     private var statusItem: NSStatusItem?
     private var popover = NSPopover()
-    private let appState = AppState()
+    let appState = AppState()
     private var spotlight: SpotlightController?
     private var hotKey: GlobalHotKey?
     private var settingsWindow: NSWindow?
@@ -133,7 +133,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSW
     /// never gets one, so the action silently finds no responder and does nothing.
     private func showSettingsWindow() {
         if settingsWindow == nil {
-            let window = NSWindow(contentViewController: NSHostingController(rootView: SettingsView()))
+            let window = NSWindow(contentViewController: NSHostingController(rootView: SettingsView(appState: appState)))
             window.title = "ShotCubby Settings"
             window.styleMask = [.titled, .closable]
             window.isReleasedWhenClosed = false

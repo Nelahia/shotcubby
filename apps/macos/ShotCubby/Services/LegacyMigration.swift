@@ -19,14 +19,20 @@ enum LegacyMigration {
         migrateDefaults()
     }
 
-    /// Moves `~/ShotKeep` to `~/ShotCubby` wholesale, but only when the new
-    /// vault doesn't exist yet — never merges into or overwrites one.
-    private static func migrateVault() {
+    /// Where the vault lived before: `~/ShotCubby`, and `~/ShotKeep` before
+    /// that. Newest first.
+    private static var legacyVaults: [URL] {
         let home = FileManager.default.homeDirectoryForCurrentUser
-        let legacy = home.appendingPathComponent(legacyVaultName)
-        let current = home.appendingPathComponent(vaultName)
+        return [vaultName, legacyVaultName].map { home.appendingPathComponent($0) }
+    }
+
+    /// Moves the old vault to `~/Documents/ShotCubby` wholesale, but only
+    /// when the new vault doesn't exist yet — never merges into or
+    /// overwrites one.
+    private static func migrateVault() {
+        let current = ScreenshotStorage.defaultVaultURL
         guard !FileManager.default.fileExists(atPath: current.path),
-              FileManager.default.fileExists(atPath: legacy.path)
+              let legacy = legacyVaults.first(where: { FileManager.default.fileExists(atPath: $0.path) })
         else { return }
         try? FileManager.default.moveItem(at: legacy, to: current)
     }
@@ -38,12 +44,12 @@ enum LegacyMigration {
         guard let legacy = UserDefaults.standard.persistentDomain(forName: legacyDefaultsDomain)
         else { return }
         let defaults = UserDefaults.standard
-        let home = FileManager.default.homeDirectoryForCurrentUser
-        let oldVaultPath = home.appendingPathComponent(legacyVaultName).path
-        let newVaultPath = home.appendingPathComponent(vaultName).path
+        let oldVaultPaths = legacyVaults.map(\.path)
+        let newVaultPath = ScreenshotStorage.defaultVaultURL.path
         for key in migratedKeys where defaults.object(forKey: key) == nil {
             guard var value = legacy[key] else { continue }
-            if let path = value as? String, path.hasPrefix(oldVaultPath) {
+            if let path = value as? String,
+               let oldVaultPath = oldVaultPaths.first(where: { path.hasPrefix($0) }) {
                 value = newVaultPath + path.dropFirst(oldVaultPath.count)
             }
             defaults.set(value, forKey: key)

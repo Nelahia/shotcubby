@@ -4,9 +4,13 @@ export const listen = (event, handler) => tauri.event.listen(event, handler);
 export const currentWindow = () => tauri.window.getCurrentWindow();
 export const appVersion = () => tauri.app.getVersion();
 
-/** Sizes the window to the height of `#content` (+ the body padding), so no empty space is left. */
-export function fitWindowToContent(width) {
-  const height = document.getElementById("content").offsetHeight + 40;
+/**
+ * Sizes the window to the height of `#content` (+ the body padding), so no
+ * empty space is left, but never taller than `maxHeight` (the content then
+ * scrolls).
+ */
+export function fitWindowToContent(width, maxHeight = Infinity) {
+  const height = Math.min(document.getElementById("content").scrollHeight + 40, maxHeight);
   return currentWindow().setSize(new tauri.dpi.LogicalSize(width, height));
 }
 
@@ -63,10 +67,16 @@ export function relativeLabel(ms) {
   return `${Math.round(diff / day)} days ago`;
 }
 
+/** File name (with extension) of a screenshot, without its folders. */
+export function fileName(item) {
+  return item.path.split(/[\\/]/).pop();
+}
+
 export function sourceLabel(item) {
   if (item.source === "clipboard") return "Clipboard";
-  const dot = item.id.lastIndexOf(".");
-  return dot >= 0 ? item.id.slice(dot + 1).toUpperCase() : "";
+  const name = fileName(item);
+  const dot = name.lastIndexOf(".");
+  return dot >= 0 ? name.slice(dot + 1).toUpperCase() : "";
 }
 
 const THUMBNAIL_CACHE_LIMIT = 200;

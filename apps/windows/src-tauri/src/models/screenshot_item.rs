@@ -9,7 +9,8 @@ pub enum Source {
     Clipboard,
 }
 
-/// Mirrors `ScreenshotItem.swift`: identity and "source" are both derived
+/// Mirrors `ScreenshotItem.swift`: identity (the full path, unique even when
+/// two day folders hold the same file name) and "source" are both derived
 /// from the file on disk, not stored separately, so a rename can never
 /// desync them from the real file.
 #[derive(Debug, Clone, Serialize)]
@@ -24,10 +25,7 @@ pub struct ScreenshotItem {
 
 impl ScreenshotItem {
     pub fn from_path(path: PathBuf) -> Self {
-        let id = path
-            .file_name()
-            .map(|n| n.to_string_lossy().into_owned())
-            .unwrap_or_default();
+        let id = path.to_string_lossy().into_owned();
         let name = file_stem(&path);
         let created_at = created_at_millis(&path);
         let source = if name.ends_with("(clipboard)") {
