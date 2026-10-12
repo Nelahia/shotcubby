@@ -5,9 +5,19 @@ import Carbon.HIToolbox
 struct ShotCubbyApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
+    /// SwiftUI needs a scene, but the real Settings window is the one the
+    /// delegate owns (`showSettingsWindow`): a second, scene-made window would
+    /// open with a different look whenever the app menu's Settings… or ⌘, is
+    /// used, so that menu item is pointed at the delegate's window too.
     var body: some Scene {
         Settings {
-            SettingsView(appState: appDelegate.appState)
+            EmptyView()
+        }
+        .commands {
+            CommandGroup(replacing: .appSettings) {
+                Button("Settings…") { appDelegate.showSettingsWindow() }
+                    .keyboardShortcut(",")
+            }
         }
     }
 }
@@ -131,7 +141,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSW
     /// that responder-chain action targets SwiftUI's auto-generated Settings command, which
     /// is wired through the app's main menu — an `.accessory` app (no Dock icon, no menu bar)
     /// never gets one, so the action silently finds no responder and does nothing.
-    private func showSettingsWindow() {
+    func showSettingsWindow() {
         if settingsWindow == nil {
             let window = NSWindow(contentViewController: NSHostingController(rootView: SettingsView(appState: appState)))
             window.title = "ShotCubby Settings"
