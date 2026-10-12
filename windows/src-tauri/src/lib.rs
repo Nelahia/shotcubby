@@ -14,6 +14,12 @@ use app_state::AppStateInner;
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let app = tauri::Builder::default()
+        // First, so a second launch is intercepted before anything else starts:
+        // it opens the search in the running copy instead of starting another
+        // tray icon (same as clicking the Dock icon on macOS).
+        .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
+            windows_ui::show_spotlight(app);
+        }))
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .plugin(tauri_plugin_updater::Builder::new().build())

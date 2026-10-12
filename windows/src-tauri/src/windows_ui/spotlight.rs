@@ -38,6 +38,13 @@ pub fn toggle_spotlight(app: &AppHandle) {
         let _ = window.hide();
         return;
     }
+    show_spotlight(app);
+}
+
+/// Opens the Spotlight panel (centered on the monitor under the cursor).
+/// Also what launching the app a second time does, like the Mac Dock click.
+pub fn show_spotlight(app: &AppHandle) {
+    let window = ensure_spotlight(app);
 
     if let Ok(cursor) = app.cursor_position() {
         let monitor = app

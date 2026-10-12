@@ -33,6 +33,7 @@ the system's own screenshot shortcuts are used.
 ## Using it
 
 **On macOS the app also sits in the Dock**: clicking its icon opens the search panel (turn it off in Settings → Show in the Dock).
+**On Windows**, launching ShotCubby again (Start menu, desktop shortcut, or its pinned taskbar icon) opens the search panel in the running copy instead of starting a second one — pin it to the taskbar for a one-click icon.
 
 **Click the menu bar / tray icon** for your recent screenshots, grouped by day, with
 thumbnails. Click one to open it; hover to copy, reveal in the file manager or delete;

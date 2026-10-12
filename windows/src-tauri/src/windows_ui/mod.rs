@@ -7,7 +7,7 @@ mod toast;
 pub use copy_toast::{ensure_copy_toast, show_copy_toast};
 pub use popover::{ensure_popover, toggle_popover_near_tray};
 pub use settings::{ensure_settings, open_settings};
-pub use spotlight::{ensure_spotlight, toggle_spotlight};
+pub use spotlight::{ensure_spotlight, show_spotlight, toggle_spotlight};
 pub use toast::{ensure_toast, show_toast};
 
 use tauri::{WebviewWindow, WindowEvent};

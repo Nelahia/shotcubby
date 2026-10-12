@@ -22,6 +22,8 @@ light and dependency-free in the same spirit as the Swift/SwiftUI original.
   Settings, Esc to close.
 - Full-screen and region captures have their own global shortcuts (default
   **Alt+Shift+3** / **Alt+Shift+4**). Every shortcut can be rebound in Settings.
+- Only one copy runs: launching the app again (Start menu, shortcut, pinned taskbar icon)
+  opens the search panel in the running one.
 - Deletes always go to the Recycle Bin — never a permanent delete.
 
 ## Requirements
