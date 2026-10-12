@@ -9,6 +9,20 @@ struct SettingsView: View {
     var body: some View {
         Form {
             Section {
+                Toggle("Show in the Dock", isOn: $showInDock)
+                Toggle("Check for updates automatically", isOn: $checksAutomatically)
+                LabeledContent("Version \(Self.versionLabel)") {
+                    Button("Check for Updates…") { AppUpdater.shared.checkForUpdates() }
+                }
+            } header: {
+                Text("General")
+            } footer: {
+                Text("Clicking the Dock icon opens the search panel.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Section {
                 HStack {
                     Text("Open Spotlight search")
                     Spacer()
@@ -18,6 +32,8 @@ struct SettingsView: View {
                         modifiers = HotKeyPreferences.defaultModifiers
                     }
                 }
+            } header: {
+                Text("Global shortcut")
             } footer: {
                 Text("Click the field, then press a key combination with at least one modifier (⌘ ⌥ ⌃ ⇧). Esc cancels.")
                     .font(.caption)
@@ -35,23 +51,9 @@ struct SettingsView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
-
-            Section {
-                Toggle("Show in the Dock", isOn: $showInDock)
-            } footer: {
-                Text("Clicking the Dock icon opens the search panel.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-
-            Section {
-                LabeledContent("Version", value: Self.versionLabel)
-                Toggle("Check for updates automatically", isOn: $checksAutomatically)
-                Button("Check for Updates…") { AppUpdater.shared.checkForUpdates() }
-            }
         }
         .formStyle(.grouped)
-        .frame(width: 480, height: 720)
+        .frame(width: 480, height: 700)
         .onChange(of: showInDock) { _, show in DockPreferences.set(show) }
         .onChange(of: checksAutomatically) { _, on in AppUpdater.shared.automaticallyChecks = on }
         .onChange(of: keyCode) { _, _ in save() }

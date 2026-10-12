@@ -136,8 +136,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
             settingsWindow = window
         }
         NSApp.activate(ignoringOtherApps: true)
-        settingsWindow?.center()
-        settingsWindow?.makeKeyAndOrderFront(nil)
+        guard let window = settingsWindow else { return }
+        window.makeKeyAndOrderFront(nil)
+        centerOnMouseScreen(window)
+    }
+
+    /// `NSWindow.center()` puts a window above the middle of the screen; the real
+    /// middle of the screen the mouse is on is what is wanted.
+    private func centerOnMouseScreen(_ window: NSWindow) {
+        let mouse = NSEvent.mouseLocation
+        let screen = NSScreen.screens.first { $0.frame.contains(mouse) } ?? NSScreen.main
+        guard let visible = screen?.visibleFrame else { return }
+        window.layoutIfNeeded()
+        let size = window.frame.size
+        window.setFrameOrigin(NSPoint(x: visible.midX - size.width / 2, y: visible.midY - size.height / 2))
     }
 
     private func setupSpotlight() {
