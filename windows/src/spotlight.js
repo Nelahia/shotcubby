@@ -166,6 +166,11 @@ searchInput.addEventListener("input", () => {
   render();
 });
 
+/** Ctrl+C copies the screenshot, unless text is selected in the search box (then it is a plain text copy). */
+function hasSelectedSearchText() {
+  return document.activeElement === searchInput && searchInput.selectionStart !== searchInput.selectionEnd;
+}
+
 document.addEventListener("keydown", (e) => {
   if (state.renamingId) return; // the row's own input handles Enter/Escape
 
@@ -214,7 +219,7 @@ document.addEventListener("keydown", (e) => {
   } else if (ctrl && e.key.toLowerCase() === "r") {
     e.preventDefault();
     revealSelected();
-  } else if (ctrl && e.key.toLowerCase() === "c" && document.activeElement !== searchInput) {
+  } else if (ctrl && e.key.toLowerCase() === "c" && !hasSelectedSearchText()) {
     e.preventDefault();
     copySelected();
   } else if (ctrl && e.key.toLowerCase() === "e") {

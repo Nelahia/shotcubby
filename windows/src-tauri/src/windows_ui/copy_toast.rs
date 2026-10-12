@@ -5,8 +5,8 @@ use tauri::{AppHandle, Emitter, Manager, PhysicalPosition, WebviewUrl, WebviewWi
 
 use super::COPY_TOAST_LABEL;
 
-const COPY_TOAST_SIZE: (f64, f64) = (180.0, 56.0);
-const COPY_TOAST_MARGIN: f64 = 24.0;
+const COPY_TOAST_SIZE: (f64, f64) = (116.0, 36.0);
+const COPY_TOAST_MARGIN: f64 = 20.0;
 const COPY_TOAST_DURATION: Duration = Duration::from_millis(1300);
 
 static GENERATION: AtomicU64 = AtomicU64::new(0);
