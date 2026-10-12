@@ -146,6 +146,7 @@ final class SpotlightController {
     private let actions: ShotActions
     private let panel: SpotlightPanel
     private var keyMonitor: Any?
+    private var shownAt = Date.distantPast
     /// Built once in init, since every entry's `run` closure already
     /// resolves against the selection at the time it's invoked — no need
     /// to recompute the list itself on every access. Read by handle(_:) to
@@ -182,7 +183,17 @@ final class SpotlightController {
             menuActions: menuActions
         )
         panel.contentView = NSHostingView(rootView: root)
-        panel.onResignKey = { [weak self] in self?.hide() }
+        panel.onResignKey = { [weak self] in
+            guard let self else { return }
+            // Key status can bounce away for a moment while the panel is still
+            // opening (another window finishing its own close): take it back
+            // instead of dismissing a panel the user just asked for.
+            if Date().timeIntervalSince(self.shownAt) < 0.35 {
+                DispatchQueue.main.async { if self.panel.isVisible { self.panel.makeKeyAndOrderFront(nil) } }
+            } else {
+                self.hide()
+            }
+        }
     }
 
     var isVisible: Bool { panel.isVisible }
@@ -190,6 +201,7 @@ final class SpotlightController {
     func toggle() { isVisible ? hide() : show() }
 
     func show() {
+        shownAt = Date()
         model.shots = provider()
         model.query = ""
         model.selection = model.results.first?.id

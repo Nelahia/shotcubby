@@ -1,4 +1,5 @@
 import SwiftUI
+import Carbon.HIToolbox
 
 @main
 struct ShotCubbyApp: App {
@@ -21,6 +22,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     private var settingsWindow: NSWindow?
     /// Set only while the right-click menu is open, so it can be dismissed from elsewhere.
     private var contextMenu: NSMenu?
+    /// Local key monitor that lets Esc close the status-item popover while it is shown.
+    private var popoverKeyMonitor: Any?
+    private var lastSpotlightToggle = Date.distantPast
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         // Before anything reads the vault or the saved shortcut.
@@ -68,34 +72,51 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         popover.behavior = .transient
         popover.animates = true
         popover.delegate = self
-        let controller = PopoverHostingController(
+        popover.contentViewController = NSHostingController(
             rootView: PopoverHost(
                 appState: appState,
                 openSettings: { [weak self] in self?.showSettingsWindow() },
                 openSpotlight: { [weak self] in self?.openSpotlightFromPopover() }
             )
         )
-        controller.onCancel = { [weak self] in self?.popover.performClose(nil) }
-        popover.contentViewController = controller
     }
 
-    /// Makes the popover's content the first responder so Esc reaches it —
-    /// otherwise the key press goes to the window and nothing closes.
+    /// A transient popover closes on outside clicks but not on Esc, and the key
+    /// press never reaches its SwiftUI content reliably, so watch for it here.
+    /// A text field being edited (renaming a screenshot) keeps Esc for itself.
     func popoverDidShow(_ notification: Notification) {
-        guard let controller = popover.contentViewController else { return }
-        controller.view.window?.makeFirstResponder(controller.view)
+        popoverKeyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
+            guard let self, event.keyCode == UInt16(kVK_Escape) else { return event }
+            if self.popover.contentViewController?.view.window?.firstResponder is NSText { return event }
+            self.popover.performClose(nil)
+            return nil
+        }
+    }
+
+    func popoverDidClose(_ notification: Notification) {
+        if let popoverKeyMonitor { NSEvent.removeMonitor(popoverKeyMonitor) }
+        popoverKeyMonitor = nil
     }
 
     /// Opening Spotlight from anywhere (shortcut, menu) must not leave the
     /// status-item popover or the right-click menu hanging open behind it.
+    ///
+    /// Closed without animation: an animated close finishes after Spotlight is
+    /// already key, and AppKit then moves key status away from it, which made the
+    /// panel close itself right after opening. Also ignores a second trigger a
+    /// split second after the first (a double-delivered shortcut), which would
+    /// toggle the panel straight back shut.
     private func toggleSpotlightDismissingMenus() {
-        if popover.isShown { popover.performClose(nil) }
+        let now = Date()
+        guard now.timeIntervalSince(lastSpotlightToggle) > 0.3 else { return }
+        lastSpotlightToggle = now
+        if popover.isShown { popover.close() }
         contextMenu?.cancelTracking()
         spotlight?.toggle()
     }
 
     private func openSpotlightFromPopover() {
-        popover.performClose(nil)
+        popover.close()
         spotlight?.show()
     }
 
