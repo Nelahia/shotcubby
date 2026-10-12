@@ -265,8 +265,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSW
         quitItem.target = self
         menu.addItem(quitItem)
 
+        // Shown as the status item's own menu rather than popped up by hand at
+        // a point under the icon: that way it is the native menu-bar menu —
+        // anchored to the icon, highlighting it, tracking the mouse properly —
+        // instead of a free-floating one. The menu is detached again right
+        // after so a left click keeps opening the popover.
         contextMenu = menu
-        menu.popUp(positioning: nil, at: NSPoint(x: 0, y: button.bounds.height + 4), in: button)
+        statusItem?.menu = menu
+        button.performClick(nil)
+        statusItem?.menu = nil
         contextMenu = nil
     }
 
