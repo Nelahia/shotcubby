@@ -12,13 +12,15 @@ struct ShotCubbyApp: App {
 }
 
 @MainActor
-final class AppDelegate: NSObject, NSApplicationDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     private var statusItem: NSStatusItem?
     private var popover = NSPopover()
     private let appState = AppState()
     private var spotlight: SpotlightController?
     private var hotKey: GlobalHotKey?
     private var settingsWindow: NSWindow?
+    /// Set only while the right-click menu is open, so it can be dismissed from elsewhere.
+    private var contextMenu: NSMenu?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         // Before anything reads the vault or the saved shortcut.
@@ -65,13 +67,31 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         popover.contentSize = NSSize(width: 360, height: 480)
         popover.behavior = .transient
         popover.animates = true
-        popover.contentViewController = NSHostingController(
+        popover.delegate = self
+        let controller = PopoverHostingController(
             rootView: PopoverHost(
                 appState: appState,
                 openSettings: { [weak self] in self?.showSettingsWindow() },
                 openSpotlight: { [weak self] in self?.openSpotlightFromPopover() }
             )
         )
+        controller.onCancel = { [weak self] in self?.popover.performClose(nil) }
+        popover.contentViewController = controller
+    }
+
+    /// Makes the popover's content the first responder so Esc reaches it —
+    /// otherwise the key press goes to the window and nothing closes.
+    func popoverDidShow(_ notification: Notification) {
+        guard let controller = popover.contentViewController else { return }
+        controller.view.window?.makeFirstResponder(controller.view)
+    }
+
+    /// Opening Spotlight from anywhere (shortcut, menu) must not leave the
+    /// status-item popover or the right-click menu hanging open behind it.
+    private func toggleSpotlightDismissingMenus() {
+        if popover.isShown { popover.performClose(nil) }
+        contextMenu?.cancelTracking()
+        spotlight?.toggle()
     }
 
     private func openSpotlightFromPopover() {
@@ -126,7 +146,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             keyCode: HotKeyPreferences.keyCode,
             modifiers: HotKeyPreferences.modifiers
         ) { [weak self] in
-            self?.spotlight?.toggle()
+            self?.toggleSpotlightDismissingMenus()
         }
     }
 
@@ -191,11 +211,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         quitItem.target = self
         menu.addItem(quitItem)
 
+        contextMenu = menu
         menu.popUp(positioning: nil, at: NSPoint(x: 0, y: button.bounds.height + 4), in: button)
+        contextMenu = nil
     }
 
     @objc private func toggleSpotlight() {
-        spotlight?.toggle()
+        toggleSpotlightDismissingMenus()
     }
 
     @objc private func openFolderFromMenu() {
