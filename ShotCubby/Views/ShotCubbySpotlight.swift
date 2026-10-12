@@ -229,10 +229,14 @@ final class SpotlightController {
         }
     }
 
+    /// Called after the panel closes, so the app can hand the keyboard back.
+    var onHide: (() -> Void)?
+
     func hide() {
         if let keyMonitor { NSEvent.removeMonitor(keyMonitor) }
         keyMonitor = nil
         panel.orderOut(nil)
+        onHide?()
     }
 
     private func copySelected() {

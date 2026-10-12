@@ -13,7 +13,7 @@ struct ShotCubbyApp: App {
 }
 
 @MainActor
-final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSWindowDelegate {
     private var statusItem: NSStatusItem?
     private var popover = NSPopover()
     private let appState = AppState()
@@ -25,6 +25,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     /// Local key monitor that lets Esc close the status-item popover while it is shown.
     private var popoverKeyMonitor: Any?
     private var lastSpotlightToggle = Date.distantPast
+    private let focus = FocusRestorer()
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         // Starts Sparkle (its scheduled checks) as early as the app itself.
@@ -43,6 +44,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         // on a crowded menu bar (icon pushed off / hidden) the shortcut was
         // dead on arrival with no way to discover why. It needs no visible window.
         NSApp.activate(ignoringOtherApps: true)
+        // Launching must not leave ShotCubby holding the keyboard with no window.
+        focus.restoreIfStillActive()
     }
 
     /// Called when the user tries to open ShotCubby again while it's already
@@ -99,6 +102,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     func popoverDidClose(_ notification: Notification) {
         if let popoverKeyMonitor { NSEvent.removeMonitor(popoverKeyMonitor) }
         popoverKeyMonitor = nil
+        focus.restoreIfStillActive()
     }
 
     /// Opening Spotlight from anywhere (shortcut, menu) must not leave the
@@ -133,6 +137,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
             window.title = "ShotCubby Settings"
             window.styleMask = [.titled, .closable]
             window.isReleasedWhenClosed = false
+            window.delegate = self
             settingsWindow = window
         }
         NSApp.activate(ignoringOtherApps: true)
@@ -143,6 +148,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
 
     /// `NSWindow.center()` puts a window above the middle of the screen; the real
     /// middle of the screen the mouse is on is what is wanted.
+    func windowWillClose(_ notification: Notification) {
+        focus.restoreIfStillActive()
+    }
+
     private func centerOnMouseScreen(_ window: NSWindow) {
         let mouse = NSEvent.mouseLocation
         let screen = NSScreen.screens.first { $0.frame.contains(mouse) } ?? NSScreen.main
@@ -161,6 +170,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
                 openSpotlight: { [weak self] in self?.spotlight?.toggle() }
             )
         )
+        spotlight?.onHide = { [weak self] in self?.focus.restoreIfStillActive() }
         registerHotKey()
         NotificationCenter.default.addObserver(
             forName: HotKeyPreferences.didChangeNotification,

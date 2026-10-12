@@ -62,6 +62,14 @@ impl ClipboardWatcher {
                 }
                 last_sequence.store(current, Ordering::SeqCst);
 
+                // Reading the clipboard locks it for every other app while it is
+                // open, and makes a source app that renders lazily produce its
+                // data. Only do that when an image is actually there: a plain
+                // text copy must never be touched, or pasting it can fail.
+                if !clipboard_has_image() {
+                    continue;
+                }
+
                 if let Some(path) = try_save_clipboard_image(&mut clipboard) {
                     on_new_image(path);
                 }
@@ -88,6 +96,15 @@ impl ClipboardWatcher {
             })
             .map_err(|e| e.to_string())
     }
+}
+
+/// CF_BITMAP, CF_DIB or CF_DIBV5 on the clipboard. Asking opens nothing, so it
+/// is safe to do on every change.
+fn clipboard_has_image() -> bool {
+    const IMAGE_FORMATS: [u32; 3] = [2, 8, 17];
+    IMAGE_FORMATS
+        .iter()
+        .any(|&format| unsafe { windows::Win32::System::DataExchange::IsClipboardFormatAvailable(format).is_ok() })
 }
 
 fn current_sequence() -> u32 {
