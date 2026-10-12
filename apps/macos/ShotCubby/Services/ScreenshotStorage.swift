@@ -108,12 +108,13 @@ final class ScreenshotStorage {
         )
     }
 
-    private func uniqueDestination(baseName: String, ext: String) -> URL {
-        var destination = vaultURL.appendingPathComponent("\(baseName).\(ext)")
+    /// A name that is free in `directory`: `base.ext`, then `base_1.ext`, ...
+    func uniqueDestination(baseName: String, ext: String, in directory: URL) -> URL {
+        var destination = directory.appendingPathComponent("\(baseName).\(ext)")
         var counter = 1
 
         while FileManager.default.fileExists(atPath: destination.path) {
-            destination = vaultURL.appendingPathComponent("\(baseName)_\(counter).\(ext)")
+            destination = directory.appendingPathComponent("\(baseName)_\(counter).\(ext)")
             counter += 1
         }
         return destination

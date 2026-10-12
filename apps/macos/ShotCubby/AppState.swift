@@ -11,6 +11,7 @@ final class AppState: ObservableObject {
     private let watcher = ScreenshotWatcher()
     private lazy var clipboardWatcher = ClipboardWatcher(storage: storage)
     private var cancellables = Set<AnyCancellable>()
+    private var archiveTimer: Timer?
 
     /// Published so Settings follows a move.
     @Published private(set) var vaultURL = ScreenshotStorage.currentVaultURL
@@ -21,6 +22,7 @@ final class AppState: ObservableObject {
         loadExistingScreenshots()
         observeNewScreenshots()
         observeClipboard()
+        observeDayArchive()
     }
 
     /// Opens the pane that actually holds the grant. A folder inside a File
