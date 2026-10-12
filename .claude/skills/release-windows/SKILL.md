@@ -14,6 +14,9 @@ authorization to publish; do not ask again unless something below blocks.
 2. **Pick the tag**: if the user gave a version use `v<version>`; otherwise the latest
    `vX.Y.Z` tag (`git tag --sort=-v:refname | head -1`) with the patch number + 1.
    Refuse a tag that already exists.
+   Create it on the commit you just pushed, from here: `git tag <tag> && git push origin <tag>`.
+   The CI never creates the tag itself (GitHub refuses it for the workflow token, 403) and
+   a tag push starts nothing on its own — only the workflow run below does.
 3. **Start the CI, Windows only**:
    `gh workflow run release.yml -f tag=<tag> -f platform=windows`
    then find the run: `gh run list --workflow release.yml --limit 1`. Only the Windows

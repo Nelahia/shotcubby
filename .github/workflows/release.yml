@@ -1,14 +1,14 @@
 name: Build & Release
 
+# Releases are started by the /release skills, which create the tag from the
+# maintainer's machine first. The workflow's own token cannot create a tag at a
+# commit that contains workflow files (GitHub answers 403), so a push-tag
+# trigger would only start a duplicate run alongside the manual one.
 on:
-  push:
-    tags:
-      - 'v*'
-  # Manual run, used by the release skills to build one platform or both.
   workflow_dispatch:
     inputs:
       tag:
-        description: Release tag to build and publish (e.g. v2.2.22)
+        description: An existing tag to build and publish (e.g. v2.2.22)
         required: true
       platform:
         description: Which app to rebuild; the other one is carried over from the previous release
@@ -20,7 +20,7 @@ permissions:
   contents: write
 
 env:
-  TAG: ${{ inputs.tag || github.ref_name }}
+  TAG: ${{ inputs.tag }}
 
 jobs:
   build-mac:
@@ -32,6 +32,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
 
       - name: Derive version from tag
         id: version
@@ -207,6 +209,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
 
       - uses: dtolnay/rust-toolchain@stable
 
@@ -289,7 +293,7 @@ jobs:
   # waits its turn, it is never cancelled.
   release-mac:
     needs: build-mac
-    concurrency: release-${{ inputs.tag || github.ref_name }}
+    concurrency: release-${{ inputs.tag }}
     runs-on: ubuntu-latest
 
     env:
@@ -299,6 +303,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
 
       - uses: actions/download-artifact@v4
         with:
@@ -317,7 +323,7 @@ jobs:
 
   release-windows:
     needs: build-windows
-    concurrency: release-${{ inputs.tag || github.ref_name }}
+    concurrency: release-${{ inputs.tag }}
     runs-on: ubuntu-latest
 
     env:
@@ -327,6 +333,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
 
       - uses: actions/download-artifact@v4
         with:
