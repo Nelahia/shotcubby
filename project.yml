@@ -19,6 +19,13 @@ settings:
     # System Settings. The CI release build enables it explicitly, alongside
     # the real Developer ID signature (it's required for notarization).
 
+# Sparkle: macOS in-app updates. The version is also the one the CI downloads
+# the signing tools for (release.yml) — keep them in step.
+packages:
+  Sparkle:
+    url: https://github.com/sparkle-project/Sparkle
+    from: 2.6.4
+
 targets:
   ShotCubby:
     type: application
@@ -36,6 +43,13 @@ targets:
       path: ShotCubby/Info.plist
       properties:
         LSUIElement: true
+        # Sparkle: where to look for updates (the appcast.xml the release workflow
+        # attaches to every release), the public half of the key that signs them,
+        # and automatic checks on (an update is only ever installed after the
+        # user accepts it in Sparkle's own window).
+        SUFeedURL: https://github.com/Nelahia/shotcubby/releases/latest/download/appcast.xml
+        SUPublicEDKey: EHGNXR/AI8vb0ekstia618K6WYrzj9yun3S0eHNI6Eo=
+        SUEnableAutomaticChecks: true
         NSDesktopFolderUsageDescription: >-
           ShotCubby moves new screenshots out of this folder into ~/ShotCubby.
         NSDocumentsFolderUsageDescription: >-
@@ -64,6 +78,8 @@ targets:
         GENERATE_INFOPLIST_FILE: false
         LD_RUNPATH_SEARCH_PATHS: "@executable_path/../Frameworks"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+    dependencies:
+      - package: Sparkle
     frameworks:
       - sdk: ImageIO.framework
       - sdk: Carbon.framework

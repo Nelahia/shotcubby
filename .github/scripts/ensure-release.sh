@@ -21,7 +21,7 @@ fi
 
 mkdir -p seed
 gh release download --dir seed \
-  --pattern "$app.dmg" --pattern "$app-Setup.exe" --pattern "$app.msi" --pattern latest.json \
+  --pattern "$app.dmg" --pattern "$app-Setup.exe" --pattern "$app.msi" --pattern latest.json --pattern appcast.xml \
   || echo "No previous release to carry files over from."
 
 note=""

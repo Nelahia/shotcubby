@@ -27,6 +27,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     private var lastSpotlightToggle = Date.distantPast
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        // Starts Sparkle (its scheduled checks) as early as the app itself.
+        _ = AppUpdater.shared
         // Before anything reads the vault or the saved shortcut.
         LegacyMigration.run()
         DockPreferences.apply()
@@ -223,6 +225,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         settingsItem.target = self
         menu.addItem(settingsItem)
 
+        let updatesItem = NSMenuItem(
+            title: "Check for Updates…",
+            action: #selector(checkForUpdatesFromMenu),
+            keyEquivalent: ""
+        )
+        updatesItem.target = self
+        menu.addItem(updatesItem)
+
         menu.addItem(.separator())
 
         let quitItem = NSMenuItem(
@@ -244,6 +254,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
 
     @objc private func openFolderFromMenu() {
         appState.openVaultFolder()
+    }
+
+    @objc private func checkForUpdatesFromMenu() {
+        AppUpdater.shared.checkForUpdates()
     }
 
     @objc private func openSettingsFromMenu() {

@@ -16,7 +16,7 @@ and lets you find, copy or rename any of them in a couple of keystrokes.
 - **Fast to reach** — a Spotlight-style search opens from anywhere.
 - **Safe** — deleting always goes to the Trash / Recycle Bin, never permanently.
 - **Private** — works entirely on your machine: no account, no tracking, your
-  screenshots never leave it. The only network request is the Windows update check
+  screenshots never leave it. The only network request is the update check
   (see [Updates](#updates)).
 
 ## What it captures
@@ -77,8 +77,13 @@ To start ShotCubby at login on macOS: **System Settings → General → Login It
   [GitHub releases](https://github.com/Nelahia/shotcubby/releases); it sends no
   personal data and no identifier. Turn it off in **Settings → Install updates
   automatically**.
-- **macOS**: download the new `ShotCubby.dmg` from the
-  [latest release](https://github.com/Nelahia/shotcubby/releases/latest) and replace the app.
+- **macOS**: ShotCubby checks for a new version about once a day (and on **Settings →
+  Check for Updates…**, or from the right-click menu of the menu bar icon). When one is
+  available, a window offers to install it; the download is verified against the
+  project's signing key before it replaces the app, and ShotCubby restarts. This is done
+  with [Sparkle](https://sparkle-project.org). The check is a single request to this
+  repository's [GitHub releases](https://github.com/Nelahia/shotcubby/releases) and sends
+  no personal data. Turn the automatic checks off in Settings.
 
 ## Code signing policy
 
@@ -91,7 +96,7 @@ certificate by [SignPath Foundation](https://signpath.org).
 - The maintainer ([Nelahia](https://github.com/Nelahia)) is the sole author,
   reviewer and approver of signing requests.
 - **Privacy**: ShotCubby works entirely on your machine. It does not collect or
-  send any data. The only network request the Windows app makes is the optional
+  send any data. The only network request the app makes is the optional
   update check described in [Updates](#updates), which sends nothing about you.
 
 ## License

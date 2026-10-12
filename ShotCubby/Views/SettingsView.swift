@@ -4,6 +4,7 @@ struct SettingsView: View {
     @State private var keyCode: UInt32 = HotKeyPreferences.keyCode
     @State private var modifiers: UInt32 = HotKeyPreferences.modifiers
     @State private var showInDock = DockPreferences.showInDock
+    @State private var checksAutomatically = AppUpdater.shared.automaticallyChecks
 
     var body: some View {
         Form {
@@ -45,11 +46,14 @@ struct SettingsView: View {
 
             Section {
                 LabeledContent("Version", value: Self.versionLabel)
+                Toggle("Check for updates automatically", isOn: $checksAutomatically)
+                Button("Check for Updates…") { AppUpdater.shared.checkForUpdates() }
             }
         }
         .formStyle(.grouped)
-        .frame(width: 480, height: 640)
+        .frame(width: 480, height: 720)
         .onChange(of: showInDock) { _, show in DockPreferences.set(show) }
+        .onChange(of: checksAutomatically) { _, on in AppUpdater.shared.automaticallyChecks = on }
         .onChange(of: keyCode) { _, _ in save() }
         .onChange(of: modifiers) { _, _ in save() }
     }

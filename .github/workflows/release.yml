@@ -182,6 +182,25 @@ jobs:
       - name: Verify Gatekeeper acceptance
         run: spctl -a -t open --context context:primary-signature -v "${{ env.APP_NAME }}.dmg"
 
+      # In-app updates (Sparkle) only install a disk image signed with the
+      # project's update key. Done on the final, stapled image. Skipped until
+      # the SPARKLE_PRIVATE_KEY secret exists, so releases keep working without.
+      - name: Sign the update for Sparkle
+        env:
+          SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
+        run: |
+          if [ -z "$SPARKLE_PRIVATE_KEY" ]; then
+            echo "No SPARKLE_PRIVATE_KEY secret: not signing the update."
+            exit 0
+          fi
+          curl -sfL -o sparkle.tar.xz "https://github.com/sparkle-project/Sparkle/releases/download/2.6.4/Sparkle-2.6.4.tar.xz"
+          mkdir sparkle-tools
+          tar -xf sparkle.tar.xz -C sparkle-tools
+          SIGN_UPDATE="$(find sparkle-tools -name sign_update -type f | head -1)"
+          printf '%s' "$SPARKLE_PRIVATE_KEY" > "$RUNNER_TEMP/sparkle.key"
+          "$SIGN_UPDATE" --ed-key-file "$RUNNER_TEMP/sparkle.key" "${{ env.APP_NAME }}.dmg" | tee sparkle-signature.txt
+          rm -f "$RUNNER_TEMP/sparkle.key"
+
       - name: Clean up signing material
         if: always()
         run: |
@@ -192,7 +211,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: mac-dmg
-          path: ${{ env.APP_NAME }}.dmg
+          path: |
+            ${{ env.APP_NAME }}.dmg
+            sparkle-signature.txt
 
   build-windows:
     if: inputs.platform != 'mac'
@@ -315,11 +336,39 @@ jobs:
         working-directory: dist/mac
         run: sha256sum "${{ env.APP_NAME }}.dmg" > "${{ env.APP_NAME }}.dmg.sha256"
 
+      # The feed Sparkle reads (SUFeedURL points at releases/latest/download/appcast.xml).
+      # sparkle:version is the build number the app was stamped with in build-mac.
+      - name: Write the Sparkle update feed
+        run: |
+          if [ ! -f dist/mac/sparkle-signature.txt ]; then
+            echo "No update signature: not writing a feed."
+            exit 0
+          fi
+          cat > dist/mac/appcast.xml <<EOF
+          <?xml version="1.0" encoding="utf-8"?>
+          <rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
+            <channel>
+              <title>${{ env.APP_NAME }}</title>
+              <item>
+                <title>Version ${TAG#v}</title>
+                <pubDate>$(date -u '+%a, %d %b %Y %H:%M:%S +0000')</pubDate>
+                <sparkle:version>${{ github.run_number }}</sparkle:version>
+                <sparkle:shortVersionString>${TAG#v}</sparkle:shortVersionString>
+                <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+                <enclosure url="https://github.com/${{ github.repository }}/releases/download/${TAG}/${{ env.APP_NAME }}.dmg" $(cat dist/mac/sparkle-signature.txt) type="application/octet-stream"/>
+              </item>
+            </channel>
+          </rss>
+          EOF
+
       - name: Create the release if the Windows job has not yet
         run: bash .github/scripts/ensure-release.sh "$TAG" "${{ inputs.platform || 'both' }}" "${{ github.sha }}"
 
       - name: Upload the macOS files
-        run: gh release upload "$TAG" "dist/mac/${{ env.APP_NAME }}.dmg" "dist/mac/${{ env.APP_NAME }}.dmg.sha256" --clobber
+        run: |
+          files=("dist/mac/${{ env.APP_NAME }}.dmg" "dist/mac/${{ env.APP_NAME }}.dmg.sha256")
+          [ -f dist/mac/appcast.xml ] && files+=(dist/mac/appcast.xml)
+          gh release upload "$TAG" "${files[@]}" --clobber
 
   release-windows:
     needs: build-windows
