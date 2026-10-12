@@ -25,11 +25,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     /// Local key monitor that lets Esc close the status-item popover while it is shown.
     private var popoverKeyMonitor: Any?
     private var lastSpotlightToggle = Date.distantPast
+    private let bundleWatcher = BundleChangeWatcher()
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         // Before anything reads the vault or the saved shortcut.
         LegacyMigration.run()
         DockPreferences.apply()
+        bundleWatcher.start()
         setupMenuBar()
         setupPopover()
         setupSpotlight()
