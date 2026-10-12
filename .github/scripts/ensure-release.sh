@@ -5,9 +5,12 @@
 #   ensure-release.sh <tag> <platform> <commit-sha>
 #
 # <platform> is what this run rebuilds: both, mac or windows. When the release
-# has to be created, it is first seeded with the previous release's files so
-# the "latest" download links and the Windows updater manifest keep working
-# until the other platform publishes its own. Needs GH_TOKEN.
+# has to be created, it is first seeded with the previous version's files, so a
+# one-platform build still carries the other platform's installers. Needs GH_TOKEN.
+#
+# The release is created WITHOUT the Latest flag: what the landing page and the
+# in-app updates serve is the "live" release, moved only by ShotCubby Releases
+# (github.com/Nelahia/shotcubby-releases). A build never reaches users by itself.
 set -euo pipefail
 
 tag="$1"
@@ -20,9 +23,19 @@ if gh release view "$tag" >/dev/null 2>&1; then
 fi
 
 mkdir -p seed
-gh release download --dir seed \
-  --pattern "$app.dmg" --pattern "$app-Setup.exe" --pattern "$app.msi" --pattern latest.json --pattern appcast.xml \
-  || echo "No previous release to carry files over from."
+# The highest version below this tag. Not "latest": that is the live release,
+# which may hold an older version's files.
+previous="$(gh release list --limit 100 --json tagName --jq '.[].tagName' \
+  | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | { cat; echo "$tag"; } | sort -Vu \
+  | grep -x -B1 "$tag" | head -1 || true)"
+if [ -n "$previous" ] && [ "$previous" != "$tag" ]; then
+  gh release download "$previous" --dir seed \
+    --pattern "$app.dmg" --pattern "$app.dmg.sha256" --pattern "$app-Setup.exe" --pattern "$app.msi" \
+    --pattern latest.json --pattern appcast.xml \
+    || echo "Nothing to carry over from $previous."
+else
+  echo "No previous release to carry files over from."
+fi
 
 note=""
 case "$platform" in
@@ -61,4 +74,4 @@ for file in seed/*; do
 done
 
 gh release create "$tag" "${seeded[@]}" \
-  --target "$sha" --title "$tag" --notes-file notes.md --generate-notes
+  --target "$sha" --title "$tag" --notes-file notes.md --generate-notes --latest=false
