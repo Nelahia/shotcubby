@@ -17,8 +17,8 @@ authorization to publish; do not ask again unless something below blocks.
 3. **Start the CI, Windows only**:
    `gh workflow run release.yml -f tag=<tag> -f platform=windows`
    then find the run: `gh run list --workflow release.yml --limit 1`. Only the Windows
-   job runs; the release job copies `ShotCubby.dmg` over from the previous release so
-   the "latest" download link keeps working. The Mac app is NOT rebuilt. Installed
+   job runs and publishes as soon as it is done; the new release is seeded with
+   `ShotCubby.dmg` of the previous release so the "latest" download link keeps working. The Mac app is NOT rebuilt. Installed
    Windows apps pick the new version up through `latest.json` (they check at launch and
    every 6 hours; Settings → "Check now" does it at once).
 4. **Wait in the background** — `gh run watch <id> --exit-status` with

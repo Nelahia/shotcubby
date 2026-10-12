@@ -14,7 +14,8 @@ authorization to publish; do not ask again unless something below blocks.
 2. **Pick the tag**: if the user gave a version use `v<version>`; otherwise the latest
    `vX.Y.Z` tag (`git tag --sort=-v:refname | head -1`) with the patch number + 1.
    Refuse a tag that already exists.
-3. **Start the CI** (both platforms):
+3. **Start the CI** (both platforms; each one publishes its files into the release as soon
+   as its own build is done, in parallel — a failure on one side never blocks the other):
    `gh workflow run release.yml -f tag=<tag> -f platform=both`
    then find the run: `gh run list --workflow release.yml --limit 1`.
 4. **Wait in the background** — `gh run watch <id> --exit-status` with

@@ -17,8 +17,8 @@ authorization to publish; do not ask again unless something below blocks.
 3. **Start the CI, macOS only**:
    `gh workflow run release.yml -f tag=<tag> -f platform=mac`
    then find the run: `gh run list --workflow release.yml --limit 1`. Only the Mac job
-   runs; the release job copies the Windows installers and `latest.json` over from the
-   previous release so the "latest" download links keep working. The Windows app is NOT
+   runs and publishes as soon as it is done; the new release is seeded with the Windows
+   installers and `latest.json` of the previous release so the "latest" download links keep working. The Windows app is NOT
    rebuilt and its in-app updater sees no new version.
 4. **Wait in the background** — `gh run watch <id> --exit-status` with
    `run_in_background: true`; never block the conversation on it. Tell the user the
