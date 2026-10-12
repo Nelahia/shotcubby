@@ -102,3 +102,5 @@ certificate by [SignPath Foundation](https://signpath.org).
 ## License
 
 [MIT](LICENSE)
+
+ShotCubby is provided as is, without warranty of any kind — see [LICENSE](LICENSE). To report a security problem, see [SECURITY.md](SECURITY.md).
