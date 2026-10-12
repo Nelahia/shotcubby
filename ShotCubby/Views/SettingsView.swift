@@ -23,11 +23,23 @@ struct SettingsView: View {
             }
 
             Section {
+                ForEach(SpotlightCommand.allCases) { command in
+                    SpotlightShortcutRow(command: command)
+                }
+            } header: {
+                Text("Inside the search panel")
+            } footer: {
+                Text("Return and the function keys can be used alone; every other shortcut needs a modifier.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Section {
                 LabeledContent("Version", value: Self.versionLabel)
             }
         }
         .formStyle(.grouped)
-        .frame(width: 440, height: 190)
+        .frame(width: 480, height: 560)
         .onChange(of: keyCode) { _, _ in save() }
         .onChange(of: modifiers) { _, _ in save() }
     }

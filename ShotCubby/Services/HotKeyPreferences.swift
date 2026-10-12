@@ -57,7 +57,10 @@ enum HotKeyPreferences {
             UInt32(kVK_Space): "Space", UInt32(kVK_Return): "↩", UInt32(kVK_Tab): "⇥",
             UInt32(kVK_Delete): "⌫", UInt32(kVK_Escape): "⎋",
             UInt32(kVK_LeftArrow): "←", UInt32(kVK_RightArrow): "→",
-            UInt32(kVK_UpArrow): "↑", UInt32(kVK_DownArrow): "↓"
+            UInt32(kVK_UpArrow): "↑", UInt32(kVK_DownArrow): "↓",
+            UInt32(kVK_F1): "F1", UInt32(kVK_F2): "F2", UInt32(kVK_F3): "F3", UInt32(kVK_F4): "F4",
+            UInt32(kVK_F5): "F5", UInt32(kVK_F6): "F6", UInt32(kVK_F7): "F7", UInt32(kVK_F8): "F8",
+            UInt32(kVK_F9): "F9", UInt32(kVK_F10): "F10", UInt32(kVK_F11): "F11", UInt32(kVK_F12): "F12"
         ]
         if let name = named[keyCode] { return name }
         guard let char = translatedChar(for: keyCode) else { return "Key \(keyCode)" }

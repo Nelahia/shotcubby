@@ -173,14 +173,9 @@ final class SpotlightController {
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .transient]
         panel.animationBehavior = .utilityWindow
 
-        menuActions = [
-            SpotlightAction(title: "Preview", keys: "↩", run: { [weak self] in self?.previewSelected() }),
-            SpotlightAction(title: "Copy", keys: "⌘C", run: { [weak self] in self?.copySelected() }),
-            SpotlightAction(title: "Rename", keys: "⌘E", run: { [weak self] in self?.model.beginRename() }),
-            SpotlightAction(title: "Open Folder", keys: "⌘R", run: { [weak self] in self?.revealSelected() }),
-            SpotlightAction(title: "Move to Trash", keys: "⌘⌫", destructive: true, run: { [weak self] in self?.deleteSelected() }),
-            SpotlightAction(title: "Settings", keys: "⌘,", separatorBefore: true, run: { [weak self] in self?.actions.openSettings() })
-        ]
+        menuActions = SpotlightCommand.menuOrder.map { command in
+            SpotlightAction(command: command, run: { [weak self] in self?.run(command) })
+        }
 
         let root = SpotlightView(
             model: model,
@@ -275,7 +270,6 @@ final class SpotlightController {
 
     /// Returns true when the event was consumed.
     private func handle(_ event: NSEvent) -> Bool {
-        let command = event.modifierFlags.contains(.command)
 
         if model.renaming != nil {
             switch Int(event.keyCode) {
@@ -310,26 +304,29 @@ final class SpotlightController {
             model.move(1); return true
         case kVK_UpArrow:
             model.move(-1); return true
-        case kVK_Return, kVK_ANSI_KeypadEnter:
-            previewSelected(); return true
         case kVK_Escape:
             closeOrClearSearch(); return true
-        case kVK_ANSI_R where command:
-            revealSelected(); return true
-        case kVK_ANSI_C where command:
-            copySelected(); return true
-        case kVK_ANSI_E where command:
-            model.beginRename(); return true
-        case kVK_ANSI_Comma where command:
-            actions.openSettings(); return true
-        case kVK_ANSI_K where command:
+        default:
+            break
+        }
+
+        // Everything else is a command with a user-configurable shortcut.
+        guard let shortcutCommand = SpotlightShortcuts.command(for: event) else { return false }
+        run(shortcutCommand)
+        return true
+    }
+
+    private func run(_ command: SpotlightCommand) {
+        switch command {
+        case .preview: previewSelected()
+        case .copy: copySelected()
+        case .rename: model.beginRename()
+        case .openFolder: revealSelected()
+        case .trash: deleteSelected()
+        case .settings: actions.openSettings()
+        case .actions:
             model.actionIndex = 0
             model.showActions = true
-            return true
-        case kVK_Delete where command:
-            deleteSelected(); return true
-        default:
-            return false
         }
     }
 }
@@ -565,13 +562,16 @@ struct SpotlightView: View {
 
 struct SpotlightAction: Identifiable {
     let id = UUID()
-    let title: String
-    /// Display string for the shortcut, e.g. "⌘↩".
-    let keys: String
-    var destructive = false
-    /// Draw a separator line above this row in the menu.
-    var separatorBefore = false
+    let command: SpotlightCommand
     let run: () -> Void
+
+    var title: String { command.title }
+    /// Display string for the current shortcut, e.g. "⌘C" — read each time
+    /// it is drawn, so a shortcut changed in Settings shows up at once.
+    var keys: String { SpotlightShortcuts.display(command) }
+    var destructive: Bool { command.isDestructive }
+    /// Draw a separator line above this row in the menu.
+    var separatorBefore: Bool { command.hasSeparatorBefore }
 }
 
 private struct SpotlightFooter: View {
@@ -597,7 +597,7 @@ private struct SpotlightFooter: View {
             Button { showActions.toggle() } label: {
                 HStack(spacing: 8) {
                     Text("Actions").fontWeight(.medium).foregroundStyle(t.ink)
-                    KeyCap("⌘K")
+                    KeyCap(SpotlightShortcuts.display(.actions))
                 }
                 .padding(.leading, 10).padding(.trailing, 6)
                 .frame(height: 28)
@@ -607,7 +607,7 @@ private struct SpotlightFooter: View {
             }
             .buttonStyle(.plain)
             .onHover { hovering = $0 }
-            .accessibilityLabel("More actions, Command K")
+            .accessibilityLabel("More actions")
         }
         .font(.system(size: 12))
         .padding(.leading, 16).padding(.trailing, 8)
