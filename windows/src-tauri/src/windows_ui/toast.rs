@@ -25,7 +25,9 @@ pub fn ensure_toast(app: &AppHandle) -> WebviewWindow {
         .always_on_top(true)
         .skip_taskbar(true)
         .visible(false)
-        .shadow(true)
+        // The native shadow on a borderless window makes Windows 11 draw its own
+        // rounded frame and border around the (already rounded, transparent) page.
+        .shadow(false)
         .transparent(true)
         .focused(false)
         .build()
