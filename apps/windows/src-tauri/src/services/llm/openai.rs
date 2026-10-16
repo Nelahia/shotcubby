@@ -2,12 +2,16 @@ use super::Failure;
 use serde_json::{Value, json};
 
 const URL: &str = "https://api.openai.com/v1/chat/completions";
-const MODEL: &str = "gpt-4o-mini";
+const MODEL: &str = "gpt-5-nano";
 
 fn body(image_base64: &str, prompt: &str) -> Value {
     json!({
         "model": MODEL,
-        "max_tokens": 40,
+        // GPT-5 models reason before answering: `max_tokens` is refused, the
+        // limit is `max_completion_tokens` and it also covers the reasoning,
+        // which is kept to a minimum so the few words wanted always come out.
+        "max_completion_tokens": 300,
+        "reasoning_effort": "minimal",
         "messages": [{
             "role": "user",
             "content": [
@@ -48,6 +52,15 @@ mod tests {
     fn reads_the_first_choice() {
         let response = json!({ "choices": [{ "message": { "content": "Pricing table" } }] });
         assert_eq!(parse(&response).as_deref(), Some("Pricing table"));
+    }
+
+    #[test]
+    fn the_request_uses_the_gpt_5_parameters() {
+        let request = body("AAAA", "Name it");
+        assert_eq!(request["model"], "gpt-5-nano");
+        assert_eq!(request["max_completion_tokens"], 300);
+        assert_eq!(request["reasoning_effort"], "minimal");
+        assert!(request.get("max_tokens").is_none());
     }
 
     #[test]

@@ -2,7 +2,7 @@ import Foundation
 
 enum OpenAIClient {
     private static let url = URL(string: "https://api.openai.com/v1/chat/completions")!
-    private static let model = "gpt-4o-mini"
+    private static let model = "gpt-5-nano"
 
     static func request(apiKey: String, jpeg: Data, prompt: String) async throws -> String {
         var request = URLRequest(url: url, timeoutInterval: 20)
@@ -16,7 +16,11 @@ enum OpenAIClient {
     private static func body(jpeg: Data, prompt: String) -> [String: Any] {
         [
             "model": model,
-            "max_tokens": 40,
+            // GPT-5 models reason before answering: `max_tokens` is refused, the
+            // limit is `max_completion_tokens` and it also covers the reasoning,
+            // which is kept to a minimum so the few words wanted always come out.
+            "max_completion_tokens": 300,
+            "reasoning_effort": "minimal",
             "messages": [[
                 "role": "user",
                 "content": [
