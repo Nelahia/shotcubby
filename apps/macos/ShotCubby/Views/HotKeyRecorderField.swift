@@ -22,7 +22,7 @@ struct HotKeyRecorderField: View {
             let parts = KeyCaps.parts(of: HotKeyPreferences.describe(keyCode: keyCode, modifiers: modifiers))
             HStack(spacing: 5) {
                 ForEach(Array(parts.enumerated()), id: \.offset) { _, part in
-                    KeyCap(text: part)
+                    SettingsKeyCap(text: part)
                 }
             }
             .padding(6)

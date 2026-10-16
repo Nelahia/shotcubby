@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// One key of a shortcut, drawn as a small keycap.
-struct KeyCap: View {
+struct SettingsKeyCap: View {
     let text: String
 
     var body: some View {
