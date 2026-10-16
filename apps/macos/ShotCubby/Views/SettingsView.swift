@@ -26,9 +26,10 @@ struct SettingsView: View {
         HStack(spacing: 10) {
             ShotCubbyGlyph()
                 .frame(width: 16, height: 16)
-                .foregroundStyle(Color.black.opacity(0.85))
+                .foregroundStyle(Color(red: 0.957, green: 0.984, blue: 0.988))
                 .frame(width: 26, height: 26)
-                .background(SettingsStyle.accent, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+                .background(Color(red: 0.047, green: 0.071, blue: 0.086), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+                .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous).strokeBorder(Color.white.opacity(0.14)))
             Text("ShotCubby").fontWeight(.semibold)
             Spacer()
         }
