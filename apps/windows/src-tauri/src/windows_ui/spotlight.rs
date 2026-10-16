@@ -1,6 +1,8 @@
-use tauri::{AppHandle, Emitter, Manager, PhysicalPosition, WebviewUrl, WebviewWindow, WebviewWindowBuilder};
+use tauri::{
+    AppHandle, Emitter, Manager, PhysicalPosition, WebviewUrl, WebviewWindow, WebviewWindowBuilder, WindowEvent,
+};
 
-use super::{hide_on_blur, SPOTLIGHT_LABEL};
+use super::{capture_overlay, SPOTLIGHT_LABEL};
 
 const SPOTLIGHT_SIZE: (f64, f64) = (720.0, 460.0);
 
@@ -26,7 +28,14 @@ pub fn ensure_spotlight(app: &AppHandle) -> WebviewWindow {
         .build()
         .expect("failed to build spotlight window");
 
-    hide_on_blur(&window);
+    // Closes on losing focus like the Mac panel, except while a screenshot is
+    // being taken: the capture overlay takes the focus and must not close it.
+    let window_for_blur = window.clone();
+    window.on_window_event(move |event| {
+        if let WindowEvent::Focused(false) = event {
+            capture_overlay::hide_unless_capturing(window_for_blur.clone());
+        }
+    });
     window
 }
 
@@ -63,6 +72,7 @@ pub fn show_spotlight(app: &AppHandle) {
         }
     }
 
+    capture_overlay::cancel_pending_hide();
     let _ = window.show();
     let _ = window.set_focus();
     let _ = app.emit_to(SPOTLIGHT_LABEL, "spotlight-shown", ());

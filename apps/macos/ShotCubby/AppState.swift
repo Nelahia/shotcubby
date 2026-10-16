@@ -200,6 +200,7 @@ final class AppState: ObservableObject {
             let item = ScreenshotItem(url: url)
             DispatchQueue.main.async {
                 self?.screenshots.insert(item, at: 0)
+                self?.nameWithAI(item)
             }
         }
         clipboardWatcher.startWatching()
@@ -217,6 +218,7 @@ final class AppState: ObservableObject {
             let item = ScreenshotItem(url: movedURL)
             DispatchQueue.main.async {
                 self.screenshots.insert(item, at: 0)
+                self.nameWithAI(item)
             }
         }
         watcher.startWatching()

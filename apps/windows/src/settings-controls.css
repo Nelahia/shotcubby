@@ -1,0 +1,113 @@
+/* ── Controls ────────────────────────────────────────────── */
+.row input[type="checkbox"] {
+  appearance: none;
+  position: relative;
+  flex: none;
+  width: 42px;
+  height: 24px;
+  margin: 0;
+  border-radius: 12px;
+  background: var(--tile);
+  box-shadow: inset 0 0 0 1px var(--line);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.row input[type="checkbox"]::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--muted);
+  transition: transform 0.15s, background 0.15s;
+}
+.row input[type="checkbox"]:checked {
+  background: var(--accent);
+}
+.row input[type="checkbox"]:checked::after {
+  transform: translateX(18px);
+  background: #04252a;
+}
+.row input[type="checkbox"]:focus-visible,
+.field:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.reset-btn {
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 9px;
+  background: var(--tile);
+  font-size: 13px;
+  font-weight: 600;
+}
+.reset-btn:hover {
+  background: color-mix(in srgb, var(--tile) 75%, var(--ink) 12%);
+}
+.reset-btn:disabled {
+  opacity: 0.5;
+}
+.field {
+  flex: 1;
+  min-width: 0;
+  height: 38px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 9px;
+  background: var(--bg);
+  box-shadow: inset 0 0 0 1px var(--line);
+  font: inherit;
+  color: inherit;
+}
+.seg {
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 10px;
+  background: var(--bg);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+.seg button {
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.seg button[aria-pressed="true"] {
+  color: var(--ink);
+  background: var(--tile);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+
+/* ── Shortcuts ───────────────────────────────────────────── */
+.hotkey-field {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 38px;
+  padding: 5px 6px;
+  border-radius: 9px;
+  background: var(--bg);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+.hotkey-field.recording {
+  padding: 0 12px;
+  color: var(--accent);
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+.key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  height: 26px;
+  padding: 0 8px;
+  border-radius: 7px;
+  background: var(--tile);
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.3), 0 0 0 1px var(--line);
+  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  font-size: 12px;
+}
+

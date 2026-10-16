@@ -17,22 +17,19 @@ struct SpotlightShortcutRow: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            HStack {
-                Text(command.title)
-                Spacer()
-                HotKeyRecorderField(keyCode: $keyCode, modifiers: $modifiers, allowsBareKeys: true)
-                Button("Reset") {
-                    SpotlightShortcuts.reset(command)
-                    conflict = nil
-                    load()
-                }
+        SettingsRow(
+            title: command.title,
+            subtitle: conflict.map { "Already used by \($0.title)" },
+            subtitleColor: .red
+        ) {
+            HotKeyRecorderField(keyCode: $keyCode, modifiers: $modifiers, allowsBareKeys: true)
+            Button("Reset") {
+                SpotlightShortcuts.reset(command)
+                conflict = nil
+                load()
             }
-            if let conflict {
-                Text("Already used by \(conflict.title)")
-                    .font(.caption)
-                    .foregroundStyle(.red)
-            }
+            .buttonStyle(.plain)
+            .foregroundStyle(.secondary)
         }
         .onChange(of: keyCode) { _, _ in save() }
         .onChange(of: modifiers) { _, _ in save() }

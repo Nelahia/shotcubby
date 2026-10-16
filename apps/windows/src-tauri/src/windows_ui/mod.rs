@@ -1,3 +1,4 @@
+mod capture_overlay;
 mod copy_toast;
 mod popover;
 mod settings;

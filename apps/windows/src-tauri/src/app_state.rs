@@ -4,8 +4,8 @@ use std::sync::{Arc, Mutex};
 use tauri::{AppHandle, Emitter};
 
 use crate::models::ScreenshotItem;
+use crate::services::capture_intake::CaptureIntake;
 use crate::services::{self, AccessFailure, ClipboardWatcher, ScreenshotWatcher};
-use crate::windows_ui;
 
 /// Mirrors `AppState.swift`: the in-memory source of truth the frontend
 /// windows read through commands and get pushed updates for via events.
@@ -27,25 +27,15 @@ impl AppStateInner {
 
         let screenshots = Arc::new(Mutex::new(services::storage::load_all()));
         let access_failure = Arc::new(Mutex::new(None));
+        let intake = Arc::new(CaptureIntake::new(
+            app_handle.clone(),
+            screenshots.clone(),
+            access_failure.clone(),
+        ));
 
         let watcher = {
-            let screenshots_for_new = screenshots.clone();
-            let app_handle_for_new = app_handle.clone();
-            let access_failure_for_new = access_failure.clone();
-
-            let on_new_screenshot = move |path: PathBuf| {
-                let Some(moved) = services::storage::move_to_vault(&path) else {
-                    return;
-                };
-                let item = ScreenshotItem::from_path(moved);
-                screenshots_for_new.lock().unwrap().insert(0, item.clone());
-                // A capture lands fine even if the folder was previously
-                // flagged as inaccessible (e.g. the user just fixed it).
-                *access_failure_for_new.lock().unwrap() = None;
-                let _ = app_handle_for_new.emit("screenshot-added", &item);
-                services::capture::play_capture_sound();
-                windows_ui::show_toast(&app_handle_for_new, &item);
-            };
+            let intake_for_files = intake.clone();
+            let on_new_screenshot = move |path: PathBuf| intake_for_files.file_captured(path);
 
             let access_failure_for_failed = access_failure.clone();
             let app_handle_for_failed = app_handle.clone();
@@ -63,18 +53,8 @@ impl AppStateInner {
         };
 
         let clipboard = {
-            let screenshots_for_clipboard = screenshots.clone();
-            let app_handle_for_clipboard = app_handle.clone();
-
-            let on_new_image = move |path: PathBuf| {
-                let item = ScreenshotItem::from_path(path);
-                screenshots_for_clipboard.lock().unwrap().insert(0, item.clone());
-                let _ = app_handle_for_clipboard.emit("screenshot-added", &item);
-                services::capture::play_capture_sound();
-                windows_ui::show_toast(&app_handle_for_clipboard, &item);
-            };
-
-            ClipboardWatcher::new(on_new_image)
+            let intake_for_clipboard = intake.clone();
+            ClipboardWatcher::new(move |path: PathBuf| intake_for_clipboard.clipboard_captured(path))
         };
 
         AppStateInner {

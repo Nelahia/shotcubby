@@ -3,18 +3,12 @@ use tauri::{AppHandle, Emitter, State};
 use tauri_plugin_opener::OpenerExt;
 
 use crate::app_state::AppStateInner;
-use crate::models::{ScreenshotItem, Source};
+use crate::models::ScreenshotItem;
 use crate::services;
 
 #[derive(Serialize, Clone)]
 struct RemovedPayload {
     id: String,
-}
-
-#[derive(Serialize, Clone)]
-struct RenamedPayload {
-    old_id: String,
-    item: ScreenshotItem,
 }
 
 #[tauri::command]
@@ -70,33 +64,5 @@ pub fn rename_screenshot(
     id: String,
     new_name: String,
 ) -> Result<ScreenshotItem, String> {
-    let mut screenshots = state.screenshots.lock().unwrap();
-    let Some(index) = screenshots.iter().position(|s| s.id == id) else {
-        return Err("Screenshot not found".into());
-    };
-    let item = &screenshots[index];
-
-    // A clipboard capture keeps its "(clipboard)" tag through a rename —
-    // that suffix is how `ScreenshotItem::source` is derived on reload.
-    let mut sanitized = new_name.trim().to_string();
-    if item.source == Source::Clipboard && !sanitized.ends_with("(clipboard)") {
-        sanitized.push_str(" (clipboard)");
-    }
-
-    let Some(new_path) = services::storage::rename(&item.path, &sanitized) else {
-        return Err("Rename failed".into());
-    };
-
-    let renamed = ScreenshotItem::from_path(new_path);
-    screenshots[index] = renamed.clone();
-    drop(screenshots);
-
-    let _ = app.emit(
-        "screenshot-renamed",
-        RenamedPayload {
-            old_id: id,
-            item: renamed.clone(),
-        },
-    );
-    Ok(renamed)
+    services::screenshot_rename::rename(&app, &state.screenshots, &id, &new_name)
 }

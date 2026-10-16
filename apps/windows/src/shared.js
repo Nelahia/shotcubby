@@ -22,6 +22,11 @@ export const ICONS = {
   gear: '<circle cx="12" cy="12" r="3"></circle><path d="M19.4 13a7.6 7.6 0 0 0 0-2l2-1.5-2-3.4-2.3 1a7.7 7.7 0 0 0-1.7-1l-.3-2.6h-4l-.3 2.6a7.7 7.7 0 0 0-1.7 1l-2.3-1-2 3.4L6.6 11a7.6 7.6 0 0 0 0 2l-2 1.5 2 3.4 2.3-1a7.7 7.7 0 0 0 1.7 1l.3 2.6h4l.3-2.6a7.7 7.7 0 0 0 1.7-1l2.3 1 2-3.4z"></path>',
   search: '<circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4.5 4.5"></path>',
   check: '<path d="M5 12.5l4.5 4.5L19 7"></path>',
+  lock: '<rect x="5" y="11" width="14" height="9" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path>',
+  alert: '<path d="M12 3.5L2.5 20h19z"></path><path d="M12 10v4.5M12 17.4v.1"></path>',
+  external: '<path d="M7 17L17 7M9 7h8v8"></path>',
+  close: '<path d="M6 6l12 12M18 6L6 18"></path>',
+  sparkle: '<path d="M12 3.5l1.9 5.1 5.1 1.9-5.1 1.9L12 17.5l-1.9-5.1L5 10.5l5.1-1.9z"></path><path d="M18.5 16.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z"></path>',
   keyboard: '<rect x="2.5" y="6" width="19" height="12" rx="2.5"></rect><path d="M6.5 10h.01M10 10h.01M13.5 10h.01M17 10h.01M7.5 14h9"></path>',
 };
 
@@ -93,3 +98,13 @@ export function thumbnailUrl(path, maxPx) {
   }
   return pending;
 }
+
+/** Groups settings rows into one rounded card. */
+export function card(...rows) {
+  const node = el("section", "card");
+  node.append(...rows);
+  return node;
+}
+
+/** Opens a web page in the user's browser. */
+export const openUrl = (url) => tauri.opener.openUrl(url);

@@ -49,6 +49,9 @@ Produces an NSIS and MSI installer under `src-tauri/target/release/bundle/`.
 
 ## Known differences from the Mac version
 
+- **AI naming** keeps its API key in the Windows Credential Manager (`keyring`
+  crate) where the Mac app uses the Keychain, and sends requests with `ureq`
+  instead of `URLSession`. The behavior is the same.
 - **Unsigned**: there's no code-signing certificate for this build, so Windows will
   show a SmartScreen warning on first run — the Mac build is notarized, this one isn't
   (yet).

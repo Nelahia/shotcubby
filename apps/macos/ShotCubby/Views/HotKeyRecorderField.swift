@@ -11,19 +11,36 @@ struct HotKeyRecorderField: View {
     var allowsBareKeys = false
     @State private var isRecording = false
 
+    /// The combination drawn as keycaps, or the prompt while recording.
+    @ViewBuilder private var field: some View {
+        if isRecording {
+            Text("Press a key combination…")
+                .foregroundStyle(SettingsStyle.accent)
+                .padding(.horizontal, 12)
+                .frame(minHeight: 38)
+        } else {
+            let parts = KeyCaps.parts(of: HotKeyPreferences.describe(keyCode: keyCode, modifiers: modifiers))
+            HStack(spacing: 5) {
+                ForEach(Array(parts.enumerated()), id: \.offset) { _, part in
+                    KeyCap(text: part)
+                }
+            }
+            .padding(6)
+        }
+    }
+
     var body: some View {
         Button {
             isRecording = true
         } label: {
-            Text(isRecording ? "Press a key combination…" : HotKeyPreferences.describe(keyCode: keyCode, modifiers: modifiers))
-                .font(.system(size: 12, design: .monospaced))
-                .frame(minWidth: 160)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 6)
-                .background(.quaternary, in: RoundedRectangle(cornerRadius: 6, style: .continuous))
+            field
+                .background(SettingsStyle.fieldBackground, in: RoundedRectangle(cornerRadius: 9, style: .continuous))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 6, style: .continuous)
-                        .strokeBorder(isRecording ? Color.accentColor : .clear, lineWidth: 2)
+                    RoundedRectangle(cornerRadius: 9, style: .continuous)
+                        .strokeBorder(
+                            isRecording ? SettingsStyle.accent : SettingsStyle.hairline,
+                            lineWidth: isRecording ? 2 : 1
+                        )
                 )
         }
         .buttonStyle(.plain)

@@ -4,6 +4,7 @@ import { createSpotlightFooter } from "./spotlight-footer.js";
 import { createSpotlightActions } from "./spotlight-actions.js";
 import { createContextMenu } from "./spotlight-context-menu.js";
 import { renderPreview } from "./spotlight-preview.js";
+import { watchScreenshotChanges } from "./spotlight-sync.js";
 
 const state = {
   shots: [],
@@ -46,6 +47,27 @@ async function reset() {
   contextMenu.hide();
   render();
   searchInput.focus();
+}
+
+// A rename changes a screenshot's id (it is its path): old id -> new id, so a
+// row still being edited when AI naming renames it can find its screenshot.
+const movedIds = new Map();
+let syncSeq = 0;
+
+/** Refreshes the list in place while the Spotlight stays open: query and selection are kept. */
+async function syncShots(renamed) {
+  if (renamed) {
+    movedIds.set(renamed.old_id, renamed.item.id);
+    if (state.selection === renamed.old_id) state.selection = renamed.item.id;
+  }
+  const seq = ++syncSeq;
+  const shots = await invoke("list_screenshots");
+  // Answers can arrive out of order: only the newest refresh is applied.
+  if (seq !== syncSeq) return;
+  state.shots = shots;
+  if (!results().some((s) => s.id === state.selection)) state.selection = results()[0]?.id ?? null;
+  // Rebuilding the rows would drop the input the user is typing a name into.
+  if (!state.renamingId) render();
 }
 
 function render() {
@@ -122,7 +144,7 @@ async function commitRename(shot, newName) {
   state.renamingId = null;
   const trimmed = newName.trim();
   if (trimmed && trimmed !== shot.name) {
-    const renamed = await invoke("rename_screenshot", { id: shot.id, newName: trimmed });
+    const renamed = await invoke("rename_screenshot", { id: movedIds.get(shot.id) ?? shot.id, newName: trimmed });
     state.shots = await invoke("list_screenshots");
     state.selection = renamed.id;
   }
@@ -235,6 +257,7 @@ document.addEventListener("keydown", (e) => {
 });
 
 listen("spotlight-shown", reset);
+watchScreenshotChanges(syncShots);
 
 const footer = createSpotlightFooter(document.getElementById("hints"), {
   copy: copySelected,

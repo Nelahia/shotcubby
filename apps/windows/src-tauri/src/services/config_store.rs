@@ -19,6 +19,15 @@ pub struct AppConfig {
     /// `YYYY-MM-DD` folders".
     #[serde(default)]
     pub organize_by_day_disabled: bool,
+    /// AI naming: stored as is, since the default (key absent) is "off".
+    /// The API key itself is never here, see `api_key_store`.
+    #[serde(default)]
+    pub ai_rename_enabled: bool,
+    #[serde(default)]
+    pub ai_rename_provider: Option<String>,
+    /// The user's own naming convention, sent to the model with every screenshot.
+    #[serde(default)]
+    pub ai_rename_instructions: Option<String>,
     /// Shortcut per `HotkeyAction::id()`.
     #[serde(default)]
     pub hotkeys: BTreeMap<String, String>,

@@ -200,6 +200,17 @@ final class SpotlightController {
 
     func toggle() { isVisible ? hide() : show() }
 
+    /// Re-reads the list while the panel stays open (a capture lands, AI naming
+    /// renames one) so it never shows stale names. The query is kept, and so is
+    /// the selection unless that screenshot is gone (a rename changes its URL).
+    func refresh() {
+        guard isVisible else { return }
+        model.shots = provider()
+        if !model.results.contains(where: { $0.url == model.selection }) {
+            model.selection = model.results.first?.url
+        }
+    }
+
     func show() {
         shownAt = Date()
         model.shots = provider()

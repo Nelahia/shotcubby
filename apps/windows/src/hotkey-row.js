@@ -19,15 +19,21 @@ function comboFrom(e) {
 /** One Settings line: label, a click-to-record field and a Reset button. */
 export function createHotkeyRow({ action, label, display }, showError) {
   const row = el("div", "row");
-  const field = el("button", "hotkey-field", display);
+  const field = el("button", "hotkey-field");
   const reset = el("button", "reset-btn", "Reset");
   row.append(el("span", "label", label), field, reset);
 
   let current = display;
 
+  /** Draws the combination as keycaps ("Ctrl + /" becomes two keys). */
+  function showKeys(combo) {
+    field.replaceChildren(...combo.split(" + ").map((part) => el("span", "key", part)));
+  }
+  showKeys(current);
+
   function stop() {
     field.classList.remove("recording");
-    field.textContent = current;
+    showKeys(current);
     document.removeEventListener("keydown", onKey, true);
     document.removeEventListener("keyup", onKey, true);
     cancelActive = null;
@@ -51,7 +57,7 @@ export function createHotkeyRow({ action, label, display }, showError) {
     } catch (err) {
       showError(String(err));
     }
-    field.textContent = current;
+    showKeys(current);
   }
 
   field.addEventListener("click", () => {
@@ -72,7 +78,7 @@ export function createHotkeyRow({ action, label, display }, showError) {
     } catch (err) {
       showError(String(err));
     }
-    field.textContent = current;
+    showKeys(current);
   });
 
   return row;

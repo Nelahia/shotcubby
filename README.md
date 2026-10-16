@@ -16,8 +16,12 @@ and lets you find, copy or rename any of them in a couple of keystrokes.
 - **Fast to reach** — a Spotlight-style search opens from anywhere.
 - **Safe** — deleting always goes to the Trash / Recycle Bin, never permanently.
 - **Private** — works entirely on your machine: no account, no tracking, your
-  screenshots never leave it. The only network request is the update check
-  (see [Updates](#updates)).
+  screenshots never leave it. The only network requests are the update check
+  (see [Updates](#updates)) and, only if you turn it on, AI naming (below).
+- **AI naming (optional, off by default)** — add your own Anthropic or OpenAI
+  API key in Settings and each new screenshot is renamed after what it shows. Only
+  then is a downscaled copy of the screenshot sent to the provider you chose, with
+  your key; the key is stored in the macOS Keychain / Windows Credential Manager.
 
 ## What it captures
 
@@ -95,9 +99,12 @@ certificate by [SignPath Foundation](https://signpath.org).
   from this repository's tagged source are submitted for signing.
 - The maintainer ([Nelahia](https://github.com/Nelahia)) is the sole author,
   reviewer and approver of signing requests.
-- **Privacy**: ShotCubby works entirely on your machine. It does not collect or
-  send any data. The only network request the app makes is the optional
-  update check described in [Updates](#updates), which sends nothing about you.
+- **Privacy**: ShotCubby works entirely on your machine. It does not collect any
+  data, and the project receives none. By default the only network request the app
+  makes is the optional update check described in [Updates](#updates), which sends
+  nothing about you. The one other request is the optional AI naming feature,
+  off by default: once you turn it on with your own API key, a downscaled copy of
+  each new screenshot goes to the provider you chose, never to this project.
 
 ## Building from source
 

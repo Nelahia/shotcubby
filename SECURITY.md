@@ -20,7 +20,10 @@ receives fixes. Both apps update themselves (Windows automatically, macOS throug
 
 ## Scope
 
-ShotCubby works on your machine and collects nothing. The things worth reporting
+ShotCubby works on your machine and collects nothing. The optional AI naming
+feature, off by default, sends a downscaled copy of each new screenshot to the AI
+provider you chose, using your own API key, which is stored in the OS keychain and
+never in ShotCubby's settings files. The things worth reporting
 are, for example: a way to make the apps open, read or delete files outside the
 screenshot folders, a flaw in how updates are downloaded or verified, or a problem
 in the release workflow that could ship a tampered build.

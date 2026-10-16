@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 import Carbon.HIToolbox
 
 @main
@@ -28,6 +29,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSW
     private var popover = NSPopover()
     let appState = AppState()
     private var spotlight: SpotlightController?
+    private var screenshotsObserver: AnyCancellable?
     private var hotKey: GlobalHotKey?
     private var settingsWindow: NSWindow?
     /// Set only while the right-click menu is open, so it can be dismissed from elsewhere.
@@ -137,11 +139,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSW
         spotlight?.show()
     }
 
+    /// Opening Settings from anywhere (shortcut, menu, the popover's gear) leaves
+    /// only Settings on screen: the status-item popover, the right-click menu and
+    /// the Spotlight panel are closed first. The popover closes without animation,
+    /// for the same reason as in `toggleSpotlightDismissingMenus`.
+    private func dismissMenusForSettings() {
+        if popover.isShown { popover.close() }
+        contextMenu?.cancelTracking()
+        if spotlight?.isVisible == true { spotlight?.hide() }
+    }
+
     /// Owned directly rather than via `NSApp.sendAction(Selector(("showSettingsWindow:")))`:
     /// that responder-chain action targets SwiftUI's auto-generated Settings command, which
     /// is wired through the app's main menu — an `.accessory` app (no Dock icon, no menu bar)
     /// never gets one, so the action silently finds no responder and does nothing.
     func showSettingsWindow() {
+        dismissMenusForSettings()
         if settingsWindow == nil {
             let window = NSWindow(contentViewController: NSHostingController(rootView: SettingsView(appState: appState)))
             window.title = "ShotCubby Settings"
@@ -181,6 +194,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSW
             )
         )
         spotlight?.onHide = { [weak self] in self?.focus.restoreIfStillActive() }
+        // Keeps an open Spotlight in step with the list. `$screenshots` publishes
+        // before the new value is stored, so it is read a tick later.
+        screenshotsObserver = appState.$screenshots
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in self?.spotlight?.refresh() }
         registerHotKey()
         NotificationCenter.default.addObserver(
             forName: HotKeyPreferences.didChangeNotification,

@@ -118,7 +118,7 @@ fn is_day_folder(path: &Path) -> bool {
             .is_some_and(|n| chrono::NaiveDate::parse_from_str(n, DAY_FOLDER_FORMAT).is_ok())
 }
 
-fn sanitize(name: &str) -> String {
+pub(super) fn sanitize(name: &str) -> String {
     name.trim()
         .chars()
         .filter(|c| !INVALID_NAME_CHARS.contains(c))

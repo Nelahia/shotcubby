@@ -1,0 +1,122 @@
+.alert {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--warn) 9%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--warn) 38%, transparent);
+}
+.alert-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+.alert-icon {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  color: var(--warn);
+  background: color-mix(in srgb, var(--warn) 18%, transparent);
+}
+.alert-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--warn);
+}
+.alert-body {
+  margin: 6px 0 0;
+  line-height: 1.55;
+  color: var(--muted);
+}
+.alert-body strong,
+.alert-steps strong {
+  color: var(--ink);
+}
+.alert-steps {
+  margin: 0;
+  padding: 12px 14px 12px 34px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.18);
+  line-height: 1.8;
+  color: var(--muted);
+}
+.alert-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.alert-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 16px;
+  border-radius: 9px;
+  background: var(--warn);
+  color: #2a1700;
+  font-weight: 600;
+}
+.alert-dismiss {
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 9px;
+  color: var(--muted);
+}
+.result {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--accent) 7%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 22%, transparent);
+}
+.result.bad {
+  background: color-mix(in srgb, var(--warn) 7%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--warn) 25%, transparent);
+}
+.result-icon {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+}
+.result.bad .result-icon {
+  color: var(--warn);
+  background: color-mix(in srgb, var(--warn) 16%, transparent);
+}
+.result-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.result-text {
+  margin-top: 3px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
+/* Naming instructions */
+.field.area {
+  flex: none;
+  height: auto;
+  min-height: 84px;
+  padding: 10px 12px;
+  resize: none;
+  line-height: 1.5;
+}

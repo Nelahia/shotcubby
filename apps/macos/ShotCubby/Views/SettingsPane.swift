@@ -2,7 +2,7 @@ import Foundation
 
 /// The sidebar entries of the Settings window.
 enum SettingsPane: String, CaseIterable, Identifiable {
-    case general, screenshots, shortcuts
+    case general, screenshots, aiNaming, shortcuts
 
     var id: String { rawValue }
 
@@ -10,6 +10,7 @@ enum SettingsPane: String, CaseIterable, Identifiable {
         switch self {
         case .general: "General"
         case .screenshots: "Screenshots"
+        case .aiNaming: "AI naming"
         case .shortcuts: "Shortcuts"
         }
     }
@@ -18,6 +19,7 @@ enum SettingsPane: String, CaseIterable, Identifiable {
         switch self {
         case .general: "gearshape"
         case .screenshots: "folder"
+        case .aiNaming: "sparkles"
         case .shortcuts: "keyboard"
         }
     }
