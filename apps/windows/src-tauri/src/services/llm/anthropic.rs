@@ -7,8 +7,12 @@ const MODEL: &str = "claude-haiku-5-5";
 fn body(image_base64: &str, prompt: &str) -> Value {
     json!({
         "model": MODEL,
-        // Headroom beyond the few words wanted, in case the model emits other blocks first.
-        "max_tokens": 300,
+        // Haiku 5.5 thinks by default, and thinking is paid out of max_tokens: on a
+        // busy screenshot it used the whole budget and left no text block
+        // (stop reason max_tokens), so some captures were never named. A title
+        // needs no reasoning.
+        "thinking": { "type": "disabled" },
+        "max_tokens": 1024,
         "messages": [{
             "role": "user",
             "content": [
@@ -64,6 +68,13 @@ mod tests {
     fn reads_the_first_text_block() {
         let response = json!({ "content": [{ "type": "text", "text": "Invoice March" }] });
         assert_eq!(parse(&response).as_deref(), Some("Invoice March"));
+    }
+
+    #[test]
+    fn the_request_turns_thinking_off_so_it_cannot_eat_the_token_budget() {
+        let request = body("AAAA", "Name it");
+        assert_eq!(request["thinking"]["type"], "disabled");
+        assert_eq!(request["max_tokens"], 1024);
     }
 
     #[test]
