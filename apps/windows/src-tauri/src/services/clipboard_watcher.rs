@@ -121,8 +121,16 @@ fn try_save_clipboard_image(clipboard: &mut arboard::Clipboard) -> Option<PathBu
     // quoted 'at' in Swift's ICU-style DateFormatter) — plain text passes
     // through as-is.
     let timestamp = Local::now().format("%Y-%m-%d at %H.%M.%S");
-    let filename = format!("Screenshot {timestamp} (clipboard).png");
-    let destination = storage::vault_dir().join(filename);
+    let vault = storage::vault_dir();
+    // Two copies within one second must not share a file: the second would
+    // overwrite the first and leave two list entries for a single path. The
+    // counter goes before the tag, which has to stay the end of the name.
+    let mut destination = vault.join(format!("Screenshot {timestamp} (clipboard).png"));
+    let mut counter = 1;
+    while destination.exists() {
+        destination = vault.join(format!("Screenshot {timestamp}_{counter} (clipboard).png"));
+        counter += 1;
+    }
 
     buffer.save(&destination).ok()?;
     Some(destination)

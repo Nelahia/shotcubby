@@ -144,9 +144,15 @@ async function commitRename(shot, newName) {
   state.renamingId = null;
   const trimmed = newName.trim();
   if (trimmed && trimmed !== shot.name) {
-    const renamed = await invoke("rename_screenshot", { id: movedIds.get(shot.id) ?? shot.id, newName: trimmed });
+    try {
+      const renamed = await invoke("rename_screenshot", { id: movedIds.get(shot.id) ?? shot.id, newName: trimmed });
+      state.selection = renamed.id;
+    } catch (err) {
+      // Without this the row stayed stuck on its input with no explanation.
+      console.error(err);
+      window.alert(String(err));
+    }
     state.shots = await invoke("list_screenshots");
-    state.selection = renamed.id;
   }
   render();
 }

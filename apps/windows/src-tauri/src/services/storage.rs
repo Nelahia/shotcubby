@@ -84,21 +84,34 @@ pub fn delete(path: &Path) -> bool {
     trash::delete(path).is_ok()
 }
 
+/// A fresh capture is often still held open for a moment by Defender, the
+/// search indexer or the app that took it; Windows then refuses the rename
+/// (sharing violation) although it works a second later.
+const RENAME_ATTEMPTS: u32 = 6;
+const RENAME_RETRY_DELAY: std::time::Duration = std::time::Duration::from_millis(250);
+
 /// Renames a screenshot already in the vault, keeping its extension and
-/// enforcing name uniqueness. Returns the new path, or `None` if the name is
-/// empty or the move fails.
-pub fn rename(path: &Path, new_name: &str) -> Option<PathBuf> {
+/// enforcing name uniqueness. Returns the new path, or why it failed.
+pub fn rename(path: &Path, new_name: &str) -> Result<PathBuf, String> {
     let sanitized = sanitize(new_name);
     if sanitized.is_empty() {
-        return None;
+        return Err("That name is empty or only has characters Windows does not allow".into());
     }
     if sanitized == file_stem(path) {
-        return Some(path.to_path_buf());
+        return Ok(path.to_path_buf());
     }
 
-    let parent = path.parent()?;
-    let destination = unique_destination(parent, &sanitized, &extension(path));
-    std::fs::rename(path, &destination).ok().map(|_| destination)
+    let parent = path.parent().ok_or("The file has no folder")?;
+    let ext = extension(path);
+    for attempt in 1..=RENAME_ATTEMPTS {
+        let destination = unique_destination(parent, &sanitized, &ext);
+        match std::fs::rename(path, &destination) {
+            Ok(()) => return Ok(destination),
+            Err(err) if attempt == RENAME_ATTEMPTS => return Err(err.to_string()),
+            Err(_) => std::thread::sleep(RENAME_RETRY_DELAY),
+        }
+    }
+    unreachable!("the last attempt returns")
 }
 
 pub(super) fn children(dir: &Path) -> Vec<PathBuf> {

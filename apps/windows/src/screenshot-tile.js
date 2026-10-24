@@ -53,11 +53,18 @@ function renderName(shot, renaming) {
       input.focus();
       input.select();
     });
+    let committed = false;
     const commit = () => {
+      // Enter commits, then the input disappears and fires blur: once only.
+      if (committed) return;
+      committed = true;
       renaming.setId(null);
       const value = input.value.trim();
       if (value && value !== shot.name) {
-        invoke("rename_screenshot", { id: shot.id, newName: value });
+        invoke("rename_screenshot", { id: shot.id, newName: value }).catch((err) => {
+          console.error(err);
+          window.alert(String(err));
+        });
       }
     };
     input.addEventListener("keydown", (e) => {
