@@ -62,8 +62,15 @@ final class ClipboardWatcher {
         else { return nil }
 
         let timestamp = DateFormatter.screenshotFormatter.string(from: Date())
-        let filename = "Screenshot \(timestamp) (clipboard).png"
-        let destination = storage.vaultURL.appendingPathComponent(filename)
+        // Two copies within one second must not share a file: the second would
+        // overwrite the first and leave two list entries for a single path. The
+        // counter goes before the tag, which has to stay the end of the name.
+        var destination = storage.vaultURL.appendingPathComponent("Screenshot \(timestamp) (clipboard).png")
+        var counter = 1
+        while FileManager.default.fileExists(atPath: destination.path) {
+            destination = storage.vaultURL.appendingPathComponent("Screenshot \(timestamp)_\(counter) (clipboard).png")
+            counter += 1
+        }
 
         do {
             try pngData.write(to: destination)
