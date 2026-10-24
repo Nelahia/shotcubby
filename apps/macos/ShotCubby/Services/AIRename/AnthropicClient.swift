@@ -17,7 +17,11 @@ enum AnthropicClient {
     private static func body(jpeg: Data, prompt: String) -> [String: Any] {
         [
             "model": model,
-            "max_tokens": 300,
+            // Haiku 5.5 thinks by default, and thinking is paid out of max_tokens: on a
+            // busy screenshot it used the whole budget and left no text block
+            // (stop reason max_tokens), so some captures were never named.
+            "thinking": ["type": "disabled"],
+            "max_tokens": 1024,
             "messages": [[
                 "role": "user",
                 "content": [
