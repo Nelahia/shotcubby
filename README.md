@@ -60,7 +60,7 @@ then type to filter and use the keyboard:
 | Close | `Esc` | `Esc` |
 
 **Settings** let you switch between the light and dark look (light by default),
-open ShotCubby when you log in, change the search shortcut (and, on Windows, the
+choose whether ShotCubby opens at session start, change the search shortcut (and, on Windows, the
 capture shortcuts) and pick where your screenshots are kept.
 
 ## Install
@@ -71,7 +71,7 @@ Download the installer for your system from the
 - **macOS 14+**: `ShotCubby.dmg`, then drag the app to Applications.
 - **Windows 10/11**: `ShotCubby-Setup.exe` (or `ShotCubby.msi`).
 
-To open ShotCubby when you log in, turn on **Settings → General → Open ShotCubby at session start**.
+ShotCubby opens at session start by default. To stop that, turn off **Settings → General → Open ShotCubby at session start**.
 
 ## Updates
 
