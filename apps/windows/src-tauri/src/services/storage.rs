@@ -1,3 +1,4 @@
+use crate::services::i18n::tr;
 use super::folder_preferences;
 use crate::models::ScreenshotItem;
 use std::path::{Path, PathBuf};
@@ -95,13 +96,13 @@ const RENAME_RETRY_DELAY: std::time::Duration = std::time::Duration::from_millis
 pub fn rename(path: &Path, new_name: &str) -> Result<PathBuf, String> {
     let sanitized = sanitize(new_name);
     if sanitized.is_empty() {
-        return Err("That name is empty or only has characters Windows does not allow".into());
+        return Err(tr("That name is empty or only has characters Windows does not allow"));
     }
     if sanitized == file_stem(path) {
         return Ok(path.to_path_buf());
     }
 
-    let parent = path.parent().ok_or("The file has no folder")?;
+    let parent = path.parent().ok_or_else(|| tr("The file has no folder"))?;
     let ext = extension(path);
     for attempt in 1..=RENAME_ATTEMPTS {
         let destination = unique_destination(parent, &sanitized, &ext);

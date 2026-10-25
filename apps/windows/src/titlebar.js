@@ -1,4 +1,5 @@
 import { el, currentWindow } from "./shared.js";
+import { t } from "./i18n.js";
 
 const ICON_MINIMIZE = '<svg viewBox="0 0 10 10"><path d="M1 5h8"></path></svg>';
 const ICON_CLOSE = '<svg viewBox="0 0 10 10"><path d="M1.5 1.5l7 7M8.5 1.5l-7 7"></path></svg>';
@@ -18,8 +19,8 @@ export function createTitleBar() {
   const bar = el("header", "titlebar");
   bar.dataset.tauriDragRegion = "";
   bar.append(
-    control("Minimize", ICON_MINIMIZE, "", () => currentWindow().minimize()),
-    control("Close", ICON_CLOSE, "close", () => currentWindow().hide()),
+    control(t("Minimize"), ICON_MINIMIZE, "", () => currentWindow().minimize()),
+    control(t("Close"), ICON_CLOSE, "close", () => currentWindow().hide()),
   );
   return bar;
 }

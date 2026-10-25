@@ -1,3 +1,4 @@
+use crate::services::i18n::tr;
 use tauri::AppHandle;
 
 use crate::hotkey;
@@ -26,10 +27,10 @@ pub fn get_hotkeys() -> Vec<serde_json::Value> {
 pub fn set_hotkey(app: AppHandle, action: String, hotkey_str: String) -> Result<String, String> {
     let action = parse_action(&action)?;
     if !hotkey_preferences::is_allowed(&hotkey_str) {
-        return Err("Shortcut needs a modifier key (or be a function / PrintScreen key)".into());
+        return Err(tr("Shortcut needs a modifier key (or be a function / PrintScreen key)"));
     }
     hotkey::apply(&app, action, &hotkey_str)
-        .map_err(|e| format!("Shortcut unavailable (already in use?): {e}"))?;
+        .map_err(|e| format!("{}: {e}", tr("Shortcut unavailable (already in use?)")))?;
     hotkey_preferences::set(action, hotkey_str.clone());
     Ok(hotkey_preferences::describe(&hotkey_str))
 }
@@ -39,7 +40,7 @@ pub fn reset_hotkey(app: AppHandle, action: String) -> Result<String, String> {
     let action = parse_action(&action)?;
     let default = hotkey_preferences::default(action);
     hotkey::apply(&app, action, &default)
-        .map_err(|e| format!("Default shortcut unavailable (already in use?): {e}"))?;
+        .map_err(|e| format!("{}: {e}", tr("Default shortcut unavailable (already in use?)")))?;
     hotkey_preferences::reset(action);
     Ok(hotkey_preferences::describe(&default))
 }

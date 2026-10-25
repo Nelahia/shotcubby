@@ -1,11 +1,12 @@
 import { el, invoke } from "./shared.js";
+import { t } from "./i18n.js";
 
 /** Settings line to pick the provider; `onChange(provider, hasKey)` re-targets the key block. */
 export function createAiProviderRow(state, onChange) {
   const row = el("div", "row");
   const segmented = el("div", "seg");
   segmented.setAttribute("role", "group");
-  segmented.setAttribute("aria-label", "Provider");
+  segmented.setAttribute("aria-label", t("Provider"));
 
   const buttons = state.providers.map(({ id, label }) => {
     const button = el("button", "", label.split(" (")[0]);
@@ -23,6 +24,6 @@ export function createAiProviderRow(state, onChange) {
 
   segmented.append(...buttons.map(({ button }) => button));
   select(state.provider);
-  row.append(el("div", "label", "Provider"), segmented);
+  row.append(el("div", "label", t("Provider")), segmented);
   return row;
 }

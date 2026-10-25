@@ -1,4 +1,5 @@
 import { el, invoke, svgIcon, ICONS } from "./shared.js";
+import { t } from "./i18n.js";
 
 const asFailure = (err) => (typeof err === "string" ? { kind: "other", message: err } : err);
 
@@ -14,19 +15,19 @@ export function createApiKeyRow(state, { onFailure, onSuccess }) {
   input.type = "password";
   input.className = "field";
   input.autocomplete = "off";
-  const save = el("button", "reset-btn", "Save");
-  const test = el("button", "reset-btn", "Test");
+  const save = el("button", "reset-btn", t("Save"));
+  const test = el("button", "reset-btn", t("Test"));
 
   const chip = el("span", "key-chip");
   const remove = el("button", "key-chip-x");
-  remove.title = "Remove the saved key";
-  remove.setAttribute("aria-label", "Remove the saved key");
+  remove.title = t("Remove the saved key");
+  remove.setAttribute("aria-label", t("Remove the saved key"));
   remove.innerHTML = svgIcon(ICONS.close);
   remove.firstChild.setAttribute("width", "10");
-  chip.append("✓ Key saved", remove);
+  chip.append(t("✓ Key saved"), remove);
 
   const head = el("div", "key-head");
-  head.append("API key", el("span", "spacer"), chip);
+  head.append(t("API key"), el("span", "spacer"), chip);
   const fields = el("div", "key-fields");
   fields.append(input, save, test);
   const note = el("div", "key-note");
@@ -45,9 +46,9 @@ export function createApiKeyRow(state, { onFailure, onSuccess }) {
   function show(next, hasKey, message, tone) {
     provider = next;
     input.value = "";
-    input.placeholder = hasKey ? "Paste a new key to replace it" : "Paste your API key";
+    input.placeholder = hasKey ? t("Paste a new key to replace it") : t("Paste your API key");
     test.hidden = chip.hidden = !hasKey;
-    say(message ?? "Stored in the Windows Credential Manager. It only leaves this PC to call your provider.", tone);
+    say(message ?? t("Stored in the Windows Credential Manager. It only leaves this PC to call your provider."), tone);
   }
 
   function setBusy(busy) {
@@ -65,11 +66,11 @@ export function createApiKeyRow(state, { onFailure, onSuccess }) {
   }
 
   save.addEventListener("click", () =>
-    run("Saving…", async () => {
+    run(t("Saving…"), async () => {
       try {
         await invoke("save_api_key", { provider, key: input.value });
         onSuccess();
-        show(provider, true, "Key saved. Press Test to check it works.", "ok");
+        show(provider, true, t("Key saved. Press Test to check it works."), "ok");
       } catch (err) {
         say(String(err), "bad");
       }
@@ -77,11 +78,11 @@ export function createApiKeyRow(state, { onFailure, onSuccess }) {
   );
 
   test.addEventListener("click", () =>
-    run("Testing the key with the provider…", async () => {
+    run(t("Testing the key with the provider…"), async () => {
       try {
         await invoke("test_api_key", { provider });
         onSuccess();
-        say("The key works. New screenshots will be renamed.", "ok");
+        say(t("The key works. New screenshots will be renamed."), "ok");
       } catch (err) {
         const failure = asFailure(err);
         say(failure.message, "bad");
@@ -91,10 +92,10 @@ export function createApiKeyRow(state, { onFailure, onSuccess }) {
   );
 
   remove.addEventListener("click", () =>
-    run("Removing…", async () => {
+    run(t("Removing…"), async () => {
       await invoke("delete_api_key", { provider });
       onSuccess();
-      show(provider, false, "Key removed.", "ok");
+      show(provider, false, t("Key removed."), "ok");
     }),
   );
 

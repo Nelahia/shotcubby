@@ -1,19 +1,20 @@
 import { el, invoke, appVersion } from "./shared.js";
+import { t, dateLocale } from "./i18n.js";
 
 const POLL_MS = 1000;
 
 function statusText({ state, detail, checked_at: checkedAt }) {
   switch (state) {
     case "checking":
-      return "Checking for updates…";
+      return t("Checking for updates…");
     case "installing":
-      return `Installing ${detail}…`;
+      return t("Installing {detail}…", { detail });
     case "up_to_date":
-      return `Up to date · checked ${new Date(checkedAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`;
+      return t("Up to date · checked {time}", { time: new Date(checkedAt).toLocaleTimeString(dateLocale, { hour: "numeric", minute: "2-digit" }) });
     case "error":
-      return "Couldn't check for updates";
+      return t("Couldn't check for updates");
     default:
-      return "Not checked yet";
+      return t("Not checked yet");
   }
 }
 
@@ -24,7 +25,7 @@ export async function createUpdateRow() {
   const title = el("div", "", `ShotCubby ${await appVersion()}`);
   const status = el("div", "status");
   text.append(title, status);
-  const button = el("button", "reset-btn", "Check now");
+  const button = el("button", "reset-btn", t("Check now"));
   row.append(text, button);
 
   async function show(current) {

@@ -1,4 +1,5 @@
 import { el, fileName, thumbnailUrl } from "./shared.js";
+import { t, dateLocale } from "./i18n.js";
 
 /**
  * Fills the preview pane for `current`. The image element is reused across
@@ -22,7 +23,7 @@ export function renderPreview(previewEl, current, isStillCurrent) {
     if (url && isStillCurrent(current)) img.src = url;
   });
   previewEl.querySelector(".file").textContent = fileName(current);
-  previewEl.querySelector(".sub").textContent = `${new Date(current.created_at).toLocaleString()} · ${
-    current.source === "clipboard" ? "from clipboard" : "file"
+  previewEl.querySelector(".sub").textContent = `${new Date(current.created_at).toLocaleString(dateLocale)} · ${
+    current.source === "clipboard" ? t("from clipboard") : t("file")
   }`;
 }

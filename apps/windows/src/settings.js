@@ -1,6 +1,8 @@
 import { el, invoke, svgIcon, ICONS, GLYPH_SVG, card } from "./shared.js";
+import { t } from "./i18n.js";
 import { createAppearanceRow } from "./appearance-row.js";
 import { createLaunchRow } from "./launch-row.js";
+import { createLanguageRow } from "./language-row.js";
 import { createHotkeyRow } from "./hotkey-row.js";
 import { createOrganizeRow } from "./organize-row.js";
 import { createAutoUpdateRow } from "./auto-update-row.js";
@@ -22,30 +24,30 @@ const showError = (message) => {
 /** The sidebar entries; each builds its blocks (cards, alerts…) when opened. */
 const PAGES = [
   {
-    title: "General",
-    subtitle: "Appearance, startup, updates and the version you are running.",
+    title: t("General"),
+    subtitle: t("Appearance, startup, updates, language and the version you are running."),
     icon: ICONS.gear,
     build: async () => [
-      card(await createAppearanceRow(), await createLaunchRow(), await createAutoUpdateRow(), await createUpdateRow()),
+      card(await createAppearanceRow(), await createLanguageRow(), await createLaunchRow(), await createAutoUpdateRow(), await createUpdateRow()),
     ],
   },
   {
-    title: "Screenshots",
-    subtitle: "Where your screenshots live, and how they are filed.",
+    title: t("Screenshots"),
+    subtitle: t("Where your screenshots live, and how they are filed."),
     icon: ICONS.folder,
     build: async () => [card(await createVaultRow(), await createOrganizeRow())],
   },
   {
-    title: "AI naming",
+    title: t("AI naming"),
     subtitle:
-      "New screenshots are renamed after what they show, using your own AI key. Nothing is sent while this is off.",
+      t("New screenshots are renamed after what they show, using your own AI key. Nothing is sent while this is off."),
     icon: ICONS.sparkle,
     build: buildAiRenamePage,
   },
   {
-    title: "Shortcuts",
+    title: t("Shortcuts"),
     subtitle:
-      "Click a combination, then press the keys you want: a modifier (Ctrl, Alt, Shift, Win) plus a key, or a lone function / PrintScreen key. Esc cancels.",
+      t("Click a combination, then press the keys you want: a modifier (Ctrl, Alt, Shift, Win) plus a key, or a lone function / PrintScreen key. Esc cancels."),
     icon: ICONS.keyboard,
     build: async () => [card(...(await invoke("get_hotkeys")).map((hotkey) => createHotkeyRow(hotkey, showError)))],
   },

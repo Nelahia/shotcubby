@@ -5,11 +5,12 @@ mod models;
 mod services;
 mod windows_ui;
 
-use tauri::menu::MenuBuilder;
-use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
-use tauri::{Manager, RunEvent};
+use tauri::menu::{Menu, MenuBuilder};
+use tauri::tray::{MouseButton, MouseButtonState, TrayIcon, TrayIconBuilder, TrayIconEvent};
+use tauri::{AppHandle, Manager, RunEvent};
 
 use app_state::AppStateInner;
+use services::i18n::tr;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -53,6 +54,9 @@ pub fn run() {
             commands::save_api_key,
             commands::delete_api_key,
             commands::test_api_key,
+            commands::get_language,
+            commands::get_language_preference,
+            commands::set_language_preference,
             commands::get_theme,
             commands::set_theme,
             commands::get_launch_at_login,
@@ -69,6 +73,7 @@ pub fn run() {
             commands::quit_app,
         ])
         .setup(|app| {
+            services::language::init();
             let handle = app.handle().clone();
             let state = AppStateInner::init(handle.clone());
             app.manage(state);
@@ -113,15 +118,26 @@ pub fn run() {
     });
 }
 
-fn setup_tray(app: &tauri::App) -> tauri::Result<()> {
-    let menu = MenuBuilder::new(app)
-        .text("search", "Search…")
-        .text("open_folder", "Open Folder")
-        .text("settings", "Settings…")
-        .text("check_update", "Check for Updates…")
+fn tray_menu(app: &impl Manager<tauri::Wry>) -> tauri::Result<Menu<tauri::Wry>> {
+    MenuBuilder::new(app)
+        .text("search", tr("Search…"))
+        .text("open_folder", tr("Open Folder"))
+        .text("settings", tr("Settings…"))
+        .text("check_update", tr("Check for Updates…"))
         .separator()
-        .text("quit", "Quit ShotCubby")
-        .build()?;
+        .text("quit", tr("Quit ShotCubby"))
+        .build()
+}
+
+/// Redraws the tray menu in the current language (after the choice changed in Settings).
+pub(crate) fn refresh_tray(app: &AppHandle) {
+    if let Ok(menu) = tray_menu(app) {
+        let _ = app.state::<TrayIcon>().set_menu(Some(menu));
+    }
+}
+
+fn setup_tray(app: &tauri::App) -> tauri::Result<()> {
+    let menu = tray_menu(app)?;
 
     let icon = tauri::image::Image::from_bytes(include_bytes!("../icons/tray-icon.png"))?;
 

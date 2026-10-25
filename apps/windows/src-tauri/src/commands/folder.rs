@@ -1,3 +1,4 @@
+use crate::services::i18n::tr;
 use tauri::{AppHandle, State};
 use tauri_plugin_opener::OpenerExt;
 
@@ -22,7 +23,7 @@ pub fn get_screenshot_dir(state: State<'_, AppStateInner>) -> String {
 #[tauri::command]
 pub fn choose_custom_folder(state: State<'_, AppStateInner>) -> Option<String> {
     let folder = rfd::FileDialog::new()
-        .set_title("Choose the folder ShotCubby should watch")
+        .set_title(tr("Choose the folder ShotCubby should watch"))
         .pick_folder()?;
 
     services::folder_preferences::set_custom_directory(Some(folder.clone()));

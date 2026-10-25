@@ -1,4 +1,5 @@
 import { invoke, listen, currentWindow, el, GLYPH_SVG } from "./shared.js";
+import { t } from "./i18n.js";
 import { renderRow } from "./spotlight-row.js";
 import { createSpotlightFooter } from "./spotlight-footer.js";
 import { createSpotlightActions } from "./spotlight-actions.js";
@@ -84,9 +85,9 @@ function render() {
     emptyEl.hidden = false;
     emptyEl.innerHTML = "";
     emptyEl.appendChild(
-      el("div", "", state.query ? `No screenshot named "${state.query}"` : "No screenshots yet")
+      el("div", "", state.query ? t("No screenshot named “{query}”", { query: state.query }) : t("No screenshots yet"))
     );
-    emptyEl.appendChild(el("div", "", state.query ? "Try fewer letters." : "Press Win+Shift+S and it lands here."));
+    emptyEl.appendChild(el("div", "", state.query ? t("Try fewer letters.") : t("Press Win+Shift+S and it lands here.")));
     return;
   }
 
@@ -275,11 +276,11 @@ const footer = createSpotlightFooter(document.getElementById("hints"), {
 });
 
 const itemActions = [
-  { keys: "↩", label: "Preview", run: previewSelected },
-  { keys: "Ctrl C", label: "Copy", run: copySelected },
-  { keys: "Ctrl E", label: "Rename", run: beginRename },
-  { keys: "Ctrl R", label: "Open Folder", run: revealSelected },
-  { keys: "Ctrl ⌫", label: "Move to Trash", run: deleteSelected, destructive: true },
+  { keys: "↩", label: t("Preview"), run: previewSelected },
+  { keys: "Ctrl C", label: t("Copy"), run: copySelected },
+  { keys: "Ctrl E", label: t("Rename"), run: beginRename },
+  { keys: "Ctrl R", label: t("Open Folder"), run: revealSelected },
+  { keys: "Ctrl ⌫", label: t("Move to Trash"), run: deleteSelected, destructive: true },
 ];
 const contextMenu = createContextMenu(document.getElementById("context-menu"), itemActions);
 

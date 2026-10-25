@@ -1,3 +1,4 @@
+use crate::services::i18n::tr;
 use serde::Serialize;
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
@@ -48,7 +49,7 @@ pub fn spawn(app: AppHandle, screenshots: Arc<Mutex<Vec<ScreenshotItem>>>, item:
         return;
     }
     let Some(key) = api_key_store::get(provider) else {
-        return record_failure(Failure::other("No API key saved"));
+        return record_failure(Failure::other(tr("No API key saved")));
     };
 
     std::thread::spawn(move || {
@@ -59,16 +60,16 @@ pub fn spawn(app: AppHandle, screenshots: Arc<Mutex<Vec<ScreenshotItem>>>, item:
             }
         }
         let Some(jpeg) = llm::prepare_jpeg(&item.path) else {
-            return record_failure(Failure::other("Could not read the screenshot"));
+            return record_failure(Failure::other(tr("Could not read the screenshot")));
         };
         let title = match provider.title_for(&key, &jpeg, instructions.as_deref()) {
             Ok(title) if !title.is_empty() => title,
-            Ok(_) => return record_failure(Failure::other("The provider returned no title")),
+            Ok(_) => return record_failure(Failure::other(tr("The provider returned no title"))),
             Err(failure) => return record_failure(failure),
         };
         match screenshot_rename::rename(&app, &screenshots, &item.id, &title) {
-            Ok(renamed) => record_ok(format!("Renamed to “{}”", renamed.name)),
-            Err(err) => record_failure(Failure::other(format!("Could not rename: {err}"))),
+            Ok(renamed) => record_ok(format!("{} “{}”", tr("Renamed to"), renamed.name)),
+            Err(err) => record_failure(Failure::other(format!("{}: {err}", tr("Could not rename")))),
         }
     });
 }

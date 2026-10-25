@@ -1,4 +1,5 @@
 import { invoke, el, svgIcon, ICONS, timeLabel, sourceLabel, thumbnailUrl } from "./shared.js";
+import { t } from "./i18n.js";
 
 /**
  * One thumbnail tile in the popover grid: image + hover actions + inline
@@ -15,9 +16,9 @@ export function renderTile(shot, renaming) {
   });
 
   const scrim = el("div", "scrim");
-  scrim.appendChild(overlayButton(ICONS.copy, "Copy", () => invoke("copy_screenshot", { path: shot.path })));
-  scrim.appendChild(overlayButton(ICONS.folder, "Reveal", () => invoke("reveal_screenshot", { path: shot.path })));
-  scrim.appendChild(overlayButton(ICONS.trash, "Delete", () => deleteShot(shot)));
+  scrim.appendChild(overlayButton(ICONS.copy, t("Copy"), () => invoke("copy_screenshot", { path: shot.path })));
+  scrim.appendChild(overlayButton(ICONS.folder, t("Reveal"), () => invoke("reveal_screenshot", { path: shot.path })));
+  scrim.appendChild(overlayButton(ICONS.trash, t("Delete"), () => deleteShot(shot)));
   tile.appendChild(scrim);
   wrap.appendChild(tile);
 
@@ -74,7 +75,7 @@ function renderName(shot, renaming) {
     input.addEventListener("blur", commit);
   } else {
     box.textContent = shot.name;
-    box.title = "Double-click to rename";
+    box.title = t("Double-click to rename");
     box.addEventListener("dblclick", () => renaming.setId(shot.id));
   }
   return box;

@@ -1,3 +1,4 @@
+use crate::services::i18n::tr;
 use serde::Serialize;
 use tauri::{AppHandle, Emitter, State};
 use tauri_plugin_opener::OpenerExt;
@@ -48,7 +49,7 @@ pub fn delete_screenshot(app: AppHandle, state: State<'_, AppStateInner>, id: St
         return Ok(());
     };
     if !services::storage::delete(&item.path) {
-        return Err("Could not move the file to the Recycle Bin".into());
+        return Err(tr("Could not move the file to the Recycle Bin"));
     }
     screenshots.retain(|s| s.id != id);
     drop(screenshots);

@@ -1,4 +1,5 @@
 import { el, invoke } from "./shared.js";
+import { t } from "./i18n.js";
 
 /** Settings line for opening ShotCubby when the Windows session opens. */
 export async function createLaunchRow() {
@@ -15,6 +16,6 @@ export async function createLaunchRow() {
       window.alert(String(err));
     }
   });
-  row.append(el("span", "label", "Open ShotCubby at session start"), box);
+  row.append(el("span", "label", t("Open ShotCubby at session start")), box);
   return row;
 }

@@ -35,6 +35,9 @@ pub struct AppConfig {
     /// later switch-off by the user is never undone.
     #[serde(default)]
     pub login_default_applied: bool,
+    /// The interface language the user forced (`"en"` or `"fr"`); absent follows Windows.
+    #[serde(default)]
+    pub language: Option<String>,
     /// Shortcut per `HotkeyAction::id()`.
     #[serde(default)]
     pub hotkeys: BTreeMap<String, String>,
