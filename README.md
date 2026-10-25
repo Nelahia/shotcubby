@@ -71,7 +71,7 @@ Download the installer for your system from the
 - **macOS 14+**: `ShotCubby.dmg`, then drag the app to Applications.
 - **Windows 10/11**: `ShotCubby-Setup.exe` (or `ShotCubby.msi`).
 
-To open ShotCubby when you log in, turn on **Settings → General → Open ShotCubby when I log in**.
+To open ShotCubby when you log in, turn on **Settings → General → Open ShotCubby at session start**.
 
 ## Updates
 

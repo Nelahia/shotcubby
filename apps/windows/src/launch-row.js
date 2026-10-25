@@ -1,6 +1,6 @@
 import { el, invoke } from "./shared.js";
 
-/** Settings line for opening ShotCubby when the user signs in to Windows. */
+/** Settings line for opening ShotCubby when the Windows session opens. */
 export async function createLaunchRow() {
   const row = el("label", "row");
   const box = document.createElement("input");
@@ -15,6 +15,6 @@ export async function createLaunchRow() {
       window.alert(String(err));
     }
   });
-  row.append(el("span", "label", "Open ShotCubby when I sign in"), box);
+  row.append(el("span", "label", "Open ShotCubby at session start"), box);
   return row;
 }
