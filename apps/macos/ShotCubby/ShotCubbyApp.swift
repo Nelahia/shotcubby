@@ -160,9 +160,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSW
         if settingsWindow == nil {
             let window = NSWindow(contentViewController: NSHostingController(rootView: SettingsView(appState: appState)))
             window.title = "ShotCubby Settings"
-            window.styleMask = [.titled, .closable, .fullSizeContentView]
+            window.styleMask = [.titled, .closable, .miniaturizable, .fullSizeContentView]
             window.titlebarAppearsTransparent = true
             window.titleVisibility = .hidden
+            // Close and Minimize are drawn by `WindowControls`; the whole window drags.
+            [.closeButton, .miniaturizeButton, .zoomButton].forEach { window.standardWindowButton($0)?.isHidden = true }
+            window.isMovableByWindowBackground = true
             window.isReleasedWhenClosed = false
             window.delegate = self
             settingsWindow = window

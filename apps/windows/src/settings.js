@@ -7,6 +7,7 @@ import { createAutoUpdateRow } from "./auto-update-row.js";
 import { createUpdateRow } from "./update-row.js";
 import { createVaultRow } from "./vault-row.js";
 import { buildAiRenamePage } from "./ai-rename-page.js";
+import { createTitleBar } from "./titlebar.js";
 
 const rows = document.getElementById("rows");
 const errorEl = document.getElementById("error");
@@ -67,6 +68,7 @@ function brand() {
 }
 
 function load() {
+  document.body.prepend(createTitleBar());
   const buttons = PAGES.map((page) => {
     const button = el("button", "nav-item");
     button.innerHTML = svgIcon(page.icon);

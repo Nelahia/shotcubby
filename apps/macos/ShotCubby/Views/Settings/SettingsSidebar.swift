@@ -42,16 +42,15 @@ struct SettingsSidebar: View {
     private var brand: some View {
         HStack(spacing: 10) {
             ShotCubbyGlyph()
-                .frame(width: 16, height: 16)
+                .frame(width: 24, height: 24)
                 .foregroundStyle(Color(hex: 0xDCE3EF))
-                .frame(width: 26, height: 26)
-                .background(Color(hex: 0x111522), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
-                .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous).strokeBorder(Color.white.opacity(0.14)))
+                .frame(width: 36, height: 36)
+                .background(Color(hex: 0x303D59), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
             Text("ShotCubby").fontWeight(.semibold).foregroundStyle(SettingsStyle.ink)
             Spacer()
         }
         .padding(.horizontal, 10)
-        .padding(.top, 10)
-        .padding(.bottom, 12)
+        .padding(.top, 40)
+        .padding(.bottom, 14)
     }
 }

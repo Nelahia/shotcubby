@@ -5,10 +5,13 @@ struct SettingsView: View {
     @State private var pane: SettingsPane = .general
 
     var body: some View {
-        HStack(spacing: 0) {
-            SettingsSidebar(selection: $pane)
-            Rectangle().fill(SettingsStyle.hairline).frame(width: 1).ignoresSafeArea()
-            detail
+        ZStack(alignment: .topLeading) {
+            HStack(spacing: 0) {
+                SettingsSidebar(selection: $pane)
+                Rectangle().fill(SettingsStyle.hairline).frame(width: 1).ignoresSafeArea()
+                detail
+            }
+            WindowControls().padding(.leading, 18).padding(.top, 16)
         }
         .frame(width: 800, height: 560)
         .foregroundStyle(SettingsStyle.ink)

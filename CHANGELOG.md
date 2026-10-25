@@ -10,6 +10,15 @@ Every version has its own entry, written before the tag is created: one short,
 precise bullet per change the user can see, and for a fix the symptom and its
 cause. The full rules are in [CLAUDE.md](CLAUDE.md).
 
+## 2.2.36 — 2026-10-25
+
+### Changed
+- Settings has its own title bar on macOS and Windows, in the app colors, instead of
+  the system one: Minimize and Close, and the whole top strip drags the window.
+  The window keeps its fixed size, so there is no Maximize button.
+- The ShotCubby logo in the Settings sidebar is larger and now a steel-blue
+  square with a light glyph, so it no longer looks black on the dark theme.
+
 ## 2.2.35 — 2026-10-25
 
 ### Changed
