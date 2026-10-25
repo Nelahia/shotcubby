@@ -10,6 +10,22 @@ Every version has its own entry, written before the tag is created: one short,
 precise bullet per change the user can see, and for a fix the symptom and its
 cause. The full rules are in [CLAUDE.md](CLAUDE.md).
 
+## 2.2.34 — 2026-10-25
+
+### Added
+- **Light and dark look**: a Light / Dark switch in Settings → General, light by
+  default. (macOS and Windows)
+- **Open at login**: a switch in Settings → General to start ShotCubby when you
+  log in. Off by default. (macOS and Windows)
+
+### Changed
+- New navy color palette across both apps (popover, search, toasts and Settings),
+  replacing the grey and turquoise. The accent is now a soft steel blue.
+- The apps no longer follow the system's light/dark setting: the look is the one
+  picked in Settings, light until you change it.
+- macOS: the Settings sidebar is redrawn so its selection follows the palette
+  instead of the system accent color.
+
 ## 2.2.33 — 2026-10-25
 
 ### Fixed
