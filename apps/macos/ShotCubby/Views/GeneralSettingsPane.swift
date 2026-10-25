@@ -13,7 +13,7 @@ struct GeneralSettingsPane: View {
                     AppearancePicker(selection: $appearance)
                 }
                 Divider()
-                SettingsRow(title: "Open ShotCubby when I log in") {
+                SettingsRow(title: "Open ShotCubby at session start") {
                     Toggle("", isOn: $launchAtLogin).labelsHidden().toggleStyle(.switch).tint(SettingsStyle.switchOn)
                 }
                 Divider()

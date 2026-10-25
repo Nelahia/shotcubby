@@ -17,6 +17,8 @@ cause. The full rules are in [CLAUDE.md](CLAUDE.md).
   app switcher" and says what turning it off does: ShotCubby stays in the menu bar
   only, is no longer listed by ⌘ Tab, and search stays on ⌘ /. The option itself
   and its default (on) are unchanged.
+- The open-at-login switch is now named "Open ShotCubby at session start" (macOS
+  and Windows). Off by default, as before.
 
 ## 2.2.34 — 2026-10-25
 
