@@ -1,3 +1,4 @@
+use crate::services::i18n::tr;
 use serde::Serialize;
 use std::path::{Path, PathBuf};
 
@@ -43,19 +44,19 @@ pub fn target_for(chosen: &Path) -> PathBuf {
 pub fn move_vault(to: &Path) -> Result<(), String> {
     let from = storage::vault_dir();
     if to == from {
-        return Err("That is already the current folder.".into());
+        return Err(tr("That is already the current folder."));
     }
     if to.starts_with(&from) || from.starts_with(to) {
-        return Err("Choose a folder outside the current one.".into());
+        return Err(tr("Choose a folder outside the current one."));
     }
     if to.exists() && !(to.is_dir() && storage::children(to).is_empty()) {
-        return Err("That folder isn't empty.".into());
+        return Err(tr("That folder isn't empty."));
     }
 
     if from.exists() {
         transfer(&from, to)?;
     } else {
-        std::fs::create_dir_all(to).map_err(|_| "ShotCubby can't write there.".to_string())?;
+        std::fs::create_dir_all(to).map_err(|_| tr("ShotCubby can't write there."))?;
     }
 
     let remembered = (to != storage::default_vault_dir()).then(|| to.to_path_buf());
@@ -67,7 +68,7 @@ pub fn move_vault(to: &Path) -> Result<(), String> {
 /// locked file) fall back to copying the tree, then deleting the original.
 fn transfer(from: &Path, to: &Path) -> Result<(), String> {
     if let Some(parent) = to.parent() {
-        std::fs::create_dir_all(parent).map_err(|_| "ShotCubby can't write there.".to_string())?;
+        std::fs::create_dir_all(parent).map_err(|_| tr("ShotCubby can't write there."))?;
     }
     let _ = std::fs::remove_dir(to);
     if std::fs::rename(from, to).is_ok() {
@@ -75,7 +76,7 @@ fn transfer(from: &Path, to: &Path) -> Result<(), String> {
     }
     if copy_tree(from, to).is_err() {
         let _ = std::fs::remove_dir_all(to);
-        return Err("Couldn't copy the screenshots there. Nothing was moved.".into());
+        return Err(tr("Couldn't copy the screenshots there. Nothing was moved."));
     }
     let _ = std::fs::remove_dir_all(from);
     Ok(())

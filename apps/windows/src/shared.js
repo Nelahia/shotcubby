@@ -1,3 +1,4 @@
+import { t, dateLocale } from "./i18n.js";
 const tauri = window.__TAURI__;
 export const invoke = (cmd, args) => tauri.core.invoke(cmd, args);
 export const listen = (event, handler) => tauri.event.listen(event, handler);
@@ -38,7 +39,7 @@ export const GLYPH_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentCo
 </svg>`;
 
 export function timeLabel(ms) {
-  return new Date(ms).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  return new Date(ms).toLocaleTimeString(dateLocale, { hour: "numeric", minute: "2-digit" });
 }
 
 export function dayLabel(ms) {
@@ -46,9 +47,9 @@ export function dayLabel(ms) {
   const now = new Date();
   const startOfDay = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
   const diffDays = Math.round((startOfDay(now) - startOfDay(date)) / 86400000);
-  if (diffDays === 0) return "Today";
-  if (diffDays === 1) return "Yesterday";
-  return date.toLocaleDateString([], { day: "numeric", month: "long" });
+  if (diffDays === 0) return t("Today");
+  if (diffDays === 1) return t("Yesterday");
+  return date.toLocaleDateString(dateLocale, { day: "numeric", month: "long" });
 }
 
 export function relativeLabel(ms) {
@@ -56,11 +57,11 @@ export function relativeLabel(ms) {
   const minute = 60000;
   const hour = 60 * minute;
   const day = 24 * hour;
-  if (diff < minute) return "just now";
-  if (diff < hour) return `${Math.round(diff / minute)} min ago`;
-  if (diff < day) return `${Math.round(diff / hour)} hr ago`;
-  if (diff < 2 * day) return "yesterday";
-  return `${Math.round(diff / day)} days ago`;
+  if (diff < minute) return t("just now");
+  if (diff < hour) return t("{count} min ago", { count: Math.round(diff / minute) });
+  if (diff < day) return t("{count} hr ago", { count: Math.round(diff / hour) });
+  if (diff < 2 * day) return t("yesterday");
+  return t("{count} days ago", { count: Math.round(diff / day) });
 }
 
 /** File name (with extension) of a screenshot, without its folders. */
@@ -69,7 +70,7 @@ export function fileName(item) {
 }
 
 export function sourceLabel(item) {
-  if (item.source === "clipboard") return "Clipboard";
+  if (item.source === "clipboard") return t("Clipboard");
   const name = fileName(item);
   const dot = name.lastIndexOf(".");
   return dot >= 0 ? name.slice(dot + 1).toUpperCase() : "";

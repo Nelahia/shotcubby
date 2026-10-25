@@ -1,3 +1,4 @@
+use crate::services::i18n::tr;
 use serde::Serialize;
 use std::sync::Mutex;
 use tauri::{AppHandle, Emitter};
@@ -22,7 +23,7 @@ pub fn rename(
 ) -> Result<ScreenshotItem, String> {
     let mut list = screenshots.lock().unwrap();
     let Some(index) = list.iter().position(|s| s.id == id) else {
-        return Err("Screenshot not found".into());
+        return Err(tr("Screenshot not found"));
     };
     let item = &list[index];
 
@@ -33,7 +34,7 @@ pub fn rename(
         name.push_str(" (clipboard)");
     }
 
-    let new_path = storage::rename(&item.path, &name).map_err(|reason| format!("Could not rename: {reason}"))?;
+    let new_path = storage::rename(&item.path, &name).map_err(|reason| format!("{}: {reason}", tr("Could not rename")))?;
 
     let renamed = ScreenshotItem::from_path(new_path);
     list[index] = renamed.clone();

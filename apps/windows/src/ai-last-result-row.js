@@ -1,4 +1,5 @@
 import { el, invoke, svgIcon, ICONS } from "./shared.js";
+import { t } from "./i18n.js";
 
 const POLL_MS = 2000;
 
@@ -12,7 +13,7 @@ export function createAiLastResultRow(state, onFailure) {
   const icon = el("span", "result-icon");
   const text = el("div");
   const line = el("div", "result-text");
-  text.append(el("div", "result-label", "Last result"), line);
+  text.append(el("div", "result-label", t("Last result")), line);
   card.append(icon, text);
 
   let alerted = null;
@@ -21,7 +22,7 @@ export function createAiLastResultRow(state, onFailure) {
     const failed = !!result && !result.ok;
     card.classList.toggle("bad", failed);
     icon.innerHTML = svgIcon(failed ? ICONS.alert : ICONS.check);
-    line.textContent = result?.message ?? "Nothing yet — take a screenshot";
+    line.textContent = result?.message ?? t("Nothing yet — take a screenshot");
     if (failed && alerted !== result.message) {
       alerted = result.message;
       onFailure(result, provider);

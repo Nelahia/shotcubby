@@ -1,3 +1,4 @@
+use crate::services::i18n::tr;
 use serde::Serialize;
 
 use crate::services::llm::{self, Failure, PROVIDERS, Provider, ProviderInfo};
@@ -14,7 +15,7 @@ pub struct AiRenameState {
 }
 
 fn parse(provider: &str) -> Result<Provider, String> {
-    Provider::from_id(provider).ok_or_else(|| "Unknown provider".to_string())
+    Provider::from_id(provider).ok_or_else(|| tr("Unknown provider"))
 }
 
 #[tauri::command]
@@ -63,14 +64,14 @@ pub fn delete_api_key(provider: String) -> Result<(), String> {
 /// the provider gave, so the user sees the key works.
 #[tauri::command]
 pub async fn test_api_key(provider: String) -> Result<String, Failure> {
-    let provider = Provider::from_id(&provider).ok_or_else(|| Failure::other("Unknown provider"))?;
+    let provider = Provider::from_id(&provider).ok_or_else(|| Failure::other(tr("Unknown provider")))?;
     let key = api_key_store::get(provider).ok_or_else(|| Failure::other("No key saved"))?;
     tauri::async_runtime::spawn_blocking(move || {
-        let jpeg = llm::sample_jpeg().ok_or_else(|| Failure::other("Could not build the test picture"))?;
+        let jpeg = llm::sample_jpeg().ok_or_else(|| Failure::other(tr("Could not build the test picture")))?;
         provider.title_for(&key, &jpeg, None)
     })
     .await
-    .map_err(|_| Failure::other("The test was interrupted"))?
+    .map_err(|_| Failure::other(tr("The test was interrupted")))?
 }
 
 #[tauri::command]

@@ -1,3 +1,4 @@
+use crate::services::i18n::tr;
 use super::Failure;
 use serde_json::{Value, json};
 
@@ -35,7 +36,7 @@ fn parse(response: &Value) -> Option<String> {
 /// Why an answer had no title, for the Settings "Last result" line.
 fn describe_empty(response: &Value) -> String {
     let reason = response.pointer("/choices/0/finish_reason").and_then(Value::as_str).unwrap_or("unknown");
-    format!("No title in OpenAI's answer (finish reason: {reason})")
+    format!("{} ({}: {reason})", tr("No title in OpenAI's answer"), tr("finish reason"))
 }
 
 pub fn request(agent: &ureq::Agent, api_key: &str, image_base64: &str, prompt: &str) -> Result<String, Failure> {
@@ -51,7 +52,7 @@ pub fn request(agent: &ureq::Agent, api_key: &str, image_base64: &str, prompt: &
     let json: Value = response
         .body_mut()
         .read_json()
-        .map_err(|_| Failure::other("Unreadable answer from OpenAI"))?;
+        .map_err(|_| Failure::other(tr("Unreadable answer from OpenAI")))?;
     parse(&json).ok_or_else(|| Failure::other(describe_empty(&json)))
 }
 

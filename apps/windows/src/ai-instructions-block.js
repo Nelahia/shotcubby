@@ -1,4 +1,5 @@
 import { el, invoke } from "./shared.js";
+import { t } from "./i18n.js";
 
 const MAX = 500;
 const SAVE_DELAY_MS = 500;
@@ -9,12 +10,12 @@ export function createAiInstructionsBlock(state) {
   const block = el("div", "key-block");
   const counter = el("span", "key-note");
   const head = el("div", "key-head");
-  head.append("Naming instructions", el("span", "key-note", "Optional"), el("span", "spacer"), counter);
+  head.append(t("Naming instructions"), el("span", "key-note", t("Optional")), el("span", "spacer"), counter);
 
   const area = document.createElement("textarea");
   area.className = "field area";
   area.maxLength = MAX;
-  area.placeholder = "e.g. lowercase kebab-case, start with the app name, in English";
+  area.placeholder = t("e.g. lowercase kebab-case, start with the app name, in English");
   area.value = state.instructions;
 
   block.append(
@@ -23,13 +24,13 @@ export function createAiInstructionsBlock(state) {
     el(
       "div",
       "key-note",
-      "Tell the AI how you want screenshots named. These instructions win over its defaults: length, language, format, a date prefix…",
+      t("Tell the AI how you want screenshots named. These instructions win over its defaults: length, language, format, a date prefix…"),
     ),
   );
 
   let timer;
   function showCount(saved) {
-    counter.textContent = saved ? "Saved" : `${area.value.length}/${MAX}`;
+    counter.textContent = saved ? t("Saved") : `${area.value.length}/${MAX}`;
     counter.classList.toggle("ok", !!saved);
   }
 

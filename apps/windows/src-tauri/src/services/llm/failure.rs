@@ -1,3 +1,4 @@
+use crate::services::i18n::tr;
 use serde::Serialize;
 use std::fmt;
 
@@ -32,7 +33,7 @@ impl Failure {
     }
 
     pub fn network(provider: &str) -> Self {
-        Failure::new(Kind::Network, format!("Could not reach {provider}"))
+        Failure::new(Kind::Network, format!("{} {provider}", tr("Could not reach")))
     }
 
     /// Sorts a non-200 answer by what the provider said, since the same HTTP
@@ -40,17 +41,17 @@ impl Failure {
     pub fn from_status(status: u16, detail: Option<String>) -> Self {
         let lowered = detail.as_deref().unwrap_or_default().to_lowercase();
         if lowered.contains("workspace") {
-            return Failure::new(Kind::Workspace, "This API key is not scoped to a workspace");
+            return Failure::new(Kind::Workspace, tr("This API key is not scoped to a workspace"));
         }
         if lowered.contains("credit balance") || lowered.contains("billing") || lowered.contains("quota") {
-            return Failure::new(Kind::Credit, "The account has no credit left");
+            return Failure::new(Kind::Credit, tr("The account has no credit left"));
         }
         match status {
-            401 | 403 => Failure::new(Kind::Rejected, "The API key was rejected"),
-            429 => Failure::new(Kind::RateLimit, "Too many requests, try again in a moment"),
+            401 | 403 => Failure::new(Kind::Rejected, tr("The API key was rejected")),
+            429 => Failure::new(Kind::RateLimit, tr("Too many requests, try again in a moment")),
             _ => Failure::other(match detail {
-                Some(detail) => format!("The provider answered with HTTP {status}: {detail}"),
-                None => format!("The provider answered with HTTP {status}"),
+                Some(detail) => format!("{} {status}: {detail}", tr("The provider answered with HTTP")),
+                None => format!("{} {status}", tr("The provider answered with HTTP")),
             }),
         }
     }

@@ -1,4 +1,5 @@
 import { el, invoke, svgIcon, ICONS } from "./shared.js";
+import { t } from "./i18n.js";
 import { describe, openMoveDialog } from "./vault-dialog.js";
 
 /** Settings block showing where the screenshots live, with a button to move them. */
@@ -11,13 +12,13 @@ export async function createVaultRow() {
   const path = el("div", "mono vault-path");
   const summary = el("div", "status");
   text.append(path, summary);
-  const open = el("button", "reset-btn", "Open");
-  const move = el("button", "dialog-go", "Move…");
+  const open = el("button", "reset-btn", t("Open"));
+  const move = el("button", "dialog-go", t("Move…"));
   card.append(icon, text, open, move);
   block.append(
-    el("div", "vault-title", "Screenshots folder"),
+    el("div", "vault-title", t("Screenshots folder")),
     card,
-    el("div", "status", "Pick a new location and ShotCubby moves your existing screenshots there, then saves new ones in it."),
+    el("div", "status", t("Pick a new location and ShotCubby moves your existing screenshots there, then saves new ones in it.")),
   );
 
   let info;

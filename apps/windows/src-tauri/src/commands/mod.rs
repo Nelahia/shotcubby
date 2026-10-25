@@ -1,6 +1,7 @@
 mod ai_rename;
 mod folder;
 mod hotkey;
+mod language;
 mod launch;
 mod organize;
 mod screenshots;
@@ -12,6 +13,7 @@ mod windows;
 pub use ai_rename::*;
 pub use folder::*;
 pub use hotkey::*;
+pub use language::*;
 pub use launch::*;
 pub use organize::*;
 pub use screenshots::*;

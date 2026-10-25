@@ -1,4 +1,5 @@
 import { el, invoke } from "./shared.js";
+import { t } from "./i18n.js";
 
 // Keys that type nothing, so they may be bound without a modifier.
 const STANDALONE_KEY = /^(F([1-9]|1\d|2[0-4])|PrintScreen|ScrollLock|Pause)$/;
@@ -20,7 +21,7 @@ function comboFrom(e) {
 export function createHotkeyRow({ action, label, display }, showError) {
   const row = el("div", "row");
   const field = el("button", "hotkey-field");
-  const reset = el("button", "reset-btn", "Reset");
+  const reset = el("button", "reset-btn", t("Reset"));
   row.append(el("span", "label", label), field, reset);
 
   let current = display;
@@ -64,7 +65,7 @@ export function createHotkeyRow({ action, label, display }, showError) {
     if (field.classList.contains("recording")) return;
     cancelActive?.();
     showError("");
-    field.textContent = "Press a key combination…";
+    field.textContent = t("Press a key combination…");
     field.classList.add("recording");
     document.addEventListener("keydown", onKey, true);
     document.addEventListener("keyup", onKey, true);

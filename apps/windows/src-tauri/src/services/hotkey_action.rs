@@ -1,3 +1,5 @@
+use super::i18n::tr;
+
 /// The global shortcuts the app registers. Each one is independently
 /// rebindable from Settings; this enum is the single list of them.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -27,11 +29,11 @@ impl HotkeyAction {
         Self::ALL.into_iter().find(|action| action.id() == id)
     }
 
-    pub fn label(self) -> &'static str {
+    pub fn label(self) -> String {
         match self {
-            HotkeyAction::Spotlight => "Open Spotlight search",
-            HotkeyAction::FullScreenCapture => "Capture full screen",
-            HotkeyAction::RegionCapture => "Capture a region",
+            HotkeyAction::Spotlight => tr("Open Spotlight search"),
+            HotkeyAction::FullScreenCapture => tr("Capture full screen"),
+            HotkeyAction::RegionCapture => tr("Capture a region"),
         }
     }
 

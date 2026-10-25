@@ -1,4 +1,5 @@
 import { el, invoke } from "./shared.js";
+import { t } from "./i18n.js";
 
 /** Settings line for filing past days' screenshots into dated folders. */
 export async function createOrganizeRow() {
@@ -9,8 +10,8 @@ export async function createOrganizeRow() {
   box.addEventListener("change", () => invoke("set_organize_by_day", { enabled: box.checked }));
   const text = el("div", "label");
   text.append(
-    el("div", "", "File past days into dated folders"),
-    el("div", "status", "Today's screenshots stay in the main folder; older ones move to YYYY-MM-DD."),
+    el("div", "", t("File past days into dated folders")),
+    el("div", "status", t("Today's screenshots stay in the main folder; older ones move to YYYY-MM-DD.")),
   );
   row.append(text, box);
   return row;

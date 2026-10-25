@@ -1,4 +1,5 @@
 import { el } from "./shared.js";
+import { t } from "./i18n.js";
 
 /**
  * The Spotlight footer: Copy/Preview shown inline as a legend, everything
@@ -8,14 +9,14 @@ import { el } from "./shared.js";
  */
 export function createSpotlightFooter(container, actions) {
   const primary = [
-    { keys: "↩", label: "Preview", run: actions.preview },
-    { keys: "Ctrl C", label: "Copy", run: actions.copy },
+    { keys: "↩", label: t("Preview"), run: actions.preview },
+    { keys: "Ctrl C", label: t("Copy"), run: actions.copy },
   ];
   const menuItems = [
-    { keys: "Ctrl E", label: "Rename", run: actions.rename },
-    { keys: "Ctrl R", label: "Open Folder", run: actions.reveal },
-    { keys: "Ctrl ⌫", label: "Move to Trash", run: actions.trash, destructive: true },
-    { keys: "Ctrl ,", label: "Settings", run: actions.settings, separatorBefore: true },
+    { keys: "Ctrl E", label: t("Rename"), run: actions.rename },
+    { keys: "Ctrl R", label: t("Open Folder"), run: actions.reveal },
+    { keys: "Ctrl ⌫", label: t("Move to Trash"), run: actions.trash, destructive: true },
+    { keys: "Ctrl ,", label: t("Settings"), run: actions.settings, separatorBefore: true },
   ];
 
   let open = false;
@@ -35,7 +36,7 @@ export function createSpotlightFooter(container, actions) {
     primaryEl.appendChild(hint);
   }
 
-  actionsBtn.appendChild(el("span", "actions-label", "Actions"));
+  actionsBtn.appendChild(el("span", "actions-label", t("Actions")));
   actionsBtn.appendChild(el("span", "kbd", "Ctrl K"));
   actionsBtn.addEventListener("click", toggle);
 

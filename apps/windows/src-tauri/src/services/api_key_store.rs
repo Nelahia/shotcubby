@@ -1,3 +1,4 @@
+use crate::services::i18n::tr;
 use super::llm::Provider;
 
 const SERVICE: &str = "ShotCubby";
@@ -6,7 +7,7 @@ const SERVICE: &str = "ShotCubby";
 /// Mirrors `APIKeyStore.swift` (Keychain on macOS).
 fn entry(provider: Provider) -> Result<keyring::Entry, String> {
     keyring::Entry::new(SERVICE, &format!("{}-api-key", provider.id()))
-        .map_err(|_| "The credential store is unavailable".to_string())
+        .map_err(|_| tr("The credential store is unavailable"))
 }
 
 pub fn get(provider: Provider) -> Option<String> {
@@ -20,11 +21,11 @@ pub fn has(provider: Provider) -> bool {
 pub fn set(provider: Provider, key: &str) -> Result<(), String> {
     let key = key.trim();
     if key.is_empty() {
-        return Err("The key is empty".into());
+        return Err(tr("The key is empty"));
     }
     entry(provider)?
         .set_password(key)
-        .map_err(|_| "Could not save the key".to_string())
+        .map_err(|_| tr("Could not save the key"))
 }
 
 pub fn delete(provider: Provider) {

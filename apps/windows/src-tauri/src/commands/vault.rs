@@ -1,3 +1,4 @@
+use crate::services::i18n::tr;
 use std::path::PathBuf;
 use tauri::{AppHandle, Emitter, Manager};
 
@@ -15,7 +16,7 @@ pub fn get_vault_info() -> VaultInfo {
 #[tauri::command]
 pub fn choose_vault_folder() -> Option<String> {
     let chosen = rfd::FileDialog::new()
-        .set_title("Choose where ShotCubby keeps your screenshots")
+        .set_title(tr("Choose where ShotCubby keeps your screenshots"))
         .pick_folder()?;
     Some(vault_move::target_for(&chosen).display().to_string())
 }

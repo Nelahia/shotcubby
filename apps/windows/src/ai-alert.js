@@ -1,4 +1,5 @@
 import { el, svgIcon, ICONS, openUrl } from "./shared.js";
+import { t } from "./i18n.js";
 
 const CONSOLES = {
   anthropic: { name: "Claude Console", keys: "https://platform.claude.com/settings/keys", billing: "https://platform.claude.com/settings/billing" },
@@ -13,33 +14,33 @@ function describe(kind, provider, message) {
   switch (kind) {
     case "workspace":
       return {
-        title: "This key isn’t tied to a workspace",
-        body: ["Anthropic only accepts API keys created ", bold("inside a workspace"), ". The key you pasted works at the account level, so every request is refused."],
+        title: t("This key isn’t tied to a workspace"),
+        body: [t("Anthropic only accepts API keys created "), bold(t("inside a workspace")), t(". The key you pasted works at the account level, so every request is refused.")],
         steps: [
-          ["Open the ", bold("API keys"), " page of the Claude Console."],
-          ["Create a key and pick a workspace (the ", bold("Default"), " one is fine)."],
-          ["Paste the new key below and press ", bold("Test"), "."],
+          [t("Open the "), bold(t("API keys")), t(" page of the Claude Console.")],
+          [t("Create a key and pick a workspace (the "), bold("Default"), t(" one is fine).")],
+          [t("Paste the new key below and press "), bold(t("Test")), "."],
         ],
-        action: { label: "Open Claude Console", url: console_.keys },
+        action: { label: t("Open Claude Console"), url: console_.keys },
       };
     case "rejected":
       return {
-        title: "The provider refused this key",
-        body: ["The key is wrong, was revoked, or was copied incompletely. Paste it again, or create a new one."],
-        action: { label: `Open ${console_.name}`, url: console_.keys },
+        title: t("The provider refused this key"),
+        body: [t("The key is wrong, was revoked, or was copied incompletely. Paste it again, or create a new one.")],
+        action: { label: t("Open {name}", { name: console_.name }), url: console_.keys },
       };
     case "credit":
       return {
-        title: "No credit left on this account",
-        body: ["API usage is billed separately from a Claude or ChatGPT subscription. Add credit, then try again. A screenshot costs a fraction of a cent."],
-        action: { label: "Open billing", url: console_.billing },
+        title: t("No credit left on this account"),
+        body: [t("API usage is billed separately from a Claude or ChatGPT subscription. Add credit, then try again. A screenshot costs a fraction of a cent.")],
+        action: { label: t("Open billing"), url: console_.billing },
       };
     case "rate_limit":
-      return { title: "Too many requests", body: ["The provider is limiting this key for a moment. AI naming will work again shortly."] };
+      return { title: t("Too many requests"), body: [t("The provider is limiting this key for a moment. AI naming will work again shortly.")] };
     case "network":
-      return { title: "Can’t reach the provider", body: ["Check your internet connection. Screenshots keep their current names until it is back."] };
+      return { title: t("Can’t reach the provider"), body: [t("Check your internet connection. Screenshots keep their current names until it is back.")] };
     default:
-      return { title: "AI naming didn’t work", body: [message] };
+      return { title: t("AI naming didn’t work"), body: [message] };
   }
 }
 
@@ -79,7 +80,7 @@ export function createAiAlert() {
       open.addEventListener("click", () => openUrl(info.action.url));
       actions.append(open);
     }
-    const dismiss = el("button", "alert-dismiss", "Dismiss");
+    const dismiss = el("button", "alert-dismiss", t("Dismiss"));
     dismiss.addEventListener("click", hide);
     actions.append(dismiss);
     parts.push(actions);

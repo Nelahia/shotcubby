@@ -1,11 +1,12 @@
 import { invoke, listen, currentWindow, el, svgIcon, ICONS, GLYPH_SVG, dayLabel } from "./shared.js";
+import { t } from "./i18n.js";
 import { renderTile } from "./screenshot-tile.js";
 import { renderAccessCard } from "./access-card.js";
 
 const FILTERS = [
-  { id: "all", label: "All", matches: () => true },
-  { id: "files", label: "Files", matches: (s) => s.source !== "clipboard" },
-  { id: "clipboard", label: "Clipboard", matches: (s) => s.source === "clipboard" },
+  { id: "all", label: t("All"), matches: () => true },
+  { id: "files", label: t("Files"), matches: (s) => s.source !== "clipboard" },
+  { id: "clipboard", label: t("Clipboard"), matches: (s) => s.source === "clipboard" },
 ];
 
 const state = {
@@ -102,8 +103,8 @@ function renderContent(visible) {
     const glyph = el("div", "glyph");
     glyph.innerHTML = GLYPH_SVG;
     empty.appendChild(glyph);
-    empty.appendChild(el("div", "", "No screenshots yet"));
-    empty.appendChild(el("div", "", "Press Win+Shift+S and it lands here."));
+    empty.appendChild(el("div", "", t("No screenshots yet")));
+    empty.appendChild(el("div", "", t("Press Win+Shift+S and it lands here.")));
     return;
   }
 
