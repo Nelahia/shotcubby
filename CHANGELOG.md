@@ -6,6 +6,10 @@ kept here with their cause so the same problem is not fixed twice.
 Versions are the tags of this repository; both apps (macOS and Windows) are
 released together unless a note says otherwise.
 
+Every version has its own entry, written before the tag is created: one short,
+precise bullet per change the user can see, and for a fix the symptom and its
+cause. The full rules are in [CLAUDE.md](CLAUDE.md).
+
 ## 2.2.33 — 2026-10-25
 
 ### Fixed
