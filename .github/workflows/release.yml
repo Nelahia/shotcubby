@@ -183,7 +183,15 @@ jobs:
           fi
 
       - name: Staple notarization ticket
-        run: xcrun stapler staple "${{ env.APP_NAME }}.dmg"
+        # Apple accepts the notarization before the ticket can always be fetched;
+        # the first attempts right after can fail with a network error.
+        run: |
+          for attempt in 1 2 3 4 5 6; do
+            if xcrun stapler staple "${{ env.APP_NAME }}.dmg"; then exit 0; fi
+            echo "Staple attempt $attempt failed, retrying in 30s..."
+            sleep 30
+          done
+          exit 1
 
       - name: Verify Gatekeeper acceptance
         run: spctl -a -t open --context context:primary-signature -v "${{ env.APP_NAME }}.dmg"
