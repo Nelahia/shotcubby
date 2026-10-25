@@ -16,9 +16,7 @@ pub fn set(theme: &str) -> Result<&'static str, String> {
         DARK => (DARK, true),
         other => return Err(format!("Unknown theme \"{other}\"")),
     };
-    let mut config = config_store::load();
-    config.dark_theme = dark;
-    config_store::save(&config);
+    config_store::update(|config| config.dark_theme = dark);
     Ok(name)
 }
 

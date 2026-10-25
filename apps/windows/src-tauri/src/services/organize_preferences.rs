@@ -7,7 +7,5 @@ pub fn enabled() -> bool {
 }
 
 pub fn set_enabled(enabled: bool) {
-    let mut config = config_store::load();
-    config.organize_by_day_disabled = !enabled;
-    config_store::save(&config);
+    config_store::update(|config| config.organize_by_day_disabled = !enabled);
 }

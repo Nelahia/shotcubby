@@ -11,13 +11,10 @@ pub fn is_enabled(app: &AppHandle) -> bool {
 /// Opens ShotCubby at login by default: turned on once, the first time the
 /// app runs, and never again so that switching it off in Settings sticks.
 pub fn apply_default(app: &AppHandle) {
-    let mut config = config_store::load();
-    if config.login_default_applied {
-        return;
+    let first_run = config_store::update(|config| !std::mem::replace(&mut config.login_default_applied, true));
+    if first_run {
+        let _ = set_enabled(app, true);
     }
-    let _ = set_enabled(app, true);
-    config.login_default_applied = true;
-    config_store::save(&config);
 }
 
 pub fn set_enabled(app: &AppHandle, enabled: bool) -> Result<(), String> {

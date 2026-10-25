@@ -28,20 +28,14 @@ pub fn load() -> Preferences {
 }
 
 pub fn set_enabled(enabled: bool) {
-    let mut config = config_store::load();
-    config.ai_rename_enabled = enabled;
-    config_store::save(&config);
+    config_store::update(|config| config.ai_rename_enabled = enabled);
 }
 
 pub fn set_provider(provider: Provider) {
-    let mut config = config_store::load();
-    config.ai_rename_provider = Some(provider.id().to_string());
-    config_store::save(&config);
+    config_store::update(|config| config.ai_rename_provider = Some(provider.id().to_string()));
 }
 
 pub fn set_instructions(text: &str) {
     let trimmed: String = text.trim().chars().take(MAX_INSTRUCTIONS).collect();
-    let mut config = config_store::load();
-    config.ai_rename_instructions = (!trimmed.is_empty()).then_some(trimmed);
-    config_store::save(&config);
+    config_store::update(|config| config.ai_rename_instructions = (!trimmed.is_empty()).then_some(trimmed));
 }

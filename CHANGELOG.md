@@ -10,6 +10,18 @@ Every version has its own entry, written before the tag is created: one short,
 precise bullet per change the user can see, and for a fix the symptom and its
 cause. The full rules are in [CLAUDE.md](CLAUDE.md).
 
+## 2.2.37 — 2026-10-25
+
+### Fixed
+- Windows: settings could go back to their defaults after an update (AI naming
+  turned off although it had been on). The settings file was written in place and
+  read without any protection, so a read during a write, a write cut short, or two
+  changes at the same moment could leave it empty, and the app then started from
+  the defaults. It is now written to a temporary file and swapped in, reads and
+  writes take turns, and the last good copy is kept next to it as `config.json.bak`
+  and used if the file is ever unreadable. The exact trigger of the reset seen
+  after an update was not reproduced.
+
 ## 2.2.36 — 2026-10-25
 
 ### Changed
