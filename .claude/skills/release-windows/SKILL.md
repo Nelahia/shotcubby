@@ -11,6 +11,7 @@ authorization to publish; do not ask again unless something below blocks.
 1. **Check the repo** (`git status -sb`, `git fetch`):
    - Uncommitted changes → stop, list them, ask whether to commit them first. Never release uncommitted work.
    - Local commits not on `origin/main` → `git push origin main` first (the CI builds the pushed commit).
+   - `CHANGELOG.md` has no entry for the version being released → add one (what changed and the cause of each fix), commit and push it first.
 2. **Pick the tag**: if the user gave a version use `v<version>`; otherwise the latest
    `vX.Y.Z` tag (`git tag --sort=-v:refname | head -1`) with the patch number + 1.
    Refuse a tag that already exists.
