@@ -16,7 +16,7 @@ struct AIAlertCard: View {
                     .frame(width: 36, height: 36)
                     .background(SettingsStyle.warn.opacity(0.18), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
                 VStack(alignment: .leading, spacing: 6) {
-                    Text(copy.title).font(.headline).foregroundStyle(SettingsStyle.warn)
+                    Text(LocalizedStringKey(copy.title)).font(.headline).foregroundStyle(SettingsStyle.warn)
                     Text(LocalizedStringKey(copy.body)).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
                 }
             }
@@ -24,9 +24,13 @@ struct AIAlertCard: View {
             if !copy.steps.isEmpty {
                 VStack(alignment: .leading, spacing: 6) {
                     ForEach(Array(copy.steps.enumerated()), id: \.offset) { index, step in
-                        // One String, not an interpolated literal: interpolated
-                        // values are not parsed as Markdown, which would show the ** as is.
-                        Text(LocalizedStringKey(String(index + 1) + ". " + step)).foregroundStyle(.secondary)
+                        // The step goes through `LocalizedStringKey(String)`, not an
+                        // interpolated literal: only that parses its Markdown (the **).
+                        HStack(alignment: .firstTextBaseline, spacing: 4) {
+                            Text("\(index + 1).")
+                            Text(LocalizedStringKey(step))
+                        }
+                        .foregroundStyle(.secondary)
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -39,7 +43,7 @@ struct AIAlertCard: View {
                     Button {
                         NSWorkspace.shared.open(action.url)
                     } label: {
-                        Label(action.label, systemImage: "arrow.up.right")
+                        Label(LocalizedStringKey(action.label), systemImage: "arrow.up.right")
                     }
                     .buttonStyle(SettingsButtonStyle(prominent: true, tint: SettingsStyle.warn))
                 }

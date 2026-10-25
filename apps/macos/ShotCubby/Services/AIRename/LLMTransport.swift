@@ -14,14 +14,14 @@ enum LLMTransport {
             throw AIFailure.network(provider)
         }
         guard let status = (response as? HTTPURLResponse)?.statusCode else {
-            throw AIFailure.other("Unreadable answer from \(provider)")
+            throw AIFailure.other(String(format: tr("Unreadable answer from %@"), provider))
         }
         let json = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any]
         guard status == 200 else {
             throw AIFailure.fromStatus(status, detail: errorDetail(in: json))
         }
         guard let json, let text = parse(json) else {
-            throw AIFailure.other("No title in \(provider)'s answer")
+            throw AIFailure.other(String(format: tr("No title in %@'s answer"), provider))
         }
         return text
     }

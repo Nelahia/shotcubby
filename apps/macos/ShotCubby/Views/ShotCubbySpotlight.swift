@@ -543,7 +543,7 @@ struct SpotlightView: View {
                     Text(shot.url.lastPathComponent)
                         .font(spotMono(13))
                         .lineLimit(1).truncationMode(.middle)
-                    Text("\(shot.date.formatted(date: .abbreviated, time: .shortened)) · \(shot.source == .clipboard ? "from clipboard" : "file")")
+                    Text("\(shot.date.formatted(date: .abbreviated, time: .shortened)) · \(shot.source == .clipboard ? tr("from clipboard") : tr("file"))")
                         .font(.system(size: 12))
                         .foregroundStyle(t.muted)
                 }

@@ -16,8 +16,8 @@ struct SettingsPage<Content: View>: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 VStack(alignment: .leading, spacing: 6) {
-                    Text(title).font(.title2.weight(.semibold))
-                    Text(subtitle)
+                    Text(LocalizedStringKey(title)).font(.title2.weight(.semibold))
+                    Text(LocalizedStringKey(subtitle))
                         .foregroundStyle(SettingsStyle.muted)
                         .fixedSize(horizontal: false, vertical: true)
                 }

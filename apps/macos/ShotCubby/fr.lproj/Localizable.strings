@@ -1,0 +1,157 @@
+/* French. The English text is the key; a text with no entry is shown in English. */
+
+/* Menu bar menu */
+"Search…" = "Rechercher…";
+"Open Folder" = "Ouvrir le dossier";
+"Settings…" = "Réglages…";
+"Check for Updates…" = "Rechercher des mises à jour…";
+"Quit ShotCubby" = "Quitter ShotCubby";
+
+/* Settings window */
+"Close" = "Fermer";
+"Minimize" = "Réduire";
+"General" = "Général";
+"Screenshots" = "Captures";
+"AI naming" = "Nommage par IA";
+"Shortcuts" = "Raccourcis";
+
+/* General */
+"Appearance, startup, the Dock, updates, and the version you are running." = "Apparence, démarrage, Dock, mises à jour et version utilisée.";
+"Appearance" = "Apparence";
+"Light" = "Clair";
+"Dark" = "Sombre";
+"Open ShotCubby at session start" = "Ouvrir ShotCubby à l’ouverture de la session";
+"Show in the Dock and app switcher" = "Afficher dans le Dock et le sélecteur d’apps";
+"Off: ShotCubby lives in the menu bar only, and ⌘ Tab no longer lists it. Search stays on ⌘ /." = "Désactivé : ShotCubby reste uniquement dans la barre des menus et n’apparaît plus avec ⌘ Tab. La recherche reste sur ⌘ /.";
+"Check for updates automatically" = "Rechercher les mises à jour automatiquement";
+
+/* Screenshots */
+"Where your screenshots live, and how they are filed." = "Où vivent vos captures et comment elles sont classées.";
+"File past days into dated folders" = "Classer les jours précédents dans des dossiers datés";
+"Today's screenshots stay in the main folder; older ones move to YYYY-MM-DD." = "Les captures du jour restent dans le dossier principal ; les plus anciennes passent dans AAAA-MM-JJ.";
+"Screenshots folder" = "Dossier des captures";
+"Show in Finder" = "Afficher dans le Finder";
+"Move…" = "Déplacer…";
+"Pick a new location and ShotCubby moves your existing screenshots there, then saves new ones in it." = "Choisissez un nouvel emplacement : ShotCubby y déplace vos captures existantes, puis y enregistre les nouvelles.";
+"Use This Folder" = "Utiliser ce dossier";
+"Choose" = "Choisir";
+"Choose where ShotCubby keeps your screenshots" = "Choisir où ShotCubby conserve vos captures";
+"Move your screenshots to “%@”?" = "Déplacer vos captures vers « %@ » ?";
+"%@, dated folders included, will move to the new location. New captures will be saved there." = "%@, dossiers datés compris, seront déplacées vers le nouvel emplacement. Les nouvelles captures y seront enregistrées.";
+"From" = "De";
+"To" = "Vers";
+"Move" = "Déplacer";
+"Cancel" = "Annuler";
+"Can't move" = "Déplacement impossible";
+"That is already the current folder." = "C’est déjà le dossier actuel.";
+"Choose a folder outside the current one." = "Choisissez un dossier en dehors du dossier actuel.";
+"That folder isn't empty." = "Ce dossier n’est pas vide.";
+"Couldn't move the screenshots there. Nothing was lost." = "Impossible de déplacer les captures à cet endroit. Rien n’a été perdu.";
+"%lld screenshot" = "%lld capture";
+"%lld screenshots" = "%lld captures";
+
+/* AI naming */
+"New screenshots are renamed after what they show, using your own AI key. Nothing is sent while this is off." = "Les nouvelles captures sont renommées d’après leur contenu, avec votre propre clé IA. Rien n’est envoyé tant que c’est désactivé.";
+"Name new screenshots with AI" = "Nommer les nouvelles captures avec l’IA";
+"A downscaled copy of each capture goes to your provider." = "Une copie réduite de chaque capture est envoyée à votre fournisseur.";
+"Provider" = "Fournisseur";
+"API key" = "Clé API";
+"Save" = "Enregistrer";
+"Test" = "Tester";
+"Key saved" = "Clé enregistrée";
+"Remove the saved key" = "Supprimer la clé enregistrée";
+"Paste a new key to replace it" = "Collez une nouvelle clé pour la remplacer";
+"Paste your API key" = "Collez votre clé API";
+"Stored in your Keychain. It only leaves this Mac to call your provider." = "Stockée dans votre trousseau. Elle ne quitte ce Mac que pour appeler votre fournisseur.";
+"Key saved. Press Test to check it works." = "Clé enregistrée. Appuyez sur Tester pour vérifier qu’elle fonctionne.";
+"Key removed." = "Clé supprimée.";
+"Testing the key with the provider…" = "Test de la clé auprès du fournisseur…";
+"The key works. New screenshots will be renamed." = "La clé fonctionne. Les nouvelles captures seront renommées.";
+"The key is empty" = "La clé est vide";
+"Could not save the key" = "Impossible d’enregistrer la clé";
+"Naming instructions" = "Instructions de nommage";
+"Optional" = "Facultatif";
+"e.g. lowercase kebab-case, start with the app name, in English" = "ex. kebab-case en minuscules, commencer par le nom de l’app, en français";
+"Tell the AI how you want screenshots named. These instructions win over its defaults: length, language, format, a date prefix…" = "Dites à l’IA comment nommer vos captures. Ces instructions priment sur ses réglages par défaut : longueur, langue, format, préfixe de date…";
+"LAST RESULT" = "DERNIER RÉSULTAT";
+"Nothing yet — take a screenshot" = "Rien pour l’instant — faites une capture";
+"Renamed to “%@”" = "Renommée en « %@ »";
+"Dismiss" = "Ignorer";
+"This key isn’t tied to a workspace" = "Cette clé n’est liée à aucun espace de travail";
+"Anthropic only accepts API keys created **inside a workspace**. The key you pasted works at the account level, so every request is refused." = "Anthropic n’accepte que les clés API créées **dans un espace de travail**. La clé que vous avez collée fonctionne au niveau du compte, donc chaque requête est refusée.";
+"Open the **API keys** page of the Claude Console." = "Ouvrez la page **Clés API** de la Console Claude.";
+"Create a key and pick a workspace (the **Default** one is fine)." = "Créez une clé et choisissez un espace de travail (l’espace **Default** convient).";
+"Paste the new key below and press **Test**." = "Collez la nouvelle clé ci-dessous et appuyez sur **Tester**.";
+"Open Claude Console" = "Ouvrir la Console Claude";
+"The provider refused this key" = "Le fournisseur a refusé cette clé";
+"The key is wrong, was revoked, or was copied incompletely. Paste it again, or create a new one." = "La clé est incorrecte, a été révoquée ou a été copiée de façon incomplète. Collez-la à nouveau ou créez-en une nouvelle.";
+"Open %@" = "Ouvrir %@";
+"No credit left on this account" = "Plus de crédit sur ce compte";
+"API usage is billed separately from a Claude or ChatGPT subscription. Add credit, then try again. A screenshot costs a fraction of a cent." = "L’utilisation de l’API est facturée séparément d’un abonnement Claude ou ChatGPT. Ajoutez du crédit, puis réessayez. Une capture coûte une fraction de centime.";
+"Open billing" = "Ouvrir la facturation";
+"Too many requests" = "Trop de requêtes";
+"The provider is limiting this key for a moment. AI naming will work again shortly." = "Le fournisseur limite cette clé un instant. Le nommage par IA refonctionnera bientôt.";
+"Can’t reach the provider" = "Impossible de joindre le fournisseur";
+"Check your internet connection. Screenshots keep their current names until it is back." = "Vérifiez votre connexion internet. Les captures gardent leur nom actuel jusqu’au retour de la connexion.";
+"AI naming didn’t work" = "Le nommage par IA n’a pas fonctionné";
+"Could not reach %@" = "Impossible de joindre %@";
+"This API key is not scoped to a workspace" = "Cette clé API n’est liée à aucun espace de travail";
+"The account has no credit left" = "Le compte n’a plus de crédit";
+"The API key was rejected" = "La clé API a été refusée";
+"Too many requests, try again in a moment" = "Trop de requêtes, réessayez dans un instant";
+"The provider answered with HTTP %lld" = "Le fournisseur a répondu HTTP %lld";
+"Unreadable answer from %@" = "Réponse illisible de %@";
+"No title in %@'s answer" = "Aucun titre dans la réponse de %@";
+"Could not read the screenshot" = "Impossible de lire la capture";
+"The provider returned no title" = "Le fournisseur n’a renvoyé aucun titre";
+"Could not build the test picture" = "Impossible de créer l’image de test";
+
+/* Shortcuts */
+"Click a combination, then press the keys you want. Global shortcuts need a modifier (⌘ ⌥ ⌃ ⇧). Esc cancels." = "Cliquez sur une combinaison, puis appuyez sur les touches voulues. Les raccourcis globaux demandent un modificateur (⌘ ⌥ ⌃ ⇧). Échap annule.";
+"Open Spotlight search" = "Ouvrir la recherche";
+"Works from anywhere." = "Fonctionne depuis n’importe où.";
+"Reset" = "Réinitialiser";
+"Inside the search panel" = "Dans le panneau de recherche";
+"Return and the function keys can be used alone; every other shortcut needs a modifier." = "Retour et les touches de fonction peuvent s’utiliser seules ; tout autre raccourci demande un modificateur.";
+"Press a key combination…" = "Appuyez sur une combinaison de touches…";
+"Already used by %@" = "Déjà utilisé par %@";
+"Preview" = "Aperçu";
+"Copy" = "Copier";
+"Rename" = "Renommer";
+"Move to Trash" = "Mettre à la corbeille";
+"Settings" = "Réglages";
+"Actions menu" = "Menu des actions";
+
+/* Popover and search */
+"All" = "Toutes";
+"Files" = "Fichiers";
+"Clipboard" = "Presse-papiers";
+"Today" = "Aujourd’hui";
+"Yesterday" = "Hier";
+"No screenshots yet" = "Aucune capture pour l’instant";
+"Press ⌘⇧4 and it lands here." = "Appuyez sur ⌘⇧4 et elle arrive ici.";
+"Open Spotlight" = "Ouvrir la recherche";
+"Quit" = "Quitter";
+"Name" = "Nom";
+"Double-click to rename" = "Double-cliquez pour renommer";
+"Open" = "Ouvrir";
+"Reveal in Finder" = "Afficher dans le Finder";
+"Copied" = "Copié";
+"Search screenshots" = "Rechercher des captures";
+"Actions" = "Actions";
+"More actions" = "Plus d’actions";
+"from clipboard" = "depuis le presse-papiers";
+"file" = "fichier";
+"%lld results" = "%lld résultats";
+"Clipboard captures only" = "Captures du presse-papiers uniquement";
+"Choose Folder…" = "Choisir un dossier…";
+"Already allowed? Relaunch ShotCubby" = "Déjà autorisé ? Relancer ShotCubby";
+"Use a different folder…" = "Utiliser un autre dossier…";
+"Open Files & Folders" = "Ouvrir Fichiers et dossiers";
+"Open Privacy Settings" = "Ouvrir les réglages de confidentialité";
+"Let ShotCubby read your %@ folder" = "Autoriser ShotCubby à lire votre dossier %@";
+"Let ShotCubby read your screenshot folder" = "Autoriser ShotCubby à lire votre dossier de captures";
+"That screenshot folder is gone" = "Ce dossier de captures a disparu";
+"Your screenshots land in a folder %@ syncs, and macOS keeps those behind their own permission. Allow ShotCubby under Files and Folders — the Desktop switch doesn't cover this one." = "Vos captures arrivent dans un dossier que %@ synchronise, et macOS protège ces dossiers par une autorisation à part. Autorisez ShotCubby dans Fichiers et dossiers — l’interrupteur Bureau ne couvre pas celui-ci.";
+"macOS needs your OK before ShotCubby can move new screenshots out of it. Nothing else in the folder is touched." = "macOS demande votre accord avant que ShotCubby puisse en déplacer les nouvelles captures. Rien d’autre dans le dossier n’est touché.";
+"ShotCubby can't find the folder it was watching. Pick the folder your screenshots actually go to." = "ShotCubby ne trouve plus le dossier qu’il surveillait. Choisissez le dossier où vont réellement vos captures.";

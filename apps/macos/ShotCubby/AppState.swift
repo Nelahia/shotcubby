@@ -74,7 +74,7 @@ final class AppState: ObservableObject {
         panel.canChooseDirectories = true
         panel.canChooseFiles = false
         panel.allowsMultipleSelection = false
-        panel.prompt = "Use This Folder"
+        panel.prompt = tr("Use This Folder")
 
         guard panel.runModal() == .OK, let url = panel.url else { return }
         FolderPreferences.setCustomDirectory(url)
@@ -91,21 +91,22 @@ final class AppState: ObservableObject {
         panel.canChooseFiles = false
         panel.canCreateDirectories = true
         panel.allowsMultipleSelection = false
-        panel.message = "Choose where ShotCubby keeps your screenshots"
-        panel.prompt = "Choose"
+        panel.message = tr("Choose where ShotCubby keeps your screenshots")
+        panel.prompt = tr("Choose")
         guard panel.runModal() == .OK, let chosen = panel.url else { return }
 
         let target = ScreenshotStorage.target(forChosen: chosen)
         let alert = NSAlert()
-        alert.messageText = "Move your screenshots to “\(chosen.lastPathComponent)”?"
-        alert.informativeText = """
-        \(ScreenshotStorage.summaryText(screenshots)), dated folders included, will move to the new location. New captures will be saved there.
-
-        From: \((vaultURL.path as NSString).abbreviatingWithTildeInPath)
-        To: \((target.path as NSString).abbreviatingWithTildeInPath)
-        """
-        alert.addButton(withTitle: "Move")
-        alert.addButton(withTitle: "Cancel")
+        alert.messageText = String(format: tr("Move your screenshots to “%@”?"), chosen.lastPathComponent)
+        let summary = String(
+            format: tr("%@, dated folders included, will move to the new location. New captures will be saved there."),
+            ScreenshotStorage.summaryText(screenshots)
+        )
+        let from = (vaultURL.path as NSString).abbreviatingWithTildeInPath
+        let to = (target.path as NSString).abbreviatingWithTildeInPath
+        alert.informativeText = "\(summary)\n\n\(tr("From")): \(from)\n\(tr("To")): \(to)"
+        alert.addButton(withTitle: tr("Move"))
+        alert.addButton(withTitle: tr("Cancel"))
         guard alert.runModal() == .alertFirstButtonReturn else { return }
 
         DispatchQueue.global(qos: .userInitiated).async { [storage] in
@@ -122,7 +123,7 @@ final class AppState: ObservableObject {
         case .failure(let error):
             let alert = NSAlert()
             alert.alertStyle = .warning
-            alert.messageText = "Can't move"
+            alert.messageText = tr("Can't move")
             alert.informativeText = error.localizedDescription
             alert.runModal()
         }

@@ -4,7 +4,7 @@ enum Appearance: String, CaseIterable, Identifiable {
     case light, dark
 
     var id: String { rawValue }
-    var title: String { self == .light ? "Light" : "Dark" }
+    var title: String { self == .light ? tr("Light") : tr("Dark") }
 }
 
 /// Light unless the user switched to dark in Settings. Set on the whole app,

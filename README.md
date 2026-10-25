@@ -63,6 +63,8 @@ then type to filter and use the keyboard:
 choose whether ShotCubby opens at session start, change the search shortcut (and, on Windows, the
 capture shortcuts) and pick where your screenshots are kept.
 
+ShotCubby is available in English and French, following the system language.
+
 ## Install
 
 Download the installer for your system from the

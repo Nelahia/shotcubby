@@ -19,7 +19,7 @@ struct AIFailure: LocalizedError, Equatable {
     }
 
     static func network(_ provider: String) -> AIFailure {
-        AIFailure(kind: .network, message: "Could not reach \(provider)")
+        AIFailure(kind: .network, message: String(format: tr("Could not reach %@"), provider))
     }
 
     /// Sorts a non-200 answer by what the provider said, since the same HTTP
@@ -27,17 +27,17 @@ struct AIFailure: LocalizedError, Equatable {
     static func fromStatus(_ status: Int, detail: String?) -> AIFailure {
         let lowered = (detail ?? "").lowercased()
         if lowered.contains("workspace") {
-            return AIFailure(kind: .workspace, message: "This API key is not scoped to a workspace")
+            return AIFailure(kind: .workspace, message: tr("This API key is not scoped to a workspace"))
         }
         if lowered.contains("credit balance") || lowered.contains("billing") || lowered.contains("quota") {
-            return AIFailure(kind: .credit, message: "The account has no credit left")
+            return AIFailure(kind: .credit, message: tr("The account has no credit left"))
         }
         switch status {
-        case 401, 403: return AIFailure(kind: .rejected, message: "The API key was rejected")
-        case 429: return AIFailure(kind: .rateLimit, message: "Too many requests, try again in a moment")
+        case 401, 403: return AIFailure(kind: .rejected, message: tr("The API key was rejected"))
+        case 429: return AIFailure(kind: .rateLimit, message: tr("Too many requests, try again in a moment"))
         default:
             let suffix = detail.map { ": \($0)" } ?? ""
-            return .other("The provider answered with HTTP \(status)\(suffix)")
+            return .other(String(format: tr("The provider answered with HTTP %lld"), status) + suffix)
         }
     }
 }

@@ -19,7 +19,7 @@ struct SpotlightShortcutRow: View {
     var body: some View {
         SettingsRow(
             title: command.title,
-            subtitle: conflict.map { "Already used by \($0.title)" },
+            subtitle: conflict.map { String(format: tr("Already used by %@"), $0.title) },
             subtitleColor: .red
         ) {
             HotKeyRecorderField(keyCode: $keyCode, modifiers: $modifiers, allowsBareKeys: true)

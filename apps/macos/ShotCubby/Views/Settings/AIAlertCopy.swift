@@ -31,7 +31,7 @@ struct AIAlertCopy {
             return AIAlertCopy(
                 title: "The provider refused this key",
                 body: "The key is wrong, was revoked, or was copied incompletely. Paste it again, or create a new one.",
-                action: Action(label: "Open \(console.name)", url: console.keys)
+                action: Action(label: String(format: tr("Open %@"), console.name), url: console.keys)
             )
         case .credit:
             return AIAlertCopy(

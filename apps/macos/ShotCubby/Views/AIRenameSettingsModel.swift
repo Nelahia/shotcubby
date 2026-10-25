@@ -52,7 +52,7 @@ final class AIRenameSettingsModel: ObservableObject {
         do {
             try APIKeyStore.set(keyInput, for: provider)
             failure = nil
-            showKeyState("Key saved. Press Test to check it works.", tone: .ok)
+            showKeyState(tr("Key saved. Press Test to check it works."), tone: .ok)
         } catch {
             note = Note(text: error.localizedDescription, tone: .bad)
         }
@@ -61,16 +61,16 @@ final class AIRenameSettingsModel: ObservableObject {
     func remove() {
         APIKeyStore.delete(provider)
         failure = nil
-        showKeyState("Key removed.", tone: .ok)
+        showKeyState(tr("Key removed."), tone: .ok)
     }
 
     func test() async {
         busy = true
-        note = Note(text: "Testing the key with the provider…")
+        note = Note(text: tr("Testing the key with the provider…"))
         do {
             try await ScreenshotNamer.testKey(for: provider)
             failure = nil
-            note = Note(text: "The key works. New screenshots will be renamed.", tone: .ok)
+            note = Note(text: tr("The key works. New screenshots will be renamed."), tone: .ok)
         } catch {
             let found = (error as? AIFailure) ?? .other(error.localizedDescription)
             note = Note(text: found.message, tone: .bad)
@@ -95,7 +95,7 @@ final class AIRenameSettingsModel: ObservableObject {
         keyInput = ""
         hasKey = APIKeyStore.has(provider)
         note = Note(
-            text: message ?? "Stored in your Keychain. It only leaves this Mac to call your provider.",
+            text: message ?? tr("Stored in your Keychain. It only leaves this Mac to call your provider."),
             tone: tone
         )
     }

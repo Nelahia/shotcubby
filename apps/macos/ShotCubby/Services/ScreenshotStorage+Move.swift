@@ -7,10 +7,10 @@ extension ScreenshotStorage {
 
         var errorDescription: String? {
             switch self {
-            case .sameFolder: "That is already the current folder."
-            case .nested: "Choose a folder outside the current one."
-            case .notEmpty: "That folder isn't empty."
-            case .failed: "Couldn't move the screenshots there. Nothing was lost."
+            case .sameFolder: tr("That is already the current folder.")
+            case .nested: tr("Choose a folder outside the current one.")
+            case .notEmpty: tr("That folder isn't empty.")
+            case .failed: tr("Couldn't move the screenshots there. Nothing was lost.")
             }
         }
     }
@@ -28,7 +28,7 @@ extension ScreenshotStorage {
             total + Int64((try? item.url.resourceValues(forKeys: [.fileSizeKey]))?.fileSize ?? 0)
         }
         let size = ByteCountFormatter.string(fromByteCount: bytes, countStyle: .file)
-        return "\(items.count) screenshot\(items.count == 1 ? "" : "s") · \(size)"
+        return "\(String(format: tr(items.count == 1 ? "%lld screenshot" : "%lld screenshots"), items.count)) · \(size)"
     }
 
     /// Moves the vault to `target` and remembers it. Across volumes the file
