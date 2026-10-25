@@ -5,13 +5,13 @@ import SwiftUI
 struct SettingsRow<Trailing: View>: View {
     let title: String
     var subtitle: String?
-    var subtitleColor: Color = .secondary
+    var subtitleColor: Color = SettingsStyle.muted
     let trailing: Trailing
 
     init(
         title: String,
         subtitle: String? = nil,
-        subtitleColor: Color = .secondary,
+        subtitleColor: Color = SettingsStyle.muted,
         @ViewBuilder trailing: () -> Trailing
     ) {
         self.title = title

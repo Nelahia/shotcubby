@@ -1,4 +1,6 @@
 import { el, invoke, svgIcon, ICONS, GLYPH_SVG, card } from "./shared.js";
+import { createAppearanceRow } from "./appearance-row.js";
+import { createLaunchRow } from "./launch-row.js";
 import { createHotkeyRow } from "./hotkey-row.js";
 import { createOrganizeRow } from "./organize-row.js";
 import { createAutoUpdateRow } from "./auto-update-row.js";
@@ -20,9 +22,11 @@ const showError = (message) => {
 const PAGES = [
   {
     title: "General",
-    subtitle: "Updates and the version you are running.",
+    subtitle: "Appearance, startup, updates and the version you are running.",
     icon: ICONS.gear,
-    build: async () => [card(await createAutoUpdateRow(), await createUpdateRow())],
+    build: async () => [
+      card(await createAppearanceRow(), await createLaunchRow(), await createAutoUpdateRow(), await createUpdateRow()),
+    ],
   },
   {
     title: "Screenshots",

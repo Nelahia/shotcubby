@@ -9,7 +9,7 @@ struct SettingsKeyCap: View {
             .font(.system(size: 12, design: .monospaced))
             .padding(.horizontal, 7)
             .frame(minWidth: 26, minHeight: 26)
-            .background(Color.primary.opacity(0.1), in: RoundedRectangle(cornerRadius: 7, style: .continuous))
+            .background(SettingsStyle.raised, in: RoundedRectangle(cornerRadius: 7, style: .continuous))
             .overlay(
                 RoundedRectangle(cornerRadius: 7, style: .continuous).strokeBorder(SettingsStyle.hairline)
             )

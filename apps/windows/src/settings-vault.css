@@ -30,7 +30,7 @@
   padding: 6px 14px;
   border-radius: 6px;
   background: var(--accent);
-  color: #04252a;
+  color: var(--on-accent);
 }
 .dialog-scrim {
   position: fixed;

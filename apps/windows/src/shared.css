@@ -1,26 +1,37 @@
+/* The navy palette. Light is the default; `shared.js` sets `data-theme` on the
+   root from the Appearance setting. `--bg` is the window, `--panel` the cards,
+   `--tile` what is raised or selected on them. */
 :root {
-  --bg: #f6f8fa;
-  --panel: #ffffff;
-  --ink: #0c1216;
-  --muted: #56646e;
-  --line: rgba(0, 0, 0, 0.1);
-  --accent: #0fb6c9;
-  --tile: #e3e9ed;
+  color-scheme: light;
+  --bg: #dce3ef;
+  --panel: #f3f6fb;
+  --ink: #111522;
+  --muted: #536684;
+  --line: rgba(17, 21, 34, 0.14);
+  --accent: #303d59;
+  --on-accent: #dce3ef;
+  --tile: #c7d1e3;
+  --switch-on: #303d59;
+  --switch-off: #98a9c4;
+  --knob: #f3f6fb;
   --warn: #a85a00;
-  --logo-primary: #14191d;
+  --logo-primary: #111522;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #14191d;
-    --panel: #1e262b;
-    --ink: #f1f5f7;
-    --muted: #9aa8b1;
-    --line: rgba(255, 255, 255, 0.1);
-    --accent: #35d6e6;
-    --tile: #232c32;
-    --warn: #f2b25c;
-  }
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #111522;
+  --panel: #1e263b;
+  --ink: #dce3ef;
+  --muted: #98a9c4;
+  --line: rgba(152, 169, 196, 0.18);
+  --accent: #98a9c4;
+  --on-accent: #111522;
+  --tile: #303d59;
+  --switch-on: #536684;
+  --switch-off: #303d59;
+  --knob: #dce3ef;
+  --warn: #f2b25c;
 }
 
 * {

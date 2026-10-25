@@ -108,3 +108,10 @@ export function card(...rows) {
 
 /** Opens a web page in the user's browser. */
 export const openUrl = (url) => tauri.opener.openUrl(url);
+
+/** Light is the default; the Appearance setting flips every window to dark. */
+const applyTheme = (theme) => {
+  document.documentElement.dataset.theme = theme;
+};
+invoke("get_theme").then(applyTheme).catch(() => {});
+listen("theme-changed", (event) => applyTheme(event.payload));
