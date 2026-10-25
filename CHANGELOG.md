@@ -10,6 +10,14 @@ Every version has its own entry, written before the tag is created: one short,
 precise bullet per change the user can see, and for a fix the symptom and its
 cause. The full rules are in [CLAUDE.md](CLAUDE.md).
 
+## 2.2.35 — 2026-10-25
+
+### Changed
+- macOS: the Dock switch in Settings → General is now named "Show in the Dock and
+  app switcher" and says what turning it off does: ShotCubby stays in the menu bar
+  only, is no longer listed by ⌘ Tab, and search stays on ⌘ /. The option itself
+  and its default (on) are unchanged.
+
 ## 2.2.34 — 2026-10-25
 
 ### Added
