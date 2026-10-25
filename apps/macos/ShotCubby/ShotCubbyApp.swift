@@ -45,6 +45,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSW
         // Before anything reads the vault or the saved shortcut.
         LegacyMigration.run()
         DockPreferences.apply()
+        AppearancePreferences.apply()
         setupMenuBar()
         setupPopover()
         setupSpotlight()
@@ -158,7 +159,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSW
         if settingsWindow == nil {
             let window = NSWindow(contentViewController: NSHostingController(rootView: SettingsView(appState: appState)))
             window.title = "ShotCubby Settings"
-            window.styleMask = [.titled, .closable]
+            window.styleMask = [.titled, .closable, .fullSizeContentView]
+            window.titlebarAppearsTransparent = true
+            window.titleVisibility = .hidden
             window.isReleasedWhenClosed = false
             window.delegate = self
             settingsWindow = window

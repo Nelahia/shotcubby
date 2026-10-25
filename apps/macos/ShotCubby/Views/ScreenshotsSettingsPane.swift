@@ -13,7 +13,7 @@ struct ScreenshotsSettingsPane: View {
                     title: "File past days into dated folders",
                     subtitle: "Today's screenshots stay in the main folder; older ones move to YYYY-MM-DD."
                 ) {
-                    Toggle("", isOn: $organizeByDay).labelsHidden().toggleStyle(.switch).tint(SettingsStyle.accent)
+                    Toggle("", isOn: $organizeByDay).labelsHidden().toggleStyle(.switch).tint(SettingsStyle.switchOn)
                 }
             }
         }

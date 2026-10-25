@@ -55,9 +55,6 @@ Produces an NSIS and MSI installer under `src-tauri/target/release/bundle/`.
 - **Unsigned**: there's no code-signing certificate for this build, so Windows will
   show a SmartScreen warning on first run — the Mac build is notarized, this one isn't
   (yet).
-- **No "launch at login" toggle** in Settings — same as the Mac app, which also
-  requires the user to add it manually (System Settings → Login Items there; the
-  Startup folder, or Task Scheduler, here). Can be added later if wanted.
 - **Access-failure card** is simplified: Windows doesn't have macOS's TCC permission
   model, so it only distinguishes "folder missing" from "Windows is blocking access"
   (e.g. Controlled Folder Access) rather than the Mac version's finer-grained cases.

@@ -110,16 +110,16 @@ struct Theme {
 
     /// Fixed dark navy from the app icon — used on the always-dark thumbnail
     /// scrim, where it shouldn't flip with light/dark mode like `ink` does.
-    static let logoPrimary = Color(hex: 0x14191D)
+    static let logoPrimary = Color(hex: 0x111522)
 
     static func resolve(_ scheme: ColorScheme) -> Theme {
         scheme == .dark
-            ? Theme(bg: Color(hex: 0x14191D), panel: Color(hex: 0x1E262B), ink: Color(hex: 0xF1F5F7),
-                    muted: Color(hex: 0x9AA8B1), line: Color.white.opacity(0.10), accent: Color(hex: 0x35D6E6),
-                    tile: Color(hex: 0x232C32), warn: Color(hex: 0xF2B25C))
-            : Theme(bg: Color(hex: 0xF6F8FA), panel: Color(hex: 0xFFFFFF), ink: Color(hex: 0x0C1216),
-                    muted: Color(hex: 0x56646E), line: Color.black.opacity(0.10), accent: Color(hex: 0x0FB6C9),
-                    tile: Color(hex: 0xE3E9ED), warn: Color(hex: 0xA85A00))
+            ? Theme(bg: Color(hex: 0x111522), panel: Color(hex: 0x1E263B), ink: Color(hex: 0xDCE3EF),
+                    muted: Color(hex: 0x98A9C4), line: Color(hex: 0x98A9C4).opacity(0.18), accent: Color(hex: 0x98A9C4),
+                    tile: Color(hex: 0x303D59), warn: Color(hex: 0xF2B25C))
+            : Theme(bg: Color(hex: 0xDCE3EF), panel: Color(hex: 0xF3F6FB), ink: Color(hex: 0x111522),
+                    muted: Color(hex: 0x536684), line: Color(hex: 0x111522).opacity(0.14), accent: Color(hex: 0x303D59),
+                    tile: Color(hex: 0xC7D1E3), warn: Color(hex: 0xA85A00))
     }
 }
 

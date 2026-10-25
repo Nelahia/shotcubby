@@ -28,6 +28,9 @@ pub struct AppConfig {
     /// The user's own naming convention, sent to the model with every screenshot.
     #[serde(default)]
     pub ai_rename_instructions: Option<String>,
+    /// Dark appearance. Stored as a flag so the default (key absent) is light.
+    #[serde(default)]
+    pub dark_theme: bool,
     /// Shortcut per `HotkeyAction::id()`.
     #[serde(default)]
     pub hotkeys: BTreeMap<String, String>,

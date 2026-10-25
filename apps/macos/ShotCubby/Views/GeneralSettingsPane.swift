@@ -1,18 +1,28 @@
 import SwiftUI
 
 struct GeneralSettingsPane: View {
+    @State private var appearance = AppearancePreferences.current
+    @State private var launchAtLogin = LaunchAtLogin.isEnabled
     @State private var showInDock = DockPreferences.showInDock
     @State private var checksAutomatically = AppUpdater.shared.automaticallyChecks
 
     var body: some View {
-        SettingsPage(title: "General", subtitle: "The Dock, updates, and the version you are running.") {
+        SettingsPage(title: "General", subtitle: "Appearance, startup, the Dock, updates, and the version you are running.") {
             SettingsCard {
+                SettingsRow(title: "Appearance") {
+                    AppearancePicker(selection: $appearance)
+                }
+                Divider()
+                SettingsRow(title: "Open ShotCubby when I log in") {
+                    Toggle("", isOn: $launchAtLogin).labelsHidden().toggleStyle(.switch).tint(SettingsStyle.switchOn)
+                }
+                Divider()
                 SettingsRow(title: "Show in the Dock", subtitle: "Clicking the Dock icon opens the search panel.") {
-                    Toggle("", isOn: $showInDock).labelsHidden().toggleStyle(.switch).tint(SettingsStyle.accent)
+                    Toggle("", isOn: $showInDock).labelsHidden().toggleStyle(.switch).tint(SettingsStyle.switchOn)
                 }
                 Divider()
                 SettingsRow(title: "Check for updates automatically") {
-                    Toggle("", isOn: $checksAutomatically).labelsHidden().toggleStyle(.switch).tint(SettingsStyle.accent)
+                    Toggle("", isOn: $checksAutomatically).labelsHidden().toggleStyle(.switch).tint(SettingsStyle.switchOn)
                 }
                 Divider()
                 SettingsRow(title: "Version \(Self.versionLabel)") {
@@ -20,6 +30,12 @@ struct GeneralSettingsPane: View {
                         .buttonStyle(SettingsButtonStyle())
                 }
             }
+        }
+        .onChange(of: appearance) { _, new in AppearancePreferences.set(new) }
+        .onChange(of: launchAtLogin) { _, on in
+            guard on != LaunchAtLogin.isEnabled else { return }
+            LaunchAtLogin.set(on)
+            launchAtLogin = LaunchAtLogin.isEnabled
         }
         .onChange(of: showInDock) { _, show in DockPreferences.set(show) }
         .onChange(of: checksAutomatically) { _, on in AppUpdater.shared.automaticallyChecks = on }

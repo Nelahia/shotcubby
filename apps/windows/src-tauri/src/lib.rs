@@ -23,6 +23,7 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(tauri_plugin_autostart::init(tauri_plugin_autostart::MacosLauncher::LaunchAgent, None))
         .invoke_handler(tauri::generate_handler![
             commands::list_screenshots,
             commands::get_access_failure,
@@ -52,6 +53,10 @@ pub fn run() {
             commands::save_api_key,
             commands::delete_api_key,
             commands::test_api_key,
+            commands::get_theme,
+            commands::set_theme,
+            commands::get_launch_at_login,
+            commands::set_launch_at_login,
             commands::get_organize_by_day,
             commands::set_organize_by_day,
             commands::get_auto_update,

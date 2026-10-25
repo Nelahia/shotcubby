@@ -14,7 +14,7 @@ struct AIRenameSettingsPane: View {
 
             SettingsCard {
                 SettingsRow(title: "Name new screenshots with AI", subtitle: "A downscaled copy of each capture goes to your provider.") {
-                    Toggle("", isOn: $model.enabled).labelsHidden().toggleStyle(.switch).tint(SettingsStyle.accent)
+                    Toggle("", isOn: $model.enabled).labelsHidden().toggleStyle(.switch).tint(SettingsStyle.switchOn)
                 }
                 Divider()
                 SettingsRow(title: "Provider") {

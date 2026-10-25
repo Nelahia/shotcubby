@@ -12,7 +12,7 @@ struct SettingsButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .fontWeight(.semibold)
-            .foregroundStyle(prominent ? Color.black.opacity(0.85) : Color.primary)
+            .foregroundStyle(prominent ? SettingsStyle.onAccent : SettingsStyle.ink)
             .padding(.horizontal, 14)
             .frame(height: 34)
             .background(
@@ -24,6 +24,6 @@ struct SettingsButtonStyle: ButtonStyle {
 
     private func fill(pressed: Bool) -> Color {
         if prominent { return tint.opacity(pressed ? 0.8 : 1) }
-        return Color.primary.opacity(pressed ? 0.16 : 0.09)
+        return SettingsStyle.raised.opacity(pressed ? 0.8 : 1)
     }
 }

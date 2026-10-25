@@ -18,7 +18,7 @@ struct SettingsPage<Content: View>: View {
                 VStack(alignment: .leading, spacing: 6) {
                     Text(title).font(.title2.weight(.semibold))
                     Text(subtitle)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(SettingsStyle.muted)
                         .fixedSize(horizontal: false, vertical: true)
                 }
                 .padding(.bottom, 4)
@@ -28,5 +28,6 @@ struct SettingsPage<Content: View>: View {
             .padding(.horizontal, 32)
             .padding(.vertical, 28)
         }
+        .background(SettingsStyle.window)
     }
 }
