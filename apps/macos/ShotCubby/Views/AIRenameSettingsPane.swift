@@ -43,7 +43,7 @@ struct AIRenameSettingsPane: View {
                 if model.hasKey { AIKeyChip(onRemove: model.remove).disabled(model.busy) }
             }
             HStack(spacing: 8) {
-                SecureField("", text: $model.keyInput, prompt: Text(model.hasKey ? "Paste a new key to replace it" : "Paste your API key"))
+                SecureField("", text: $model.keyInput, prompt: Text(model.hasKey ? tr("Paste a new key to replace it") : tr("Paste your API key")))
                     .textFieldStyle(.plain)
                     .padding(.horizontal, 12)
                     .frame(height: 38)

@@ -26,7 +26,7 @@ struct ScreenshotItem: Identifiable, Equatable {
     var sourceLabel: String {
         switch source {
         case .file: url.pathExtension.uppercased()
-        case .clipboard: "Clipboard"
+        case .clipboard: tr("Clipboard")
         }
     }
 }

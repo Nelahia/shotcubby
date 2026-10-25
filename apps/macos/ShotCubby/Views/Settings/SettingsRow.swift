@@ -23,9 +23,9 @@ struct SettingsRow<Trailing: View>: View {
     var body: some View {
         HStack(spacing: 14) {
             VStack(alignment: .leading, spacing: 3) {
-                Text(title).fontWeight(.semibold)
+                Text(LocalizedStringKey(title)).fontWeight(.semibold)
                 if let subtitle {
-                    Text(subtitle)
+                    Text(LocalizedStringKey(subtitle))
                         .font(.caption)
                         .foregroundStyle(subtitleColor)
                         .fixedSize(horizontal: false, vertical: true)

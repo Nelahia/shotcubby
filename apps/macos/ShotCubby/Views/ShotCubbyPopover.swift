@@ -255,7 +255,7 @@ struct PopoverView: View {
                 let selected = item == filter
                 Button { filter = item } label: {
                     HStack(spacing: 6) {
-                        Text(item.rawValue).font(.system(size: 12, weight: .medium))
+                        Text(LocalizedStringKey(item.rawValue)).font(.system(size: 12, weight: .medium))
                         Text("\(shots.filter(item.matches).count)").font(mono(11)).opacity(0.7)
                     }
                     .foregroundStyle(selected ? t.ink : t.muted)
@@ -321,8 +321,8 @@ struct PopoverView: View {
 
     private func dayLabel(_ day: Date) -> String {
         let cal = Calendar.current
-        if cal.isDateInToday(day) { return "Today" }
-        if cal.isDateInYesterday(day) { return "Yesterday" }
+        if cal.isDateInToday(day) { return tr("Today") }
+        if cal.isDateInYesterday(day) { return tr("Yesterday") }
         return day.formatted(.dateTime.day().month(.wide))
     }
 
@@ -409,7 +409,7 @@ private struct ShotTile: View {
             HStack {
                 Text(shot.date.formatted(date: .omitted, time: .shortened))
                 Spacer()
-                Text(shot.source == .clipboard ? "Clipboard" : shot.url.pathExtension.uppercased())
+                Text(shot.source == .clipboard ? tr("Clipboard") : shot.url.pathExtension.uppercased())
             }
             .font(mono(10))
             .foregroundStyle(t.muted)
@@ -508,27 +508,27 @@ private struct AccessCard: View {
 
     private var title: String {
         switch failure {
-        case .cloudProvider(let name): return "Let ShotCubby read your \(name) folder"
-        case .protectedFolder: return "Let ShotCubby read your screenshot folder"
-        case .missing: return "That screenshot folder is gone"
+        case .cloudProvider(let name): return String(format: tr("Let ShotCubby read your %@ folder"), name)
+        case .protectedFolder: return tr("Let ShotCubby read your screenshot folder")
+        case .missing: return tr("That screenshot folder is gone")
         }
     }
 
     private var explanation: String {
         switch failure {
         case .cloudProvider(let name):
-            return "Your screenshots land in a folder \(name) syncs, and macOS keeps those behind their own permission. Allow ShotCubby under Files and Folders — the Desktop switch doesn't cover this one."
+            return String(format: tr("Your screenshots land in a folder %@ syncs, and macOS keeps those behind their own permission. Allow ShotCubby under Files and Folders — the Desktop switch doesn't cover this one."), name)
         case .protectedFolder:
-            return "macOS needs your OK before ShotCubby can move new screenshots out of it. Nothing else in the folder is touched."
+            return tr("macOS needs your OK before ShotCubby can move new screenshots out of it. Nothing else in the folder is touched.")
         case .missing:
-            return "ShotCubby can't find the folder it was watching. Pick the folder your screenshots actually go to."
+            return tr("ShotCubby can't find the folder it was watching. Pick the folder your screenshots actually go to.")
         }
     }
 
     private var settingsLabel: String {
         switch failure {
-        case .cloudProvider: return "Open Files & Folders"
-        default: return "Open Privacy Settings"
+        case .cloudProvider: return tr("Open Files & Folders")
+        default: return tr("Open Privacy Settings")
         }
     }
 

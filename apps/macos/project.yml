@@ -43,6 +43,7 @@ targets:
       path: ShotCubby/Info.plist
       properties:
         LSUIElement: true
+        CFBundleLocalizations: [en, fr]
         # Sparkle: where to look for updates (the appcast.xml the release workflow
         # attaches to every release), the public half of the key that signs them,
         # and automatic checks on (an update is only ever installed after the

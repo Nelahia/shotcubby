@@ -9,12 +9,12 @@ enum ScreenshotNamer {
         let provider = AIRenamePreferences.provider
         guard let key = APIKeyStore.get(provider) else { throw AIFailure.other("No API key saved") }
         guard let jpeg = ImageDownscaler.jpeg(from: url) else {
-            throw AIFailure.other("Could not read the screenshot")
+            throw AIFailure.other(tr("Could not read the screenshot"))
         }
         let title = try await provider.title(
             apiKey: key, jpeg: jpeg, instructions: AIRenamePreferences.instructions
         )
-        guard !title.isEmpty else { throw AIFailure.other("The provider returned no title") }
+        guard !title.isEmpty else { throw AIFailure.other(tr("The provider returned no title")) }
         return title
     }
 
@@ -22,7 +22,7 @@ enum ScreenshotNamer {
     static func testKey(for provider: LLMProvider) async throws {
         guard let key = APIKeyStore.get(provider) else { throw AIFailure.other("No key saved") }
         guard let jpeg = ImageDownscaler.sampleJPEG() else {
-            throw AIFailure.other("Could not build the test picture")
+            throw AIFailure.other(tr("Could not build the test picture"))
         }
         _ = try await provider.title(apiKey: key, jpeg: jpeg)
     }

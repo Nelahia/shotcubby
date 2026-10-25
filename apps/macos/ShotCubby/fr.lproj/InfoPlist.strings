@@ -1,0 +1,3 @@
+"NSDesktopFolderUsageDescription" = "ShotCubby déplace les nouvelles captures de ce dossier vers votre dossier ShotCubby.";
+"NSDocumentsFolderUsageDescription" = "Votre dossier ShotCubby se trouve par défaut dans Documents, et ShotCubby lit aussi un dossier de captures personnalisé qui s’y trouve.";
+"NSDownloadsFolderUsageDescription" = "Nécessaire seulement si vous choisissez un dossier de captures personnalisé dans Téléchargements.";

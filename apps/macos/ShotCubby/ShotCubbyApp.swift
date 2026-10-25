@@ -258,7 +258,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSW
 
         let shortcut = HotKeyPreferences.menuKeyEquivalent(keyCode: HotKeyPreferences.keyCode, modifiers: HotKeyPreferences.modifiers)
         let searchItem = NSMenuItem(
-            title: "Search\u{2026}",
+            title: tr("Search\u{2026}"),
             action: #selector(toggleSpotlight),
             keyEquivalent: shortcut.key
         )
@@ -267,7 +267,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSW
         menu.addItem(searchItem)
 
         let openFolderItem = NSMenuItem(
-            title: "Open Folder",
+            title: tr("Open Folder"),
             action: #selector(openFolderFromMenu),
             keyEquivalent: ""
         )
@@ -275,7 +275,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSW
         menu.addItem(openFolderItem)
 
         let settingsItem = NSMenuItem(
-            title: "Settings\u{2026}",
+            title: tr("Settings\u{2026}"),
             action: #selector(openSettingsFromMenu),
             keyEquivalent: ","
         )
@@ -283,7 +283,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSW
         menu.addItem(settingsItem)
 
         let updatesItem = NSMenuItem(
-            title: "Check for Updates…",
+            title: tr("Check for Updates…"),
             action: #selector(checkForUpdatesFromMenu),
             keyEquivalent: ""
         )
@@ -293,7 +293,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSW
         menu.addItem(.separator())
 
         let quitItem = NSMenuItem(
-            title: "Quit ShotCubby",
+            title: tr("Quit ShotCubby"),
             action: #selector(quitApp),
             keyEquivalent: "q"
         )

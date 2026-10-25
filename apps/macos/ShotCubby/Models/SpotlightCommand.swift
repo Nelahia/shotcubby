@@ -9,13 +9,13 @@ enum SpotlightCommand: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .preview: return "Preview"
-        case .copy: return "Copy"
-        case .rename: return "Rename"
-        case .openFolder: return "Open Folder"
-        case .trash: return "Move to Trash"
-        case .settings: return "Settings"
-        case .actions: return "Actions menu"
+        case .preview: return tr("Preview")
+        case .copy: return tr("Copy")
+        case .rename: return tr("Rename")
+        case .openFolder: return tr("Open Folder")
+        case .trash: return tr("Move to Trash")
+        case .settings: return tr("Settings")
+        case .actions: return tr("Actions menu")
         }
     }
 

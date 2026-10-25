@@ -4,7 +4,7 @@ import SwiftUI
 /// the pointer is over the pair, then takes its color and shows its symbol.
 struct WindowControlButton: View {
     let symbol: String
-    let label: String
+    let label: LocalizedStringKey
     let tint: Color
     let active: Bool
     let action: () -> Void

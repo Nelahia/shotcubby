@@ -34,12 +34,12 @@ enum APIKeyStore {
 
     static func set(_ key: String, for provider: LLMProvider) throws {
         let trimmed = key.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { throw SaveError(message: "The key is empty") }
+        guard !trimmed.isEmpty else { throw SaveError(message: tr("The key is empty")) }
         delete(provider)
         var item = query(provider)
         item[kSecValueData as String] = Data(trimmed.utf8)
         guard SecItemAdd(item as CFDictionary, nil) == errSecSuccess else {
-            throw SaveError(message: "Could not save the key")
+            throw SaveError(message: tr("Could not save the key"))
         }
     }
 

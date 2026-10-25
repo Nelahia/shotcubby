@@ -18,7 +18,7 @@ final class AIRenameStatus: ObservableObject {
     @Published private(set) var last: AIOutcome?
 
     func recordRenamed(_ title: String) {
-        last = AIOutcome(message: "Renamed to “\(title)”", failure: nil)
+        last = AIOutcome(message: String(format: tr("Renamed to “%@”"), title), failure: nil)
     }
 
     func record(_ error: Error) {

@@ -19,7 +19,7 @@ struct AIResultCard: View {
                     .font(.system(size: 11, weight: .semibold))
                     .kerning(0.6)
                     .foregroundStyle(.secondary)
-                Text(outcome?.message ?? "Nothing yet — take a screenshot")
+                Text(outcome?.message ?? tr("Nothing yet — take a screenshot"))
                     .fontWeight(.semibold)
                     .lineLimit(1)
                     .truncationMode(.tail)
