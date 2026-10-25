@@ -46,6 +46,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSW
         LegacyMigration.run()
         DockPreferences.apply()
         AppearancePreferences.apply()
+        LaunchAtLogin.applyDefault()
         setupMenuBar()
         setupPopover()
         setupSpotlight()

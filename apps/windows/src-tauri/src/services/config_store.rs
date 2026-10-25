@@ -31,6 +31,10 @@ pub struct AppConfig {
     /// Dark appearance. Stored as a flag so the default (key absent) is light.
     #[serde(default)]
     pub dark_theme: bool,
+    /// Set once the first-run "open at login" default has been applied, so a
+    /// later switch-off by the user is never undone.
+    #[serde(default)]
+    pub login_default_applied: bool,
     /// Shortcut per `HotkeyAction::id()`.
     #[serde(default)]
     pub hotkeys: BTreeMap<String, String>,

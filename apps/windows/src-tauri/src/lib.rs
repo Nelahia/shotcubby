@@ -89,6 +89,7 @@ pub fn run() {
             windows_ui::ensure_toast(&handle);
             windows_ui::ensure_copy_toast(&handle);
 
+            services::launch_at_login::apply_default(&handle);
             hotkey::init(&handle);
             services::updater::start(handle.clone());
 

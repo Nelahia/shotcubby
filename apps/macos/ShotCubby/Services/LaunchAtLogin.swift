@@ -3,12 +3,22 @@ import os
 
 /// Whether ShotCubby opens when the user logs in. macOS keeps the switch (it
 /// shows under System Settings → General → Login Items), so it is read back
-/// from the system rather than stored here.
+/// from the system rather than stored here (only the first-run default is).
 enum LaunchAtLogin {
     private static let logger = Logger(subsystem: "com.nelahian.shotcubby", category: "LaunchAtLogin")
 
     static var isEnabled: Bool {
         SMAppService.mainApp.status == .enabled
+    }
+
+    private static let defaultAppliedKey = "loginDefaultApplied"
+
+    /// Opens ShotCubby at login by default: turned on once, the first time the
+    /// app runs, and never again so that switching it off in Settings sticks.
+    static func applyDefault() {
+        guard !UserDefaults.standard.bool(forKey: defaultAppliedKey) else { return }
+        UserDefaults.standard.set(true, forKey: defaultAppliedKey)
+        set(true)
     }
 
     static func set(_ enabled: Bool) {

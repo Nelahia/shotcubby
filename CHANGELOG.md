@@ -18,7 +18,8 @@ cause. The full rules are in [CLAUDE.md](CLAUDE.md).
   only, is no longer listed by ⌘ Tab, and search stays on ⌘ /. The option itself
   and its default (on) are unchanged.
 - The open-at-login switch is now named "Open ShotCubby at session start" (macOS
-  and Windows). Off by default, as before.
+  and Windows) and is **on by default**: it is turned on the first time this
+  version runs, once. Turning it off in Settings stays off.
 
 ## 2.2.34 — 2026-10-25
 
