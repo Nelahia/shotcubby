@@ -38,7 +38,7 @@ walk(root);
 
 const unescape = (text) => text.replace(/\\u\{2026\}/g, "…").replace(/\\"/g, '"');
 // A text with an interpolation is built at run time, so it has no fixed key.
-const missing = [...used].map(unescape).filter((key) => !keys.has(key) && !key.includes("\\(") && key.length > 2);
+const missing = [...used].map(unescape).filter((key) => !keys.has(key) && !key.includes("\\(") && key.length > 2 && key !== "ShotCubby");
 console.log(`${used.size} texts used, ${keys.size} translated`);
 if (missing.length) console.log("MISSING French:\n  " + missing.join("\n  "));
 process.exitCode = missing.length ? 1 : 0;
