@@ -43,10 +43,22 @@ fn register(app: &AppHandle, action: HotkeyAction, hotkey_str: &str) -> Result<(
 /// Spotlight toggles its panel; the capture shortcuts just trigger Windows'
 /// own screenshot tools (`capture.rs`) — the existing file/clipboard
 /// watchers pick up the result from there.
+///
+/// This runs inside the shortcut plugin's handler, which holds the plugin's
+/// lock for as long as it takes. Opening the screenshot tool (`ShellExecuteExW`)
+/// waits by dispatching window messages, so another shortcut pressed meanwhile
+/// re-enters the plugin on the same thread, asks for the lock it already holds
+/// and freezes the whole app (tray, windows, every shortcut). The captures
+/// therefore leave the handler at once and run on their own thread.
 fn run(app: &AppHandle, action: HotkeyAction) {
     match action {
         HotkeyAction::Spotlight => windows_ui::toggle_spotlight(app),
-        HotkeyAction::FullScreenCapture => capture::trigger_full_screen_capture(),
-        HotkeyAction::RegionCapture => capture::trigger_region_capture(app),
+        HotkeyAction::FullScreenCapture => {
+            std::thread::spawn(capture::trigger_full_screen_capture);
+        }
+        HotkeyAction::RegionCapture => {
+            let app = app.clone();
+            std::thread::spawn(move || capture::trigger_region_capture(&app));
+        }
     }
 }
