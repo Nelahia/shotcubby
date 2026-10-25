@@ -2,9 +2,10 @@ use tauri::{AppHandle, Manager, WebviewUrl, WebviewWindow, WebviewWindowBuilder,
 
 use super::{POPOVER_LABEL, SETTINGS_LABEL, SPOTLIGHT_LABEL};
 
-/// Returns the Settings window, creating it (hidden) on first use. A plain
-/// titled window — the only one of the three meant to be moved/closed like
-/// a normal window, so it opts out of the other two's hide-on-blur behavior.
+/// Returns the Settings window, creating it (hidden) on first use. The only
+/// window meant to be moved, minimized and closed like a normal one, so it opts
+/// out of the other two's hide-on-blur behavior. It has no system title bar:
+/// `titlebar.js` draws its own.
 pub fn ensure_settings(app: &AppHandle) -> WebviewWindow {
     if let Some(window) = app.get_webview_window(SETTINGS_LABEL) {
         return window;
@@ -13,8 +14,9 @@ pub fn ensure_settings(app: &AppHandle) -> WebviewWindow {
     let window = WebviewWindowBuilder::new(app, SETTINGS_LABEL, WebviewUrl::App("settings.html".into()))
         .title("ShotCubby Settings")
         .inner_size(800.0, 560.0)
+        .decorations(false)
         .resizable(false)
-        .minimizable(false)
+        .minimizable(true)
         .maximizable(false)
         .visible(false)
         .build()

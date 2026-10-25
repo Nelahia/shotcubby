@@ -21,7 +21,7 @@ pub const COPY_TOAST_LABEL: &str = "copy-toast";
 
 /// Shared by all three windows: the Mac equivalents (`NSPopover`'s
 /// `.transient` behavior, `SpotlightPanel.resignKey`) all close on losing
-/// focus, so Settings — the one window with normal decorations — is the
+/// focus, so Settings — the one regular, movable window — is the
 /// only one that opts out (see `settings.rs`).
 fn hide_on_blur(window: &WebviewWindow) {
     let window_for_closure = window.clone();
