@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
-use std::path::PathBuf;
-use std::sync::OnceLock;
+use std::path::{Path, PathBuf};
+use std::sync::{Mutex, MutexGuard, OnceLock};
 
 /// Single small JSON file backing both `folder_preferences` and
 /// `hotkey_preferences` — the Windows analog of `UserDefaults`, which both
@@ -55,23 +55,110 @@ fn config_path() -> PathBuf {
     .clone()
 }
 
-pub fn load() -> AppConfig {
-    let mut config: AppConfig = std::fs::read_to_string(config_path())
-        .ok()
-        .and_then(|s| serde_json::from_str(&s).ok())
-        .unwrap_or_default();
+/// Serializes every read and write of the file: a setting changed on one thread
+/// can no longer be undone by another thread saving an older copy, and nobody
+/// reads the file halfway through a write.
+static LOCK: Mutex<()> = Mutex::new(());
+
+fn lock() -> MutexGuard<'static, ()> {
+    LOCK.lock().unwrap_or_else(|poisoned| poisoned.into_inner())
+}
+
+fn parse(path: &Path) -> Option<AppConfig> {
+    serde_json::from_str(&std::fs::read_to_string(path).ok()?).ok()
+}
+
+fn backup_of(path: &Path) -> PathBuf {
+    path.with_extension("json.bak")
+}
+
+/// The file, or its last good copy when it is empty or damaged. A file that
+/// cannot be read at all is kept as `.corrupt` before the defaults are used,
+/// so a lost setting can be traced instead of vanishing.
+fn read_from(path: &Path) -> AppConfig {
+    let mut config = parse(path).or_else(|| parse(&backup_of(path))).unwrap_or_else(|| {
+        if path.exists() {
+            let _ = std::fs::copy(path, path.with_extension("json.corrupt"));
+        }
+        AppConfig::default()
+    });
     if let Some(legacy) = config.hotkey.take() {
         config.hotkeys.entry("spotlight".to_string()).or_insert(legacy);
     }
     config
 }
 
-pub fn save(config: &AppConfig) {
-    let path = config_path();
+/// Writes a temporary file and renames it over the real one, so the config is
+/// never left truncated, even if the app is killed mid-write (an update does
+/// that). The previous good file is kept as `.bak`.
+fn write_to(path: &Path, config: &AppConfig) {
     if let Some(parent) = path.parent() {
         let _ = std::fs::create_dir_all(parent);
     }
-    if let Ok(json) = serde_json::to_string_pretty(config) {
-        let _ = std::fs::write(path, json);
+    let Ok(json) = serde_json::to_string_pretty(config) else { return };
+    if parse(path).is_some() {
+        let _ = std::fs::copy(path, backup_of(path));
+    }
+    let temporary = path.with_extension("json.tmp");
+    if std::fs::write(&temporary, json).is_err() || std::fs::rename(&temporary, path).is_err() {
+        let _ = std::fs::remove_file(&temporary);
+    }
+}
+
+pub fn load() -> AppConfig {
+    let _guard = lock();
+    read_from(&config_path())
+}
+
+/// Reads, changes and writes the config as one step; returns what `change` returns.
+pub fn update<R>(change: impl FnOnce(&mut AppConfig) -> R) -> R {
+    let _guard = lock();
+    let path = config_path();
+    let mut config = read_from(&path);
+    let result = change(&mut config);
+    write_to(&path, &config);
+    result
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn temp_config(name: &str) -> PathBuf {
+        let dir = std::env::temp_dir().join(format!("shotcubby-config-{}-{name}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+        dir.join("config.json")
+    }
+
+    #[test]
+    fn what_is_written_is_read_back() {
+        let path = temp_config("roundtrip");
+        write_to(&path, &AppConfig { ai_rename_enabled: true, ..AppConfig::default() });
+        assert!(read_from(&path).ai_rename_enabled);
+    }
+
+    #[test]
+    fn an_emptied_file_falls_back_to_the_last_good_copy() {
+        let path = temp_config("emptied");
+        write_to(&path, &AppConfig { ai_rename_enabled: true, ..AppConfig::default() });
+        write_to(&path, &AppConfig { ai_rename_enabled: true, dark_theme: true, ..AppConfig::default() });
+        std::fs::write(&path, "").unwrap();
+        assert!(read_from(&path).ai_rename_enabled, "the setting must survive a truncated file");
+    }
+
+    #[test]
+    fn an_unreadable_file_with_no_copy_is_kept_aside() {
+        let path = temp_config("corrupt");
+        std::fs::write(&path, "{ not json").unwrap();
+        assert!(!read_from(&path).ai_rename_enabled);
+        assert!(path.with_extension("json.corrupt").exists());
+    }
+
+    #[test]
+    fn no_temporary_file_is_left_behind() {
+        let path = temp_config("tmp");
+        write_to(&path, &AppConfig::default());
+        assert!(!path.with_extension("json.tmp").exists());
     }
 }

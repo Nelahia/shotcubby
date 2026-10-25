@@ -6,7 +6,5 @@ pub fn enabled() -> bool {
 }
 
 pub fn set_enabled(enabled: bool) {
-    let mut config = config_store::load();
-    config.auto_update_disabled = !enabled;
-    config_store::save(&config);
+    config_store::update(|config| config.auto_update_disabled = !enabled);
 }

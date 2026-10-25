@@ -46,15 +46,15 @@ fn is_standalone_key(key: &str) -> bool {
 }
 
 pub fn set(action: HotkeyAction, hotkey: String) {
-    let mut config = config_store::load();
-    config.hotkeys.insert(action.id().to_string(), hotkey);
-    config_store::save(&config);
+    config_store::update(|config| {
+        config.hotkeys.insert(action.id().to_string(), hotkey);
+    });
 }
 
 pub fn reset(action: HotkeyAction) {
-    let mut config = config_store::load();
-    config.hotkeys.remove(action.id());
-    config_store::save(&config);
+    config_store::update(|config| {
+        config.hotkeys.remove(action.id());
+    });
 }
 
 /// Human-readable form for display in the Settings field, e.g. "Ctrl + Alt + /".
