@@ -17,7 +17,7 @@ struct GeneralSettingsPane: View {
                     Toggle("", isOn: $launchAtLogin).labelsHidden().toggleStyle(.switch).tint(SettingsStyle.switchOn)
                 }
                 Divider()
-                SettingsRow(title: "Show in the Dock and app switcher", subtitle: "Off: ShotCubby lives in the menu bar only, and ⌘ Tab no longer lists it. Search stays on ⌘ /.") {
+                SettingsRow(title: "Show in the Dock and app switcher", subtitle: "Off: ShotCubby lives in the menu bar only, and ⌘ Tab no longer lists it. The search shortcut still works.") {
                     Toggle("", isOn: $showInDock).labelsHidden().toggleStyle(.switch).tint(SettingsStyle.switchOn)
                 }
                 Divider()

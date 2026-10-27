@@ -10,6 +10,17 @@ Every version has its own entry, written before the tag is created: one short,
 precise bullet per change the user can see, and for a fix the symptom and its
 cause. The full rules are in [CLAUDE.md](CLAUDE.md).
 
+## 2.3.1 — 2026-10-27
+
+### Fixed
+- macOS: on a keyboard where "/" needs Shift (French, German, Spanish…), the
+  default search shortcut was ⌘= instead of ⌘/, which took "zoom in" from every
+  app. The shortcut is saved as a physical key, and the key that prints "/" on a
+  US keyboard prints "=" on a French one. On those keyboards the default is now
+  ⌘⇧Space; US-style keyboards keep ⌘/. A shortcut you set yourself is untouched.
+- macOS: the Dock option's description no longer names ⌘ / as the search
+  shortcut.
+
 ## 2.3.0 — 2026-10-27
 
 ### Added

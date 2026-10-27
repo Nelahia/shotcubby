@@ -3,7 +3,8 @@ import Carbon.HIToolbox
 
 /// Persists the user's chosen global shortcut for opening Spotlight search.
 ///
-/// Default is Command + Slash. This is a system-wide Carbon hotkey, so it
+/// Default is Command + Slash (see `defaultKeyCode` for keyboards without a bare
+/// slash). This is a system-wide Carbon hotkey, so it
 /// would otherwise steal whatever that combo already does — checked against
 /// Apple's own Command-key shortcut list (support.apple.com/102650): every
 /// letter is claimed by something, but ⌘/ is about as obscure as it gets
@@ -15,8 +16,20 @@ enum HotKeyPreferences {
 
     static let didChangeNotification = Notification.Name("HotKeyPreferences.didChange")
 
-    static let defaultKeyCode = UInt32(kVK_ANSI_Slash)
-    static let defaultModifiers = UInt32(cmdKey)
+    /// A key code is a physical key, and the one that prints "/" on a US keyboard
+    /// prints "=" on a French one, which would give ⌘= (zoom in) to ShotCubby in
+    /// every app. So ⌘/ is only the default where "/" is typed without Shift;
+    /// elsewhere (French, German, Spanish…) it is ⌘⇧Space. Worked out once per
+    /// launch, so the shortcut cannot move under a layout switch.
+    static let defaultKeyCode: UInt32 = slashKeyCode ?? UInt32(kVK_Space)
+    static let defaultModifiers: UInt32 = slashKeyCode == nil ? UInt32(cmdKey | shiftKey) : UInt32(cmdKey)
+
+    /// The main-block key that prints "/" with no modifier on the current layout.
+    /// The numeric keypad is left out: a laptop has none.
+    private static let slashKeyCode: UInt32? = {
+        let keypad: Set<UInt32> = [65, 67, 69, 71, 75, 76, 78, 81, 82, 83, 84, 85, 86, 87, 88, 89, 91, 92]
+        return (UInt32(0)..<UInt32(128)).first { !keypad.contains($0) && translatedChar(for: $0) == "/" }
+    }()
 
     static var keyCode: UInt32 {
         guard UserDefaults.standard.object(forKey: keyCodeDefaultsKey) != nil else { return defaultKeyCode }
