@@ -16,19 +16,24 @@ enum HotKeyPreferences {
 
     static let didChangeNotification = Notification.Name("HotKeyPreferences.didChange")
 
-    /// A key code is a physical key, and the one that prints "/" on a US keyboard
-    /// prints "=" on a French one, which would give ⌘= (zoom in) to ShotCubby in
-    /// every app. So ⌘/ is only the default where "/" is typed without Shift;
-    /// elsewhere (French, German, Spanish…) it is ⌘⇧Space. Worked out once per
-    /// launch, so the shortcut cannot move under a layout switch.
-    static let defaultKeyCode: UInt32 = slashKeyCode ?? UInt32(kVK_Space)
-    static let defaultModifiers: UInt32 = slashKeyCode == nil ? UInt32(cmdKey | shiftKey) : UInt32(cmdKey)
+    /// ⌘ plus whatever types "/" on this keyboard. A key code is a physical key,
+    /// and the one that prints "/" on a US keyboard prints "=" on a French one,
+    /// which would give ⌘= (zoom in) to ShotCubby in every app. So the key is
+    /// looked up by what it types: a key of its own where there is one (US, UK),
+    /// else the key that types it with Shift (French, German, Spanish…), so the
+    /// default is ⌘⇧ plus that key. Worked out once per launch, so the shortcut
+    /// cannot move under a layout switch.
+    static let defaultKeyCode: UInt32 = slash.keyCode
+    static let defaultModifiers: UInt32 = slash.needsShift ? UInt32(cmdKey | shiftKey) : UInt32(cmdKey)
 
-    /// The main-block key that prints "/" with no modifier on the current layout.
-    /// The numeric keypad is left out: a laptop has none.
-    private static let slashKeyCode: UInt32? = {
+    /// The numeric keypad is left out: a laptop has none. A layout that types no
+    /// "/" at all gets ⌘⇧Space.
+    private static let slash: (keyCode: UInt32, needsShift: Bool) = {
         let keypad: Set<UInt32> = [65, 67, 69, 71, 75, 76, 78, 81, 82, 83, 84, 85, 86, 87, 88, 89, 91, 92]
-        return (UInt32(0)..<UInt32(128)).first { !keypad.contains($0) && translatedChar(for: $0) == "/" }
+        let keys = (UInt32(0)..<UInt32(128)).filter { !keypad.contains($0) }
+        if let bare = keys.first(where: { translatedChar(for: $0) == "/" }) { return (bare, false) }
+        if let shifted = keys.first(where: { translatedChar(for: $0, shift: true) == "/" }) { return (shifted, true) }
+        return (UInt32(kVK_Space), true)
     }()
 
     static var keyCode: UInt32 {
@@ -103,7 +108,7 @@ enum HotKeyPreferences {
 
     /// Resolves a Carbon keycode to the character printed on that physical
     /// key under the CURRENT keyboard layout.
-    private static func translatedChar(for keyCode: UInt32) -> String? {
+    private static func translatedChar(for keyCode: UInt32, shift: Bool = false) -> String? {
         guard let source = TISCopyCurrentKeyboardLayoutInputSource()?.takeRetainedValue(),
               let layoutDataPtr = TISGetInputSourceProperty(source, kTISPropertyUnicodeKeyLayoutData)
         else { return nil }
@@ -117,7 +122,7 @@ enum HotKeyPreferences {
             guard let keyLayoutPtr = rawBuffer.bindMemory(to: UCKeyboardLayout.self).baseAddress else { return -1 }
             return UCKeyTranslate(
                 keyLayoutPtr, UInt16(keyCode), UInt16(kUCKeyActionDisplay),
-                0, UInt32(LMGetKbdType()), OptionBits(kUCKeyTranslateNoDeadKeysBit),
+                shift ? UInt32(shiftKey >> 8) : 0, UInt32(LMGetKbdType()), OptionBits(kUCKeyTranslateNoDeadKeysBit),
                 &deadKeyState, 4, &length, &chars
             )
         }

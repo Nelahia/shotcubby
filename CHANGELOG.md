@@ -16,8 +16,10 @@ cause. The full rules are in [CLAUDE.md](CLAUDE.md).
 - macOS: on a keyboard where "/" needs Shift (French, German, Spanish…), the
   default search shortcut was ⌘= instead of ⌘/, which took "zoom in" from every
   app. The shortcut is saved as a physical key, and the key that prints "/" on a
-  US keyboard prints "=" on a French one. On those keyboards the default is now
-  ⌘⇧Space; US-style keyboards keep ⌘/. A shortcut you set yourself is untouched.
+  US keyboard prints "=" on a French one. The default is now the combination that
+  types "/" on your keyboard: ⌘/ where "/" has a key of its own (US, UK), and
+  ⌘⇧ plus the key that types it with Shift on a French, German or Spanish
+  keyboard. A shortcut you set yourself is untouched.
 - macOS: the Dock option's description no longer names ⌘ / as the search
   shortcut.
 
