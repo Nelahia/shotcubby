@@ -10,7 +10,7 @@ Every version has its own entry, written before the tag is created: one short,
 precise bullet per change the user can see, and for a fix the symptom and its
 cause. The full rules are in [CLAUDE.md](CLAUDE.md).
 
-## 2.3.0 — 2026-10-25
+## 2.3.0 — 2026-10-27
 
 ### Added
 - **French**: ShotCubby now speaks French (menus, popover, search, Settings,
@@ -19,8 +19,6 @@ cause. The full rules are in [CLAUDE.md](CLAUDE.md).
   General → Language & Region → Applications. Windows follows Windows' display
   language, and Settings → General → Language can force Auto, English or Français
   (the tray menu and every open window switch at once).
-
-## 2.2.37 — 2026-10-25
 
 ### Fixed
 - Windows: settings could go back to their defaults after an update (AI naming
