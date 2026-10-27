@@ -22,7 +22,7 @@
 "Dark" = "Sombre";
 "Open ShotCubby at session start" = "Ouvrir ShotCubby à l’ouverture de la session";
 "Show in the Dock and app switcher" = "Afficher dans le Dock et le sélecteur d’apps";
-"Off: ShotCubby lives in the menu bar only, and ⌘ Tab no longer lists it. Search stays on ⌘ /." = "Désactivé : ShotCubby reste uniquement dans la barre des menus et n’apparaît plus avec ⌘ Tab. La recherche reste sur ⌘ /.";
+"Off: ShotCubby lives in the menu bar only, and ⌘ Tab no longer lists it. The search shortcut still works." = "Désactivé : ShotCubby reste uniquement dans la barre des menus et n’apparaît plus avec ⌘ Tab. Le raccourci de recherche fonctionne toujours.";
 "Check for updates automatically" = "Rechercher les mises à jour automatiquement";
 
 /* Screenshots */
