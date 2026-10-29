@@ -169,7 +169,7 @@ final class SpotlightController {
         panel.backgroundColor = .clear
         panel.hasShadow = true
         panel.hidesOnDeactivate = false
-        panel.isMovableByWindowBackground = true
+        panel.isMovableByWindowBackground = false
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .transient]
         panel.animationBehavior = .utilityWindow
 
@@ -502,6 +502,7 @@ struct SpotlightView: View {
         }
         .padding(.horizontal, 18)
         .frame(height: 60)
+        .background(WindowDragArea())
     }
 
     private func list(_ results: [Shot]) -> some View {
