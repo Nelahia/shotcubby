@@ -3,6 +3,15 @@ import { invoke } from "./shared.js";
 /** How far the pointer must travel, held down, before a click turns into a drag. */
 const DRAG_DISTANCE = 6;
 
+// A screenshot put back on the window it came from must do nothing. Left alone,
+// the webview would accept the file and open it in place of the page.
+for (const type of ["dragover", "drop"]) {
+  window.addEventListener(type, (e) => {
+    e.preventDefault();
+    if (e.dataTransfer) e.dataTransfer.dropEffect = "none";
+  });
+}
+
 /**
  * Lets `element` be dragged out of the window as the screenshot's real file
  * (onto the desktop, Explorer, a chat, a mail…). The native drag starts once

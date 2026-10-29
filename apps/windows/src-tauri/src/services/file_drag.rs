@@ -16,9 +16,18 @@ pub fn is_dragging() -> bool {
     DRAGGING.load(Ordering::SeqCst)
 }
 
+/// Whether the screen point (physical pixels) is inside `window`.
+fn over_window(window: &WebviewWindow, x: i32, y: i32) -> bool {
+    let (Ok(origin), Ok(size)) = (window.outer_position(), window.outer_size()) else {
+        return false;
+    };
+    x >= origin.x && x < origin.x + size.width as i32 && y >= origin.y && y < origin.y + size.height as i32
+}
+
 /// Starts a native drag of the file out of `window`: it can be dropped on the
 /// desktop, in Explorer or in any app that takes files, and is copied there.
-/// The window closes once the file has been dropped; Esc cancels and keeps it.
+/// The window closes once the file has been dropped elsewhere; Esc, or a drop
+/// back on the window itself, cancels and keeps it.
 /// The drag loop blocks its thread and needs the UI one, so it runs there.
 pub fn start(window: &WebviewWindow, path: PathBuf) -> Result<(), String> {
     let preview = match thumbnails::png_bytes(&path, PREVIEW_PX) {
@@ -37,8 +46,10 @@ pub fn start(window: &WebviewWindow, path: PathBuf) -> Result<(), String> {
                 &dragged,
                 DragItem::Files(vec![path]),
                 preview,
-                move |result, _| {
-                    if matches!(result, DragResult::Dropped) {
+                move |result, cursor| {
+                    // Put back on its own window, the screenshot goes nowhere: it
+                    // counts as a cancel and the window stays open.
+                    if matches!(result, DragResult::Dropped) && !over_window(&closing, cursor.x, cursor.y) {
                         let _ = closing.hide();
                     }
                 },

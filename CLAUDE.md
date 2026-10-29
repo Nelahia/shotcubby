@@ -22,3 +22,27 @@ written **before** the tag is created and committed with the release.
 
 The `/release`, `/release-mac` and `/release-windows` skills stop when the
 version has no entry.
+
+## Dragging a screenshot out (both apps)
+
+Press a screenshot and move a few pixels: the file is dragged out as a **copy**
+(never a move, the original stays in the ShotCubby folder). What cost a release
+each time, so it is not found twice:
+
+- **Windows, preview:** the drag picture is drawn by the window under the cursor.
+  The search and the popover are built with `disable_drag_drop_handler()`; with
+  Tauri's own drop target on, the picture is missing over them. Keep it off, and
+  keep `dragover`/`drop` blocked in `src/file-drag.js`, or the webview opens a
+  dropped file in place of the page.
+- **Windows, closing:** both windows close on blur, so `file_drag::is_dragging()`
+  holds that off during the drag. The window closes after a drop elsewhere; Esc,
+  or a drop back on the window itself, cancels and keeps it open.
+- **macOS, window:** the search panel must not be `isMovableByWindowBackground`:
+  it wins over the file drag and carries the whole panel. It moves by its search
+  bar only (`WindowDragArea`). The panel never becomes the active app, so it
+  stays open after a drop, which is wanted.
+- **macOS, copy:** the file is offered with `registerFileRepresentation`, not as
+  its own path, which Finder would move on the same disk.
+- A drag can only be checked by hand with a real mouse (CI compiles it, nothing
+  more): drag from the search and from the popover to the desktop, a chat,
+  then back onto the window.
