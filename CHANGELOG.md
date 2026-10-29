@@ -10,6 +10,15 @@ Every version has its own entry, written before the tag is created: one short,
 precise bullet per change the user can see, and for a fix the symptom and its
 cause. The full rules are in [CLAUDE.md](CLAUDE.md).
 
+## 2.4.2 — 2026-10-29
+
+### Fixed
+- Windows: the picture that follows the cursor while you drag a screenshot was
+  still missing over the search and the popover (2.4.1 did not fix it). The
+  picture is drawn by the window under the cursor, and the one Tauri puts over
+  these two windows to catch dropped files never draws it. That drop target is
+  now off on both, which changes nothing else: they never took dropped files.
+
 ## 2.4.1 — 2026-10-29
 
 ### Fixed
