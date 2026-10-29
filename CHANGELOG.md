@@ -10,6 +10,14 @@ Every version has its own entry, written before the tag is created: one short,
 precise bullet per change the user can see, and for a fix the symptom and its
 cause. The full rules are in [CLAUDE.md](CLAUDE.md).
 
+## 2.4.4 — 2026-10-29
+
+### Fixed
+- Windows: after dragging a screenshot, putting it back on the search or the
+  popover closed that window. It counted as a drop, and the window closes after
+  any drop. A drop on the window it came from now does nothing and leaves it
+  open, as on macOS. Dropping anywhere else still closes the window.
+
 ## 2.4.3 — 2026-10-29
 
 ### Fixed
