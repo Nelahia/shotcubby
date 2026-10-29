@@ -10,6 +10,15 @@ Every version has its own entry, written before the tag is created: one short,
 precise bullet per change the user can see, and for a fix the symptom and its
 cause. The full rules are in [CLAUDE.md](CLAUDE.md).
 
+## 2.4.1 — 2026-10-29
+
+### Fixed
+- Windows: the picture that follows the cursor while you drag a screenshot was
+  hidden as long as the cursor was over the search or the popover, and only
+  appeared once it left them. Both windows stay above every other one, and the
+  drag picture passed under them. They now step down for the length of the drag
+  and go back to the top at the end.
+
 ## 2.4.0 — 2026-10-29
 
 ### Added
