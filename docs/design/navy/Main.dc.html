@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Navy palette and roles</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 1240px; height: 740px; box-sizing: border-box; padding: 56px 64px; display: flex; gap: 72px; background: radial-gradient(120% 100% at 0% 0%, #303D59 0%, #1E263B 28%, #111522 70%); color: #DCE3EF; font-family: 'Segoe UI', system-ui, sans-serif">
+
+<div style="width: 400px; flex-shrink: 0; display: flex; flex-direction: column">
+<h1 style="margin: 0; font-size: 30px; font-weight: 600; letter-spacing: -0.01em">ShotCubby navy</h1>
+<p style="margin: 8px 0 0; font-size: 14px; line-height: 1.5; color: #98A9C4">Six shades, one ramp. The same tokens drive the macOS app, the Windows app and both Settings windows.</p>
+<div style="display: flex; flex-direction: column; margin-top: 32px">
+<sc-for list="{{pills}}" as="pill" hint-placeholder-count="6">
+<div style="height: 86px; box-sizing: border-box; padding: 0 36px; margin-top: {{pill.mt}}; border-radius: 43px; display: flex; align-items: center; justify-content: space-between; background: {{pill.hex}}; color: {{pill.fg}}; box-shadow: 0 -8px 20px rgba(0,0,0,0.28)">
+<span style="font-size: 16px; font-weight: 600; letter-spacing: 0.02em">{{pill.hex}}</span>
+<span style="font-size: 12px; opacity: 0.9">{{pill.role}}</span>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 14px">
+<div style="border-radius: 16px; background: rgba(17,21,34,0.6); border: 1px solid rgba(152,169,196,0.18); padding: 8px 20px 12px">
+<div style="display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1fr); gap: 12px; padding: 12px 0; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #98A9C4">
+<span>Role</span><span>Dark</span><span>Light</span>
+</div>
+<sc-for list="{{rows}}" as="row" hint-placeholder-count="9">
+<div style="display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1fr); gap: 12px; align-items: center; padding: 9px 0; border-top: 1px solid rgba(152,169,196,0.14)">
+<span style="font-size: 14px; color: #DCE3EF">{{row.label}}</span>
+<span style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: #DCE3EF"><span style="width: 20px; height: 20px; border-radius: 50%; background: {{row.dHex}}; border: 1px solid rgba(220,227,239,0.35)"></span>{{row.dLabel}}</span>
+<span style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: #DCE3EF"><span style="width: 20px; height: 20px; border-radius: 50%; background: {{row.lHex}}; border: 1px solid rgba(220,227,239,0.35)"></span>{{row.lLabel}}</span>
+</div>
+</sc-for>
+</div>
+<p style="margin: 0; font-size: 12px; line-height: 1.6; color: #98A9C4">* Light tints derived from the ramp, not in the palette. The turquoise accent is gone: the palette has no accent, so the lightest steel carries it. Warning amber and delete red stay, as the palette has no signal color.</p>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1240,"height":740}}'>
+class Component extends DCLogic {
+renderVals() {
+const ramp = [
+['#111522', 'Window, dark', '#DCE3EF'],
+['#1E263B', 'Surface, dark', '#DCE3EF'],
+['#303D59', 'Raised, accent in light', '#DCE3EF'],
+['#536684', 'Strong line, switch', '#DCE3EF'],
+['#98A9C4', 'Muted text, accent', '#111522'],
+['#DCE3EF', 'Text, window in light', '#111522']
+];
+const pills = ramp.map((p, i) => ({ hex: p[0], role: p[1], fg: p[2], mt: i === 0 ? '0px' : '-22px' }));
+const row = (label, d, l, ls) => ({ label, dHex: d, dLabel: d, lHex: l, lLabel: l + (ls || '') });
+const rows = [
+row('Window', '#111522', '#DCE3EF'),
+row('Surface: cards, tiles', '#1E263B', '#F3F6FB', ' *'),
+row('Raised: hover, selected', '#303D59', '#C7D1E3', ' *'),
+row('Strong line', '#536684', '#98A9C4'),
+row('Muted text', '#98A9C4', '#536684'),
+row('Text', '#DCE3EF', '#111522'),
+row('Accent, focus ring', '#98A9C4', '#303D59'),
+row('Switch on', '#536684', '#303D59'),
+row('Primary button', '#DCE3EF', '#111522')
+];
+return { pills, rows };
+}
+}
+</script>
+</body>
+</html>

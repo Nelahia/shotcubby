@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tray popover</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 380px; height: 480px; box-sizing: border-box; display: flex; flex-direction: column; overflow: hidden; border-radius: 14px; background: {{t.bg}}; color: {{t.ink}}; border: 1px solid {{t.line}}; font-family: 'Segoe UI', system-ui, sans-serif; font-size: 13px">
+
+<div style="display: flex; align-items: center; gap: 10px; padding: 14px 16px 10px">
+<span style="width: 24px; height: 24px; border-radius: 7px; display: flex; align-items: center; justify-content: center; background: {{t.surface}}; border: 1px solid {{t.line}}; color: {{t.ink}}">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2M12 12h.01"/></svg>
+</span>
+<span style="font-size: 14px; font-weight: 600">ShotCubby</span>
+<span style="font-size: 11px; padding: 2px 8px; border-radius: 99px; background: {{t.raised}}; color: {{t.muted}}">24</span>
+<span style="flex: 1"></span>
+<button aria-label="Settings" style="width: 32px; height: 32px; border: 0; border-radius: 8px; background: transparent; color: {{t.muted}}; display: flex; align-items: center; justify-content: center; padding: 0">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9M15 5v4M9 15v4"/></svg>
+</button>
+</div>
+
+<div style="padding: 0 16px 10px">
+<div style="display: flex; gap: 2px; padding: 3px; border-radius: 10px; background: {{t.surface}}">
+<button style="flex: 1; height: 28px; border: 0; border-radius: 8px; background: {{t.raised}}; color: {{t.ink}}; font: inherit; font-size: 12px; font-weight: 600">All</button>
+<button style="flex: 1; height: 28px; border: 0; border-radius: 8px; background: transparent; color: {{t.muted}}; font: inherit; font-size: 12px">Files</button>
+<button style="flex: 1; height: 28px; border: 0; border-radius: 8px; background: transparent; color: {{t.muted}}; font: inherit; font-size: 12px">Clipboard</button>
+</div>
+</div>
+
+<div style="flex: 1; min-height: 0; overflow: hidden; padding: 0 16px">
+<div style="font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: {{t.muted}}; margin: 6px 0 8px">Today</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px">
+<sc-for list="{{today}}" as="tile" hint-placeholder-count="3">
+<div style="display: flex; flex-direction: column; gap: 5px; min-width: 0">
+<div style="position: relative; aspect-ratio: 16 / 10; border-radius: 10px; overflow: hidden; background: {{tile.bg}}; border: 1px solid {{tile.line}}">
+<div style="position: absolute; left: 10%; top: 16%; width: {{tile.w1}}; height: 9%; border-radius: 3px; background: {{tile.bar}}"></div>
+<div style="position: absolute; left: 10%; top: 32%; width: {{tile.w2}}; height: 7%; border-radius: 3px; background: {{tile.bar2}}"></div>
+<div style="position: absolute; left: 10%; top: 50%; width: {{tile.w3}}; height: 30%; border-radius: 4px; background: {{tile.bar2}}"></div>
+<sc-if value="{{tile.clip}}" hint-placeholder-val="{{false}}">
+<span style="position: absolute; right: 5px; top: 5px; font-size: 10px; padding: 1px 6px; border-radius: 99px; background: {{tile.badge}}; color: {{tile.muted}}">Clipboard</span>
+</sc-if>
+</div>
+<div style="font-size: 12px; font-weight: 600; color: {{tile.ink}}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{tile.name}}</div>
+<div style="font-size: 11px; color: {{tile.muted}}">{{tile.time}}</div>
+</div>
+</sc-for>
+</div>
+<div style="font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: {{t.muted}}; margin: 14px 0 8px">Yesterday</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px">
+<sc-for list="{{yesterday}}" as="tile" hint-placeholder-count="3">
+<div style="display: flex; flex-direction: column; gap: 5px; min-width: 0">
+<div style="position: relative; aspect-ratio: 16 / 10; border-radius: 10px; overflow: hidden; background: {{tile.bg}}; border: 1px solid {{tile.line}}">
+<div style="position: absolute; left: 10%; top: 16%; width: {{tile.w1}}; height: 9%; border-radius: 3px; background: {{tile.bar}}"></div>
+<div style="position: absolute; left: 10%; top: 32%; width: {{tile.w2}}; height: 7%; border-radius: 3px; background: {{tile.bar2}}"></div>
+<div style="position: absolute; left: 10%; top: 50%; width: {{tile.w3}}; height: 30%; border-radius: 4px; background: {{tile.bar2}}"></div>
+</div>
+<div style="font-size: 12px; font-weight: 600; color: {{tile.ink}}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{tile.name}}</div>
+<div style="font-size: 11px; color: {{tile.muted}}">{{tile.time}}</div>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div style="display: flex; align-items: center; padding: 8px 12px; border-top: 1px solid {{t.line}}">
+<button style="display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 10px; border: 0; border-radius: 8px; background: transparent; color: {{t.ink}}; font: inherit; font-size: 12.5px">
+<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+<span>Open Spotlight</span>
+<span style="font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace; font-size: 11px; padding: 2px 6px; border-radius: 6px; background: {{t.surface}}; border: 1px solid {{t.line}}; color: {{t.muted}}">Ctrl /</span>
+</button>
+<span style="flex: 1"></span>
+<button style="height: 32px; padding: 0 10px; border: 0; border-radius: 8px; background: transparent; color: {{t.muted}}; font: inherit; font-size: 12.5px">Quit</button>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"mode":{"editor":"enum","options":["dark","light"],"default":"dark"},"$preview":{"width":380,"height":480}}'>
+class Component extends DCLogic {
+renderVals() {
+const light = this.props.mode === 'light';
+const t = light
+? { bg: '#DCE3EF', surface: '#F3F6FB', raised: '#C7D1E3', strong: '#98A9C4', muted: '#536684', ink: '#111522', line: 'rgba(17,21,34,0.14)' }
+: { bg: '#111522', surface: '#1E263B', raised: '#303D59', strong: '#536684', muted: '#98A9C4', ink: '#DCE3EF', line: 'rgba(152,169,196,0.18)' };
+const tile = (name, time, clip, w1, w2, w3, flip) => ({
+name, time, clip, w1, w2, w3,
+bg: flip ? 'linear-gradient(135deg, ' + t.raised + ', ' + t.surface + ')' : 'linear-gradient(135deg, ' + t.surface + ', ' + t.raised + ')',
+bar: t.strong, bar2: t.line, line: t.line, badge: t.bg, ink: t.ink, muted: t.muted
+});
+return {
+t,
+today: [
+tile('Pricing page', '2 min ago', false, '52%', '70%', '48%', false),
+tile('Invoice March', '1 hr ago', true, '40%', '58%', '62%', true),
+tile('Keys settings', '3 hr ago', false, '60%', '44%', '36%', false)
+],
+yesterday: [
+tile('Dashboard', 'yesterday', false, '46%', '66%', '56%', true),
+tile('Release notes', 'yesterday', false, '58%', '50%', '40%', false),
+tile('Error dialog', 'yesterday', true, '36%', '62%', '50%', true)
+]
+};
+}
+}
+</script>
+</body>
+</html>
