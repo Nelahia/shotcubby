@@ -10,6 +10,14 @@ Every version has its own entry, written before the tag is created: one short,
 precise bullet per change the user can see, and for a fix the symptom and its
 cause. The full rules are in [CLAUDE.md](CLAUDE.md).
 
+## 2.4.3 — 2026-10-29
+
+### Fixed
+- macOS: dragging a screenshot out of the search moved the whole search window
+  instead of the file. The panel was set to move when pressed on any part of its
+  background, and that won over the file drag. It now moves only when you drag its
+  search bar, and a press on a screenshot carries that screenshot.
+
 ## 2.4.2 — 2026-10-29
 
 ### Fixed
