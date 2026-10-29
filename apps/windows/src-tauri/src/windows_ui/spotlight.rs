@@ -3,6 +3,7 @@ use tauri::{
 };
 
 use super::{capture_overlay, SPOTLIGHT_LABEL};
+use crate::services::file_drag;
 
 const SPOTLIGHT_SIZE: (f64, f64) = (720.0, 460.0);
 
@@ -33,6 +34,9 @@ pub fn ensure_spotlight(app: &AppHandle) -> WebviewWindow {
     let window_for_blur = window.clone();
     window.on_window_event(move |event| {
         if let WindowEvent::Focused(false) = event {
+            if file_drag::is_dragging() {
+                return;
+            }
             capture_overlay::hide_unless_capturing(window_for_blur.clone());
         }
     });

@@ -24,6 +24,7 @@ pub const FRENCH: &[(&str, &str)] = &[
     // Screenshots
     ("Could not move the file to the Recycle Bin", "Impossible de déplacer le fichier dans la Corbeille"),
     ("Screenshot not found", "Capture introuvable"),
+    ("Unknown screenshot", "Capture inconnue"),
     ("Could not rename", "Impossible de renommer"),
     (
         "That name is empty or only has characters Windows does not allow",

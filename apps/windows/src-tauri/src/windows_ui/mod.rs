@@ -13,6 +13,8 @@ pub use toast::{ensure_toast, show_toast};
 
 use tauri::{WebviewWindow, WindowEvent};
 
+use crate::services::file_drag;
+
 pub const POPOVER_LABEL: &str = "popover";
 pub const SPOTLIGHT_LABEL: &str = "spotlight";
 pub const SETTINGS_LABEL: &str = "settings";
@@ -27,6 +29,9 @@ fn hide_on_blur(window: &WebviewWindow) {
     let window_for_closure = window.clone();
     window.on_window_event(move |event| {
         if let WindowEvent::Focused(false) = event {
+            if file_drag::is_dragging() {
+                return;
+            }
             let _ = window_for_closure.hide();
         }
     });
