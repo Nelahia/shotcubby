@@ -33,10 +33,6 @@ pub fn start(window: &WebviewWindow, path: PathBuf) -> Result<(), String> {
     window
         .run_on_main_thread(move || {
             let closing = dragged.clone();
-            // The preview that follows the cursor is a window of its own, and it
-            // would pass under this always-on-top one: hidden while over it.
-            let on_top = dragged.is_always_on_top().unwrap_or(false);
-            let _ = dragged.set_always_on_top(false);
             let started = drag::start_drag(
                 &dragged,
                 DragItem::Files(vec![path]),
@@ -49,7 +45,6 @@ pub fn start(window: &WebviewWindow, path: PathBuf) -> Result<(), String> {
                 Options::default(),
             );
             DRAGGING.store(false, Ordering::SeqCst);
-            let _ = dragged.set_always_on_top(on_top);
             if let Err(error) = started {
                 eprintln!("file drag failed: {error}");
             }

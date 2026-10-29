@@ -26,6 +26,9 @@ pub fn ensure_spotlight(app: &AppHandle) -> WebviewWindow {
         // rounded frame and border around the (already rounded, transparent) page.
         .shadow(false)
         .transparent(true)
+        // Tauri's own drop target would sit over the page and never draw the
+        // picture that follows the cursor during a drag out of this window.
+        .disable_drag_drop_handler()
         .build()
         .expect("failed to build spotlight window");
 
