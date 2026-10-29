@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>macOS Settings</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 800px; height: 600px; box-sizing: border-box; display: flex; overflow: hidden; border-radius: 12px; background: {{t.bg}}; color: {{t.ink}}; border: 1px solid {{t.line}}; font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', system-ui, sans-serif; font-size: 13px">
+
+<div style="width: 208px; flex-shrink: 0; box-sizing: border-box; background: {{t.surface}}; border-right: 1px solid {{t.line}}; display: flex; flex-direction: column">
+<div style="height: 44px; display: flex; align-items: center; gap: 8px; padding: 0 16px" aria-hidden="true">
+<span style="width: 13px; height: 13px; border-radius: 50%; background: {{t.raised}}"></span>
+<span style="width: 13px; height: 13px; border-radius: 50%; background: {{t.raised}}"></span>
+</div>
+<div style="display: flex; align-items: center; gap: 10px; padding: 8px 16px 14px">
+<span style="width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; background: #303D59; color: #DCE3EF">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2M12 12h.01"/></svg>
+</span>
+<span style="font-size: 15px; font-weight: 600">ShotCubby</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 2px; padding: 0 10px">
+<sc-for list="{{panes}}" as="pane" hint-placeholder-count="4">
+<div style="height: 32px; display: flex; align-items: center; gap: 10px; padding: 0 10px; border-radius: 8px; background: {{pane.bg}}; color: {{pane.fg}}; font-weight: {{pane.weight}}">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{pane.d}}"/></svg>
+<span>{{pane.title}}</span>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div style="flex: 1; min-width: 0; box-sizing: border-box; padding: 40px 32px 0; display: flex; flex-direction: column; gap: 18px">
+<div>
+<h1 style="margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.01em">General</h1>
+<p style="margin: 4px 0 0; font-size: 13px; color: {{t.muted}}">Appearance, startup, the Dock, updates, and the version you are running.</p>
+</div>
+
+<div style="border-radius: 14px; background: {{t.surface}}; border: 1px solid {{t.line}}">
+<div style="display: flex; align-items: center; gap: 16px; padding: 12px 16px">
+<div style="flex: 1; font-size: 13px; font-weight: 500">Appearance</div>
+<div style="display: flex; gap: 2px; padding: 2px; border-radius: 9px; background: {{t.bg}}; border: 1px solid {{t.line}}">
+<button style="height: 24px; padding: 0 12px; border: 0; border-radius: 7px; background: {{seg.lightBg}}; color: {{seg.lightFg}}; font: inherit; font-size: 12px">Light</button>
+<button style="height: 24px; padding: 0 12px; border: 0; border-radius: 7px; background: {{seg.darkBg}}; color: {{seg.darkFg}}; font: inherit; font-size: 12px">Dark</button>
+</div>
+</div>
+<div style="height: 1px; background: {{t.line}}"></div>
+<div style="display: flex; align-items: center; gap: 16px; padding: 12px 16px">
+<div style="flex: 1; font-size: 13px; font-weight: 500">Open ShotCubby at session start</div>
+<button role="switch" aria-checked="true" aria-label="Open ShotCubby at session start" style="width: 40px; height: 24px; border: 0; padding: 2px; border-radius: 99px; background: {{t.switchOn}}; display: flex; justify-content: flex-end"><span style="width: 20px; height: 20px; border-radius: 50%; background: {{t.knob}}"></span></button>
+</div>
+<div style="height: 1px; background: {{t.line}}"></div>
+<div style="display: flex; align-items: center; gap: 16px; padding: 12px 16px">
+<div style="flex: 1; min-width: 0">
+<div style="font-size: 13px; font-weight: 500">Show in the Dock and app switcher</div>
+<div style="font-size: 12px; color: {{t.muted}}; margin-top: 2px; line-height: 1.4">Off: ShotCubby lives in the menu bar only, and &#8984; Tab no longer lists it. The search shortcut still works.</div>
+</div>
+<button role="switch" aria-checked="true" aria-label="Show in the Dock and app switcher" style="width: 40px; height: 24px; border: 0; padding: 2px; border-radius: 99px; background: {{t.switchOn}}; display: flex; justify-content: flex-end"><span style="width: 20px; height: 20px; border-radius: 50%; background: {{t.knob}}"></span></button>
+</div>
+<div style="height: 1px; background: {{t.line}}"></div>
+<div style="display: flex; align-items: center; gap: 16px; padding: 12px 16px">
+<div style="flex: 1; font-size: 13px; font-weight: 500">Check for updates automatically</div>
+<button role="switch" aria-checked="true" aria-label="Check for updates automatically" style="width: 40px; height: 24px; border: 0; padding: 2px; border-radius: 99px; background: {{t.switchOn}}; display: flex; justify-content: flex-end"><span style="width: 20px; height: 20px; border-radius: 50%; background: {{t.knob}}"></span></button>
+</div>
+<div style="height: 1px; background: {{t.line}}"></div>
+<div style="display: flex; align-items: center; gap: 16px; padding: 12px 16px">
+<div style="flex: 1; font-size: 13px; font-weight: 500">Version 2.4.4</div>
+<button style="height: 28px; padding: 0 12px; border-radius: 8px; border: 1px solid {{t.line}}; background: {{t.raised}}; color: {{t.ink}}; font: inherit; font-size: 12.5px">Check for Updates…</button>
+</div>
+</div>
+
+<div style="border-radius: 14px; background: {{t.surface}}; border: 1px solid {{t.line}}">
+<div style="display: flex; align-items: center; gap: 12px; padding: 12px 16px">
+<div style="flex: 1; min-width: 0">
+<div style="font-size: 13px; font-weight: 500">Open Spotlight search</div>
+<div style="font-size: 12px; color: {{t.muted}}; margin-top: 2px">Works from anywhere.</div>
+</div>
+<span style="min-width: 96px; box-sizing: border-box; text-align: center; padding: 6px 12px; border-radius: 9px; background: {{t.bg}}; border: 1px solid {{t.line}}; color: {{t.accent}}; font-size: 13px; font-weight: 600">&#8984; /</span>
+<button style="height: 28px; padding: 0 12px; border-radius: 8px; border: 1px solid {{t.line}}; background: transparent; color: {{t.muted}}; font: inherit; font-size: 12.5px">Reset</button>
+</div>
+</div>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"mode":{"editor":"enum","options":["dark","light"],"default":"dark"},"$preview":{"width":800,"height":600}}'>
+class Component extends DCLogic {
+renderVals() {
+const light = this.props.mode === 'light';
+const t = light
+? { bg: '#DCE3EF', surface: '#F3F6FB', raised: '#C7D1E3', muted: '#536684', ink: '#111522', accent: '#303D59', switchOn: '#303D59', knob: '#F3F6FB', line: 'rgba(17,21,34,0.14)' }
+: { bg: '#111522', surface: '#1E263B', raised: '#303D59', muted: '#98A9C4', ink: '#DCE3EF', accent: '#98A9C4', switchOn: '#536684', knob: '#DCE3EF', line: 'rgba(152,169,196,0.18)' };
+const seg = {
+lightBg: light ? t.raised : 'transparent',
+lightFg: light ? t.ink : t.muted,
+darkBg: light ? 'transparent' : t.raised,
+darkFg: light ? t.muted : t.ink
+};
+const items = [
+['General', 'M4 7h9M17 7h3M4 17h3M11 17h9M15 5v4M9 15v4'],
+['Screenshots', 'M4 6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zM4 16l4-4 4 4 3-3 5 5'],
+['AI naming', 'M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8zM18 16l.8 2.2L21 19l-2.2.8L18 22l-.8-2.2L15 19l2.2-.8z'],
+['Shortcuts', 'M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM7 10h.01M11 10h.01M15 10h.01M7 14h10']
+];
+const panes = items.map((p, i) => ({
+title: p[0], d: p[1],
+bg: i === 0 ? t.raised : 'transparent',
+fg: i === 0 ? t.ink : t.muted,
+weight: i === 0 ? '600' : '400'
+}));
+return { t, seg, panes };
+}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "v": 3,
+  "createdOnFiles": { "v": 1, "at": "2026-10-25T12:30:00Z" },
+  "title": "ShotCubby palette navy",
+  "launch": { "view": "canvas" },
+  "pages": [],
+  "boards": {
+    "Main.dc.html": { "x": 0, "y": 0, "w": 1240, "h": 740, "title": "Palette and roles" },
+    "Popover.dc.html": { "x": 1320, "y": 0, "w": 380, "h": 480, "title": "Tray popover (dark)", "radius": 14 },
+    "Spotlight.dc.html": { "x": 1780, "y": 0, "w": 760, "h": 460, "title": "Search panel (dark)", "radius": 14 },
+    "SettingsMac.dc.html": { "x": 0, "y": 860, "w": 800, "h": 600, "title": "macOS Settings (dark)", "radius": 12 },
+    "Light.dc.html": { "x": 880, "y": 860, "w": 1260, "h": 1200, "title": "Light mode" }
+  },
+  "order": ["Main.dc.html", "Popover.dc.html", "Spotlight.dc.html", "SettingsMac.dc.html", "Light.dc.html"],
+  "notes": {},
+  "designSystems": []
+}
