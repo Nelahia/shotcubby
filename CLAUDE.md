@@ -46,3 +46,9 @@ each time, so it is not found twice:
 - A drag can only be checked by hand with a real mouse (CI compiles it, nothing
   more): drag from the search and from the popover to the desktop, a chat,
   then back onto the window.
+
+## Design reference
+
+The look of both apps (navy palette, popover, search, Settings; dark and light)
+is kept in [`docs/design/`](docs/design/README.md). Change the app's look, change
+those files in the same PR, and replace them rather than adding copies.
