@@ -381,6 +381,7 @@ private struct ShotTile: View {
                 }
                 .contentShape(Rectangle())
                 .onTapGesture { actions.open(shot) }
+                .shotDrag(shot)
 
             if isRenaming {
                 TextField("Name", text: $draft)

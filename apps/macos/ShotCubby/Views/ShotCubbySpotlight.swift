@@ -512,6 +512,7 @@ struct SpotlightView: View {
                         SpotlightRow(shot: shot, selected: shot.id == model.selection,
                                      renaming: $model.renaming, draft: $model.renameDraft)
                             .id(shot.id)
+                            .shotDrag(shot)
                             .onTapGesture(count: 2) { model.renaming = nil; model.selection = shot.id; onOpen() }
                             .onTapGesture { model.renaming = nil; model.selection = shot.id }
                             .contextMenu {

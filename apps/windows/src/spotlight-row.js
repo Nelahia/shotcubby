@@ -1,4 +1,5 @@
 import { el, relativeLabel, thumbnailUrl } from "./shared.js";
+import { enableFileDrag } from "./file-drag.js";
 
 /**
  * One result row in the Spotlight list: thumbnail + name (or an inline
@@ -9,6 +10,7 @@ import { el, relativeLabel, thumbnailUrl } from "./shared.js";
 export function renderRow(shot, isSelected, isRenaming, callbacks) {
   const row = el("div", isSelected ? "row selected" : "row");
   row.dataset.id = shot.id;
+  if (!isRenaming) enableFileDrag(row, shot);
   row.addEventListener("click", () => callbacks.onSelect(shot));
   row.addEventListener("dblclick", () => {
     callbacks.onSelect(shot);

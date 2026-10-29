@@ -7,6 +7,7 @@ pub mod capture_intake;
 pub mod clipboard_watcher;
 pub mod config_store;
 pub mod day_archive;
+pub mod file_drag;
 pub mod folder_preferences;
 pub mod hotkey_action;
 pub mod i18n;

@@ -1,6 +1,6 @@
 use crate::services::i18n::tr;
 use serde::Serialize;
-use tauri::{AppHandle, Emitter, State};
+use tauri::{AppHandle, Emitter, State, WebviewWindow};
 use tauri_plugin_opener::OpenerExt;
 
 use crate::app_state::AppStateInner;
@@ -66,4 +66,16 @@ pub fn rename_screenshot(
     new_name: String,
 ) -> Result<ScreenshotItem, String> {
     services::screenshot_rename::rename(&app, &state.screenshots, &id, &new_name)
+}
+
+/// Drags a known screenshot's file out of the calling window. Only files the
+/// app lists are accepted, whatever path the page sends.
+#[tauri::command]
+pub fn start_file_drag(window: WebviewWindow, state: State<'_, AppStateInner>, path: String) -> Result<(), String> {
+    let path = std::path::PathBuf::from(path);
+    let known = state.screenshots.lock().unwrap().iter().any(|s| s.path == path);
+    if !known {
+        return Err(tr("Unknown screenshot"));
+    }
+    services::file_drag::start(&window, path)
 }

@@ -35,6 +35,7 @@ pub fn run() {
             commands::get_screenshot_dir,
             commands::get_thumbnail,
             commands::open_screenshot,
+            commands::start_file_drag,
             commands::reveal_screenshot,
             commands::copy_screenshot,
             commands::delete_screenshot,

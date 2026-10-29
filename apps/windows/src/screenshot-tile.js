@@ -1,5 +1,6 @@
 import { invoke, el, svgIcon, ICONS, timeLabel, sourceLabel, thumbnailUrl } from "./shared.js";
 import { t } from "./i18n.js";
+import { enableFileDrag } from "./file-drag.js";
 
 /**
  * One thumbnail tile in the popover grid: image + hover actions + inline
@@ -10,6 +11,7 @@ export function renderTile(shot, renaming) {
   const wrap = el("div");
 
   const tile = el("div", "tile");
+  enableFileDrag(tile, shot);
   tile.addEventListener("click", () => invoke("open_screenshot", { path: shot.path }));
   thumbnailUrl(shot.path, 240).then((url) => {
     if (url) tile.appendChild(el("img")).src = url;
