@@ -10,6 +10,19 @@ Every version has its own entry, written before the tag is created: one short,
 precise bullet per change the user can see, and for a fix the symptom and its
 cause. The full rules are in [CLAUDE.md](CLAUDE.md).
 
+## 2.4.0 — 2026-10-29
+
+### Added
+- **Drag a screenshot out of ShotCubby** (macOS and Windows). In the menu-bar or
+  tray popover and in the search list, press a screenshot and move the pointer a
+  few pixels: you carry the file itself and can drop it on the desktop, in a
+  folder, in a chat, a mail or any app that takes files. It is a copy: the
+  original stays in your ShotCubby folder. A plain click or double-click still
+  opens or renames it.
+- Windows: the search and the popover stay open while you drag and close once the
+  file is dropped. Esc cancels the drag and keeps them open.
+- macOS: the search stays open after a drop until you press Esc or click away.
+
 ## 2.3.1 — 2026-10-27
 
 ### Fixed
