@@ -25,7 +25,7 @@ pub const COPY_TOAST_LABEL: &str = "copy-toast";
 /// `.transient` behavior, `SpotlightPanel.resignKey`) all close on losing
 /// focus, so Settings — the one regular, movable window — is the
 /// only one that opts out (see `settings.rs`).
-fn hide_on_blur(window: &WebviewWindow) {
+fn hide_on_blur(window: &WebviewWindow, on_hidden: fn()) {
     let window_for_closure = window.clone();
     window.on_window_event(move |event| {
         if let WindowEvent::Focused(false) = event {
@@ -33,6 +33,7 @@ fn hide_on_blur(window: &WebviewWindow) {
                 return;
             }
             let _ = window_for_closure.hide();
+            on_hidden();
         }
     });
 }
