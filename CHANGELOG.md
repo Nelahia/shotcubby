@@ -10,6 +10,15 @@ Every version has its own entry, written before the tag is created: one short,
 precise bullet per change the user can see, and for a fix the symptom and its
 cause. The full rules are in [CLAUDE.md](CLAUDE.md).
 
+## 2.4.5 — 2026-11-09
+
+### Fixed
+- Windows: clicking the tray icon while the popover was open did not close it:
+  it closed and opened again at once. The click takes the focus first, so the
+  popover closed on losing it, and the click that followed found it closed and
+  opened it. A click right after that closing is now ignored, so the icon closes
+  the popover.
+
 ## 2.4.4 — 2026-10-29
 
 ### Fixed

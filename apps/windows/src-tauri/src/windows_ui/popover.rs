@@ -1,3 +1,6 @@
+use std::sync::Mutex;
+use std::time::{Duration, Instant};
+
 use tauri::{AppHandle, Manager, PhysicalPosition, WebviewUrl, WebviewWindow, WebviewWindowBuilder};
 
 use super::{hide_on_blur, POPOVER_LABEL};
@@ -29,8 +32,24 @@ pub fn ensure_popover(app: &AppHandle) -> WebviewWindow {
         .build()
         .expect("failed to build popover window");
 
-    hide_on_blur(&window);
+    hide_on_blur(&window, note_blur_hide);
     window
+}
+
+/// When the popover last closed because it lost focus.
+static BLUR_HIDDEN_AT: Mutex<Option<Instant>> = Mutex::new(None);
+
+/// A click on the tray icon takes the focus first, so the popover closes on blur
+/// and only then does the click arrive. Without this the click would find it
+/// closed and open it again: the icon could never close it.
+const CLICK_AFTER_BLUR: Duration = Duration::from_millis(400);
+
+fn note_blur_hide() {
+    *BLUR_HIDDEN_AT.lock().unwrap() = Some(Instant::now());
+}
+
+fn just_closed_by_blur() -> bool {
+    BLUR_HIDDEN_AT.lock().unwrap().is_some_and(|at| at.elapsed() < CLICK_AFTER_BLUR)
 }
 
 /// Toggles the popover, positioning it just above the tray icon (Windows'
@@ -39,6 +58,9 @@ pub fn toggle_popover_near_tray(app: &AppHandle, tray_rect: tauri::Rect) {
     let window = ensure_popover(app);
     if window.is_visible().unwrap_or(false) {
         let _ = window.hide();
+        return;
+    }
+    if just_closed_by_blur() {
         return;
     }
 
