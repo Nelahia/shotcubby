@@ -62,12 +62,19 @@ enum HotKeyPreferences {
     /// — resolved against the CURRENT keyboard layout, so it always shows
     /// the glyph actually printed on that physical key.
     static func describe(keyCode: UInt32, modifiers: UInt32) -> String {
+        if isShiftedSlashDefault(keyCode: keyCode, modifiers: modifiers) { return "⌘/" }
         var prefix = ""
         if modifiers & UInt32(controlKey) != 0 { prefix += "⌃" }
         if modifiers & UInt32(optionKey) != 0 { prefix += "⌥" }
         if modifiers & UInt32(shiftKey) != 0 { prefix += "⇧" }
         if modifiers & UInt32(cmdKey) != 0 { prefix += "⌘" }
         return prefix + keyGlyph(for: keyCode)
+    }
+
+    /// Where "/" needs Shift the default carries it, but it reads ⌘/ like macOS's
+    /// own shortcuts do: the shifted key is what types the slash.
+    private static func isShiftedSlashDefault(keyCode: UInt32, modifiers: UInt32) -> Bool {
+        slash.needsShift && keyCode == defaultKeyCode && modifiers == defaultModifiers
     }
 
     private static func keyGlyph(for keyCode: UInt32) -> String {
@@ -90,6 +97,7 @@ enum HotKeyPreferences {
     /// configured shortcut next to its title. Display only — the global
     /// hotkey itself is still handled by Carbon's RegisterEventHotKey.
     static func menuKeyEquivalent(keyCode: UInt32, modifiers: UInt32) -> (key: String, mask: NSEvent.ModifierFlags) {
+        if isShiftedSlashDefault(keyCode: keyCode, modifiers: modifiers) { return ("/", .command) }
         var mask: NSEvent.ModifierFlags = []
         if modifiers & UInt32(controlKey) != 0 { mask.insert(.control) }
         if modifiers & UInt32(optionKey) != 0 { mask.insert(.option) }

@@ -21,6 +21,7 @@ pub mod screenshot_discard;
 pub mod screenshot_matching;
 pub mod screenshot_rename;
 pub mod screenshot_watcher;
+pub mod slash_key;
 pub mod storage;
 pub mod theme_preferences;
 pub mod thumbnails;
