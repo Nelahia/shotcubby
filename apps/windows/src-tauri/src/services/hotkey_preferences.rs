@@ -64,6 +64,11 @@ pub fn reset(action: HotkeyAction) {
 /// `"Digit1"`, `"BracketLeft"`...), and `DEFAULT_HOTKEY` uses the shorter
 /// literal forms the `global-hotkey` crate also accepts (`"/"`, `"Slash"`).
 pub fn describe(hotkey: &str) -> String {
+    // Where "/" needs Shift the default carries it, but it reads "Ctrl + /": the
+    // shifted key is what types the slash.
+    if hotkey.eq_ignore_ascii_case(HotkeyAction::Spotlight.default_hotkey()) {
+        return "Ctrl + /".to_string();
+    }
     hotkey
         .split('+')
         .map(|raw| describe_token(raw.trim()))

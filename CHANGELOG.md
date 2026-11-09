@@ -18,6 +18,16 @@ cause. The full rules are in [CLAUDE.md](CLAUDE.md).
   popover closed on losing it, and the click that followed found it closed and
   opened it. A click right after that closing is now ignored, so the icon closes
   the popover.
+- Windows: on a keyboard where "/" needs Shift (French, German, Spanish…), the
+  default search shortcut said Ctrl + / but was really Ctrl + the key that prints
+  ":" there, so Ctrl + / did nothing. The shortcut is bound to a physical key, and
+  the one that prints "/" on a US keyboard prints something else on those
+  keyboards. The default is now Ctrl plus the key that types "/" on your keyboard
+  (with Shift where it needs it), and still reads "Ctrl + /". A shortcut you set
+  yourself is untouched.
+- macOS: on those keyboards the default search shortcut was shown as ⌘⇧ plus a
+  key. It is the same shortcut, the one that types "/", and it now reads ⌘/ in
+  Settings and in the menu, as it does on a US keyboard.
 
 ## 2.4.4 — 2026-10-29
 

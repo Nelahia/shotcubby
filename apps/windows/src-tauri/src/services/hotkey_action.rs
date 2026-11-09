@@ -1,4 +1,5 @@
 use super::i18n::tr;
+use super::slash_key;
 
 /// The global shortcuts the app registers. Each one is independently
 /// rebindable from Settings; this enum is the single list of them.
@@ -37,10 +38,11 @@ impl HotkeyAction {
         }
     }
 
-    /// The capture defaults mirror macOS's Cmd+Shift+3/4 (as Alt+Shift).
+    /// The capture defaults mirror macOS's Cmd+Shift+3/4 (as Alt+Shift). The
+    /// search one follows the keyboard: Ctrl plus the key that types "/".
     pub fn default_hotkey(self) -> &'static str {
         match self {
-            HotkeyAction::Spotlight => "Ctrl+/",
+            HotkeyAction::Spotlight => slash_key::spotlight_default(),
             HotkeyAction::FullScreenCapture => "Alt+Shift+3",
             HotkeyAction::RegionCapture => "Alt+Shift+4",
         }
